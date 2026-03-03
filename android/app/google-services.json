@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "605620668104",
+    "firebase_url": "https://food-td-e8ed0-default-rtdb.firebaseio.com",
+    "project_id": "food-td-e8ed0",
+    "storage_bucket": "food-td-e8ed0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605620668104:android:1c80db4f2572e1812a87fd",
+        "android_client_info": {
+          "package_name": "com.foodies.restaurant.restaurant"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8H3sSP6fO6q8I0aihsyD7YHRkLYGokkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605620668104:android:1dbed8b5cb5c828a2a87fd",
+        "android_client_info": {
+          "package_name": "com.tasolutions.food_td"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8H3sSP6fO6q8I0aihsyD7YHRkLYGokkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:605620668104:android:c6480840eb96c0852a87fd",
+        "android_client_info": {
+          "package_name": "com.tasolutions.restaurant_td"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8H3sSP6fO6q8I0aihsyD7YHRkLYGokkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
