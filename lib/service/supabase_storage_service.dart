@@ -24,7 +24,7 @@ class SupabaseStorageService {
 
       final response = await supabase.storage
           .from(bucketName)
-          .upload(fileName, image.readAsBytesSync(),
+          .uploadBinary(fileName, await image.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: 'image/jpeg',
                 upsert: true,
@@ -60,7 +60,7 @@ class SupabaseStorageService {
 
       final response = await supabase.storage
           .from(bucketName)
-          .upload(fileName, video.readAsBytesSync(),
+          .uploadBinary(fileName, await video.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: 'video/mp4',
                 upsert: true,
@@ -96,7 +96,7 @@ class SupabaseStorageService {
 
       final response = await supabase.storage
           .from(bucketName)
-          .upload(fileName, image.readAsBytesSync(),
+          .uploadBinary(fileName, await image.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: 'image/jpeg',
                 upsert: true,
@@ -132,7 +132,7 @@ class SupabaseStorageService {
 
       final response = await supabase.storage
           .from(bucketName)
-          .upload(fileName, video.readAsBytesSync(),
+          .uploadBinary(fileName, await video.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: 'video/mp4',
                 upsert: true,
@@ -168,7 +168,7 @@ class SupabaseStorageService {
 
       final response = await supabase.storage
           .from(bucketName)
-          .upload(fileName, image.readAsBytesSync(),
+          .uploadBinary(fileName, await image.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: 'image/jpeg',
                 upsert: true,
@@ -205,7 +205,7 @@ class SupabaseStorageService {
 
       final response = await supabase.storage
           .from(bucketName)
-          .upload(fileName, image.readAsBytesSync(),
+          .uploadBinary(fileName, await image.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: 'image/jpeg',
                 upsert: true,
@@ -242,7 +242,7 @@ class SupabaseStorageService {
 
       final response = await supabase.storage
           .from(bucketName)
-          .upload(fileName, image.readAsBytesSync(),
+          .uploadBinary(fileName, await image.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: 'image/jpeg',
                 upsert: true,
@@ -279,7 +279,7 @@ class SupabaseStorageService {
 
       final response = await supabase.storage
           .from(bucketName)
-          .upload(fileName, image.readAsBytesSync(),
+          .uploadBinary(fileName, await image.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: 'image/jpeg',
                 upsert: true,
@@ -314,7 +314,7 @@ class SupabaseStorageService {
 
       final response = await supabase.storage
           .from(bucketName)
-          .upload(fileName, document.readAsBytesSync(),
+          .uploadBinary(fileName, await document.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: _getContentType(fileName),
                 upsert: true,
