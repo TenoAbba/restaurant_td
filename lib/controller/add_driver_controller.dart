@@ -1,8 +1,6 @@
 import 'dart:developer';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_td/constant/constant.dart';
@@ -92,20 +90,12 @@ class AddDriverController extends GetxController {
             countryCodeEditingController.value.text.trim();
         driverModel.value.zoneId = selectedZone.value.id;
       } else {
-        FirebaseApp secondaryApp = await Firebase.initializeApp(
-          name: 'SecondaryApp',
-          options: Firebase.app().options,
-        );
-
-        FirebaseAuth secondaryAuth =
-            FirebaseAuth.instanceFor(app: secondaryApp);
-
-        final credential = await secondaryAuth.createUserWithEmailAndPassword(
+                final credential = await secondaryAuth.createUserWithEmailAndPassword(
           email: emailEditingController.value.text.trim(),
           password: passwordEditingController.value.text.trim(),
         );
 
-        if (credential.user != null) {
+        if (authResp.user != null) {
           driverModel.value.firstName =
               firstNameEditingController.value.text.trim();
           driverModel.value.lastName =
@@ -120,19 +110,18 @@ class AddDriverController extends GetxController {
           driverModel.value.isDocumentVerify = true;
           driverModel.value.countryCode =
               countryCodeEditingController.value.text.trim();
-          driverModel.value.createdAt = Timestamp.now();
+          driverModel.value.createdAt = DateTime.now();
           driverModel.value.zoneId = selectedZone.value.id;
           driverModel.value.appIdentifier =
               Platform.isAndroid ? 'android' : 'ios';
           driverModel.value.provider = 'email';
           driverModel.value.vendorID = Constant.userModel?.vendorID;
-          driverModel.value.id = credential.user!.uid;
+          driverModel.value.id = authResp.user!.id;
         } else {
           ShowToastDialog.showToast("Something went to wrong".tr);
           return null;
         }
-        await secondaryApp.delete();
-      }
+              }
       await FireStoreUtils.updateUser(driverModel.value).then(
         (value) async {
           if (value == true) {
@@ -144,16 +133,8 @@ class AddDriverController extends GetxController {
           }
         },
       );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        ShowToastDialog.showToast("The password provided is too weak.".tr);
-      } else if (e.code == 'email-already-in-use') {
-        ShowToastDialog.showToast(
-            "The account already exists for that email.".tr);
-      } else if (e.code == 'invalid-email') {
-        ShowToastDialog.showToast("Enter email is Invalid".tr);
-      }
     } catch (e) {
+      } catch (e) {
       ShowToastDialog.showToast(e.toString());
     }
 

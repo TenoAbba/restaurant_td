@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -695,7 +694,7 @@ class WalletScreen extends StatelessWidget {
                                   amount: controller.amountTextFieldController.value.text,
                                   vendorID: controller.userModel.value.vendorID,
                                   paymentStatus: "Pending",
-                                  paidDate: Timestamp.now(),
+                                  paidDate: DateTime.now(),
                                   id: Constant.getUuid(),
                                   note: controller.noteTextFieldController.value.text,
                                   withdrawMethod: controller.selectedValue.value == 0

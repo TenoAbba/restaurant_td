@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_td/app/auth_screen/otp_screen.dart';
@@ -12,33 +12,19 @@ class PhoneNumberController extends GetxController {
 
   sendCode() async {
     ShowToastDialog.showLoader("please wait...".tr);
-    await FirebaseAuth.instance
-        .verifyPhoneNumber(
-            phoneNumber: countryCodeEditingController.value.text +
-                phoneNUmberEditingController.value.text,
-            verificationCompleted: (PhoneAuthCredential credential) {},
-            verificationFailed: (FirebaseAuthException e) {
-              debugPrint("FirebaseAuthException--->${e.message}");
-              ShowToastDialog.closeLoader();
-              if (e.code == 'invalid-phone-number') {
-                ShowToastDialog.showToast("invalid_phone_number".tr);
-              } else {
-                ShowToastDialog.showToast(e.message);
-              }
-            },
-            codeSent: (String verificationId, int? resendToken) {
-              ShowToastDialog.closeLoader();
-              Get.to(const OtpScreen(), arguments: {
-                "countryCode": countryCodeEditingController.value.text,
-                "phoneNumber": phoneNUmberEditingController.value.text,
-                "verificationId": verificationId,
-              });
-            },
-            codeAutoRetrievalTimeout: (String verificationId) {})
-        .catchError((error) {
-      debugPrint("catchError--->$error");
+    try {
+      await Supabase.instance.client.auth.signInWithOtp(
+        phone: countryCodeEditingController.value.text + phoneNUmberEditingController.value.text,
+      );
       ShowToastDialog.closeLoader();
-      ShowToastDialog.showToast("multiple_time_request".tr);
-    });
+      Get.to(const OtpScreen(), arguments: {
+        "countryCode": countryCodeEditingController.value.text,
+        "phoneNumber": phoneNUmberEditingController.value.text,
+        "verificationId": "",
+      });
+    } catch (e) {
+      ShowToastDialog.closeLoader();
+      ShowToastDialog.showToast("Failed to send OTP. Please try again.".tr);
+    }
   }
 }

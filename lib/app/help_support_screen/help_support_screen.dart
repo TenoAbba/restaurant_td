@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -20,8 +21,6 @@ import 'package:restaurant_td/utils/dark_theme_provider.dart';
 import 'package:restaurant_td/utils/fire_store_utils.dart';
 import 'package:restaurant_td/utils/network_image_widget.dart';
 import 'package:restaurant_td/utils/preferences.dart';
-import 'package:restaurant_td/widget/firebase_pagination/src/firestore_pagination.dart';
-import 'package:restaurant_td/widget/firebase_pagination/src/models/view_type.dart';
 
 class HelpSupportScreen extends StatelessWidget {
   final bool? isNavigateViaNotification;
@@ -101,32 +100,31 @@ class HelpSupportScreen extends StatelessWidget {
                         onTap: () {
                           FocusScope.of(context).unfocus();
                         },
-                        child: FirestorePagination(
-                          controller: controller.scrollController,
-                          physics: const BouncingScrollPhysics(),
-                          query: FirebaseFirestore.instance
-                              .collection(CollectionName.chat)
-                              .doc(FireStoreUtils.getCurrentUid())
-                              .collection('thread')
-                              .orderBy('createdAt', descending: true),
-                          isLive: true,
-                          shrinkWrap: true,
-                          reverse: true,
-                          onEmpty: Constant.showEmptyView(
-                              message: "No conversion found".tr),
-                          viewType: ViewType.list,
-                          // to fetch real-time data
-                          itemBuilder: (context, documentSnapshots, index) {
-                            ConversationModel inboxModel =
-                                ConversationModel.fromJson(
-                                    documentSnapshots[index].data()
-                                        as Map<String, dynamic>);
-                            return chatItemView(
-                                isMe: inboxModel.senderId ==
-                                    FireStoreUtils.getCurrentUid(),
-                                data: inboxModel,
-                                context: context,
-                                controller: controller);
+                        child: StreamBuilder<List<Map<String, dynamic>>>(
+                          stream: Supabase.instance.client
+                              .from('chat_restaurant')
+                              .stream(primaryKey: ['id'])
+                              .eq('orderId', FireStoreUtils.getCurrentUid())
+                              .order('createdAt', ascending: false),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) return Constant.loader();
+                            final msgs = snapshot.data!;
+                            if (msgs.isEmpty) return Constant.showEmptyView(message: "No conversion found".tr);
+                            return ListView.builder(
+                              controller: controller.scrollController,
+                              physics: const BouncingScrollPhysics(),
+                              shrinkWrap: true,
+                              reverse: true,
+                              itemCount: msgs.length,
+                              itemBuilder: (context, index) {
+                                final inboxModel = ConversationModel.fromJson(msgs[index]);
+                                return chatItemView(
+                                    isMe: inboxModel.senderId == FireStoreUtils.getCurrentUid(),
+                                    data: inboxModel,
+                                    context: context,
+                                    controller: controller);
+                              },
+                            );
                           },
                         ),
                       ),

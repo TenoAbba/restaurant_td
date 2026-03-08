@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -66,7 +66,7 @@ class ChatController extends GetxController {
         lastSenderId: senderId.value,
         senderId: senderId.value,
         receiverId: receivedId.value,
-        createdAt: Timestamp.now(),
+        createdAt: DateTime.now(),
         orderId: orderId.value,
         lastMessage: messageController.value.text,
         lastMessageType: messageType,
@@ -79,7 +79,7 @@ class ChatController extends GetxController {
         message: message,
         senderId: FireStoreUtils.getCurrentUid(),
         receiverId: receivedId.value,
-        createdAt: Timestamp.now(),
+        createdAt: DateTime.now(),
         url: url,
         orderId: orderId.value,
         messageType: messageType,

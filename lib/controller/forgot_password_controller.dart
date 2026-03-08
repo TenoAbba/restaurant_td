@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
@@ -10,17 +9,13 @@ class ForgotPasswordController extends GetxController {
   forgotPassword() async {
     try {
       ShowToastDialog.showLoader("Please wait".tr);
-      await FirebaseAuth.instance.sendPasswordResetEmail(
-        email: emailEditingController.value.text,
-      );
+      await Supabase.instance.client.auth.resetPasswordForEmail(emailEditingController.value.text);
       ShowToastDialog.closeLoader();
       ShowToastDialog.showToast(
           '${'Reset Password link sent your'.tr} ${emailEditingController.value.text} ${'email'.tr}');
       Get.back();
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        ShowToastDialog.showToast('No user found for that email.'.tr);
-      }
+    } catch (e) {
+      ShowToastDialog.showToast(e.toString());
     }
   }
 }

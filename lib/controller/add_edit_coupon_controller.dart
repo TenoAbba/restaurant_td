@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -82,8 +82,8 @@ class AddEditCouponController extends GetxController {
       couponModel.value.discount = priceController.value.text.trim();
       couponModel.value.discountType = selectCouponType.value;
       couponModel.value.image = images.isEmpty ? "" : images.first;
-      couponModel.value.expiresAt = Timestamp.fromDate(
-          DateFormat("MMM dd,yyyy").parse(selectDateController.value.text));
+      couponModel.value.expiresAt = 
+          DateFormat("MMM dd,yyyy".parse(selectDateController.value.text));
       couponModel.value.isEnabled = isActive.value;
       couponModel.value.isPublic = isPublic.value;
       couponModel.value.resturantId = Constant.userModel!.vendorID.toString();

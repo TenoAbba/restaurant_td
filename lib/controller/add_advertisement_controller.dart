@@ -1,7 +1,7 @@
 import 'dart:developer';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -165,15 +165,15 @@ class AddAdvertisementController extends GetxController {
       model.vendorId = Constant.userModel?.vendorID;
       model.title = advertisementTitleController.value.text.trim();
       model.description = descriptionController.value.text.trim();
-      model.startDate = Timestamp.fromDate(DateTime(startValidityDate.value.year, startValidityDate.value.month, startValidityDate.value.day, 0, 0, 0));
-      model.endDate = Timestamp.fromDate(DateTime(
+      model.startDate = DateTime(startValidityDate.value.year, startValidityDate.value.month, startValidityDate.value.day, 0, 0, 0);
+      model.endDate = DateTime(
         endValidityDate.value.year,
         endValidityDate.value.month,
         endValidityDate.value.day,
         23,
         59,
         59,
-      ));
+      );
       model.showRating = isRatingsSelected.value;
       model.showReview = isReviewSelected.value;
       model.type = selectedAdvertisementType.value == 'Video Promotion' ? 'video_promotion' : 'restaurant_promotion';
@@ -198,10 +198,10 @@ class AddAdvertisementController extends GetxController {
         model.canceledNote = '';
         model.isPaused = null;
         model.priority = 'N/A';
-        model.createdAt = Timestamp.now();
+        model.createdAt = DateTime.now();
         model.paymentStatus = false;
       }
-      model.updatedAt = Timestamp.now();
+      model.updatedAt = DateTime.now();
 
       AdvertisementModel modeldata = await FireStoreUtils.firebaseCreateAdvertisement(model);
       if (modeldata.id != null) {

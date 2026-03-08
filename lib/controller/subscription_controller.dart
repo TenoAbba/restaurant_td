@@ -8,8 +8,8 @@ import 'package:restaurant_td/models/user_model.dart';
 import 'package:restaurant_td/models/vendor_model.dart';
 import 'package:restaurant_td/utils/fire_store_utils.dart';
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -64,13 +64,17 @@ class SubscriptionController extends GetxController {
         await FireStoreUtils.getUserProfile(FireStoreUtils.getCurrentUid()) ??
             UserModel();
 
-    await FirebaseFirestore.instance
-        .collection(CollectionName.settings)
-        .doc('restaurant')
-        .get()
-        .then((value) {
-      Constant.autoApproveRestaurant = value.data()!['auto_approve_restaurant'];
-      Constant.isSubscriptionModelApplied = value.data()!['subscription_model'];
+    await Supabase.instance.client
+        .from('settings')
+        .select('data')
+        .eq('key', 'restaurant')
+        .maybeSingle()
+        .then((row) {
+      if (row != null) {
+        final d = (row['data'] as Map<String, dynamic>? ?? {});
+        Constant.autoApproveRestaurant = d['auto_approve_restaurant'];
+        Constant.isSubscriptionModelApplied = d['subscription_model'];
+      }
     });
 
     await getSubscriptionPlanList();
@@ -638,13 +642,13 @@ class SubscriptionController extends GetxController {
     ShowToastDialog.showLoader("Please wait".tr);
     userModel.value.subscriptionPlanId = selectedSubscriptionPlan.value.id;
     userModel.value.subscriptionPlan = selectedSubscriptionPlan.value;
-    userModel.value.subscriptionPlan?.createdAt = Timestamp.now();
+    userModel.value.subscriptionPlan?.createdAt = DateTime.now();
     userModel.value.subscriptionExpiryDate =
         selectedSubscriptionPlan.value.expiryDay == '-1'
             ? null
             : Constant().addDayInTimestamp(
                 days: selectedSubscriptionPlan.value.expiryDay,
-                date: Timestamp.now());
+                date: DateTime.now());
 
     print("====>${userModel.value.vendorID}");
     if (userModel.value.vendorID != null &&
@@ -655,13 +659,13 @@ class SubscriptionController extends GetxController {
       if (vendorModel != null) {
         vendorModel.subscriptionPlanId = selectedSubscriptionPlan.value.id;
         vendorModel.subscriptionPlan = selectedSubscriptionPlan.value;
-        vendorModel.subscriptionPlan?.createdAt = Timestamp.now();
+        vendorModel.subscriptionPlan?.createdAt = DateTime.now();
         vendorModel.subscriptionExpiryDate =
             selectedSubscriptionPlan.value.expiryDay == '-1'
                 ? null
                 : Constant().addDayInTimestamp(
                     days: selectedSubscriptionPlan.value.expiryDay,
-                    date: Timestamp.now());
+                    date: DateTime.now());
         vendorModel.subscriptionTotalOrders =
             selectedSubscriptionPlan.value.orderLimit;
       }
@@ -682,7 +686,7 @@ class SubscriptionController extends GetxController {
 
     SubscriptionHistoryModel subscriptionHistoryData = SubscriptionHistoryModel(
         id: Constant.getUuid(),
-        createdAt: Timestamp.now(),
+        createdAt: DateTime.now(),
         expiryDate: userModel.value.subscriptionExpiryDate,
         subscriptionPlan: userModel.value.subscriptionPlan,
         paymentType: selectedPaymentMethod.value,
@@ -694,7 +698,7 @@ class SubscriptionController extends GetxController {
       WalletTransactionModel transactionModel = WalletTransactionModel(
           id: Constant.getUuid(),
           amount: double.parse(totalAmount.value.toString()),
-          date: Timestamp.now(),
+          date: DateTime.now(),
           paymentMethod: PaymentGateway.wallet.name,
           transactionUser: "user",
           userId: FireStoreUtils.getCurrentUid(),

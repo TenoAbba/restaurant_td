@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_td/constant/collection_name.dart';
@@ -108,8 +108,8 @@ class WalletController extends GetxController {
 
   Future<void> getWalletTransaction(bool isFilter) async {
     if (isFilter) {
-      await FireStoreUtils.getFilterWalletTransaction(Timestamp.fromDate(DateTime(startDate.value.year, startDate.value.month, startDate.value.day, 00, 00)),
-              Timestamp.fromDate(DateTime(endDate.value.year, endDate.value.month, endDate.value.day, 23, 59)))
+      await FireStoreUtils.getFilterWalletTransaction(DateTime(startDate.value.year, startDate.value.month, startDate.value.day, 00, 00),
+              DateTime(endDate.value.year, endDate.value.month, endDate.value.day, 23, 59))
           .then(
         (value) {
           if (value != null) {

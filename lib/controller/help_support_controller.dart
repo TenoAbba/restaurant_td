@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_td/constant/constant.dart';
@@ -8,7 +9,6 @@ import 'package:restaurant_td/models/user_model.dart';
 import 'package:restaurant_td/utils/fire_store_utils.dart';
 import 'package:restaurant_td/utils/preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HelpSupportController extends GetxController {
   Rx<TextEditingController> messageController = TextEditingController().obs;
@@ -49,7 +49,7 @@ class HelpSupportController extends GetxController {
         lastSenderId: userModel.value.id,
         senderId: userModel.value.id,
         receiverId: 'admin',
-        createdAt: Timestamp.now(),
+        createdAt: DateTime.now(),
         orderId: null,
         lastMessage: messageController.value.text,
         lastMessageType: messageType,
@@ -62,7 +62,7 @@ class HelpSupportController extends GetxController {
         message: message,
         senderId: FireStoreUtils.getCurrentUid(),
         receiverId: Constant.adminType,
-        createdAt: Timestamp.now(),
+        createdAt: DateTime.now(),
         url: url,
         orderId: null,
         messageType: messageType,

@@ -1,3 +1,4 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -1084,7 +1085,7 @@ class ProfileScreen extends StatelessWidget {
                                               Constant.userModel!.fcmToken = "";
                                               await FireStoreUtils.updateUser(Constant.userModel!);
                                               Constant.userModel = null;
-                                              await FirebaseAuth.instance.signOut();
+                                              await Supabase.instance.client.auth.signOut();
                                               Get.offAll(const LoginScreen());
                                             },
                                             negativeClick: () {

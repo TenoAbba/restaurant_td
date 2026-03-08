@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:restaurant_td/app/auth_screen/login_screen.dart';
 import 'package:restaurant_td/app/dash_board_screens/app_not_access_screen.dart';
 import 'package:restaurant_td/app/dash_board_screens/dash_board_screen.dart';
@@ -10,7 +11,6 @@ import 'package:restaurant_td/models/vendor_model.dart';
 import 'package:restaurant_td/utils/fire_store_utils.dart';
 import 'package:restaurant_td/utils/notification_service.dart';
 import 'package:restaurant_td/utils/preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class SplashController extends GetxController {
@@ -70,7 +70,7 @@ class SplashController extends GetxController {
                     Get.offAll(const AppNotAccessScreen());
                   }
                 } else {
-                  await FirebaseAuth.instance.signOut();
+                  await Supabase.instance.client.auth.signOut();
                   Get.offAll(const LoginScreen());
                 }
               } else if (Constant.userModel?.role ==
@@ -111,17 +111,17 @@ class SplashController extends GetxController {
                     Get.offAll(const AppNotAccessScreen());
                   }
                 } else {
-                  await FirebaseAuth.instance.signOut();
+                  await Supabase.instance.client.auth.signOut();
                   Get.offAll(const LoginScreen());
                 }
               } else {
-                await FirebaseAuth.instance.signOut();
+                await Supabase.instance.client.auth.signOut();
                 Get.offAll(const LoginScreen());
               }
             }
           });
         } else {
-          await FirebaseAuth.instance.signOut();
+          await Supabase.instance.client.auth.signOut();
           Get.offAll(const LoginScreen());
         }
       }

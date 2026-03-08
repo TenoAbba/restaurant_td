@@ -1,28 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:restaurant_td/constant/collection_name.dart';
 import 'package:restaurant_td/models/order_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OrderService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final _db = Supabase.instance.client;
 
   Stream<List<OrderModel>> getOrdersStream(String vendorID) {
-    return _firestore
-        .collection(CollectionName.restaurantOrders)
-        .where('vendorID', isEqualTo: vendorID)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => OrderModel.fromJson(doc.data()))
-          .toList();
-    });
+    return _db
+        .from(CollectionName.restaurantOrders)
+        .stream(primaryKey: ['id'])
+        .eq('vendorID', vendorID)
+        .order('createdAt', ascending: false)
+        .map((rows) => rows.map((r) => OrderModel.fromJson(r)).toList());
   }
 
   Future<void> updateOrderStatus(OrderModel order, String status) async {
     order.status = status;
-    await _firestore
-        .collection(CollectionName.restaurantOrders)
-        .doc(order.id)
-        .update(order.toJson());
+    await _db.from(CollectionName.restaurantOrders).upsert(order.toJson());
   }
 }

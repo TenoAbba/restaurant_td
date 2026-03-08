@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,8 +19,6 @@ import 'package:restaurant_td/themes/app_them_data.dart';
 import 'package:restaurant_td/utils/dark_theme_provider.dart';
 import 'package:restaurant_td/utils/fire_store_utils.dart';
 import 'package:restaurant_td/utils/network_image_widget.dart';
-import 'package:restaurant_td/widget/firebase_pagination/src/firestore_pagination.dart';
-import 'package:restaurant_td/widget/firebase_pagination/src/models/view_type.dart';
 
 import 'ChatVideoContainer.dart';
 
@@ -70,18 +68,27 @@ class ChatScreen extends StatelessWidget {
                     onTap: () {
                       FocusScope.of(context).unfocus();
                     },
-                    child: FirestorePagination(
-                      controller: controller.scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      itemBuilder: (context, documentSnapshots, index) {
-                        ConversationModel chatmodel = ConversationModel.fromJson(documentSnapshots[index].data() as Map<String, dynamic>);
-                        log("chatmodel :: ${chatmodel.id}");
-                        return chatItemView(themeChange, chatmodel.senderId == FireStoreUtils.getCurrentUid(), chatmodel);
+                    child: StreamBuilder<List<Map<String, dynamic>>>(
+                      stream: Supabase.instance.client
+                          .from('chat_restaurant')
+                          .stream(primaryKey: ['id'])
+                          .eq('orderId', controller.orderId.value)
+                          .order('createdAt', ascending: true),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) return Constant.loader();
+                        final msgs = snapshot.data!;
+                        if (msgs.isEmpty) return Constant.showEmptyView(message: "No Conversation found".tr);
+                        return ListView.builder(
+                          controller: controller.scrollController,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: msgs.length,
+                          itemBuilder: (context, index) {
+                            final chatmodel = ConversationModel.fromJson(msgs[index]);
+                            log("chatmodel :: \${chatmodel.id}");
+                            return chatItemView(themeChange, chatmodel.senderId == FireStoreUtils.getCurrentUid(), chatmodel);
+                          },
+                        );
                       },
-                      onEmpty: Constant.showEmptyView(message: "No Conversion found".tr),
-                      query: FirebaseFirestore.instance.collection(CollectionName.chat).doc(controller.orderId.value).collection("thread").orderBy('createdAt', descending: false),
-                      isLive: true,
-                      viewType: ViewType.list,
                     ),
                   ),
                 ),
