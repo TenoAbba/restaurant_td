@@ -52,15 +52,15 @@ class AdvertisementListController extends GetxController {
                   (item.status == Constant.adsPending ||
                       item.status == Constant.adsUpdated) &&
                   item.isPaused != true &&
-                  item.endDate!.toDate().isAfter(DateTime.now()))
+                  item.endDate!.isAfter(DateTime.now()))
               .toList();
           runningAdvertisementList.value = advertisementList
               .where((item) =>
                   (item.status == Constant.adsApproved) &&
                   item.isPaused != true &&
                   item.paymentStatus == true &&
-                  item.endDate!.toDate().isAfter(DateTime.now()) &&
-                  item.startDate!.toDate().isBefore(DateTime.now()))
+                  item.endDate!.isAfter(DateTime.now()) &&
+                  item.startDate!.isBefore(DateTime.now()))
               .toList();
           appovedAdvertisementList.value = advertisementList
               .where((item) =>
@@ -68,19 +68,19 @@ class AdvertisementListController extends GetxController {
                   item.isPaused != true &&
                   (item.paymentStatus == false ||
                       (item.paymentStatus == true &&
-                          item.startDate!.toDate().isAfter(DateTime.now()))) &&
-                  !item.endDate!.toDate().isBefore(DateTime.now()))
+                          item.startDate!.isAfter(DateTime.now()))) &&
+                  !item.endDate!.isBefore(DateTime.now()))
               .toList();
           pausedAdvertisementList.value = advertisementList
               .where((item) =>
                   (item.isPaused == true &&
                       item.status != Constant.adsCancel) &&
-                  !item.endDate!.toDate().isBefore(DateTime.now()))
+                  !item.endDate!.isBefore(DateTime.now()))
               .toList();
           expiredAdvertisementList.value = advertisementList
               .where((item) =>
                   item.endDate != null &&
-                  item.endDate!.toDate().isBefore(DateTime.now()))
+                  item.endDate!.isBefore(DateTime.now()))
               .toList();
           cancelAdvertisementList.value = advertisementList
               .where((item) => item.status == Constant.adsCancel)
@@ -108,7 +108,7 @@ class AdvertisementListController extends GetxController {
       pendingAdvertisementList.remove(model);
     } else if (model.status == 'approved') {
       runningAdvertisementList.remove(model);
-    } else if (model.endDate!.toDate().isBefore(DateTime.now())) {
+    } else if (model.endDate!.isBefore(DateTime.now())) {
       expiredAdvertisementList.remove(model);
     }
     update();

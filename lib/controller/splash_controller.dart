@@ -47,7 +47,7 @@ class SplashController extends GetxController {
                       }
                     } else {
                       DateTime expiryDate =
-                          Constant.userModel!.subscriptionExpiryDate!.toDate();
+                          Constant.userModel!.subscriptionExpiryDate!;
                       isPlanExpire = expiryDate.isBefore(DateTime.now());
                     }
                   } else {
@@ -91,7 +91,7 @@ class SplashController extends GetxController {
                       }
                     } else {
                       DateTime expiryDate =
-                          vendor!.subscriptionExpiryDate!.toDate();
+                          vendor!.subscriptionExpiryDate!;
                       isPlanExpire = expiryDate.isBefore(DateTime.now());
                     }
                   } else {

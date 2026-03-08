@@ -326,7 +326,7 @@ class AdvertisementCard extends StatelessWidget {
                     },
                     itemBuilder: (context) => [
                       if ((model.status == Constant.adsApproved || model.status != Constant.adsUpdated) &&
-                          !model.endDate!.toDate().isBefore(DateTime.now()) &&
+                          !model.endDate!.isBefore(DateTime.now()) &&
                           Constant.getEmployeeRolePermission(module: "Advertisement", pType: ActionType.isAdd) == true)
                         model.isPaused == true
                             ? PopupMenuItem(

@@ -289,7 +289,7 @@ class AddEditOfferScreen extends StatelessWidget {
                             return showDatePicker(
                                 context: context,
                                 firstDate: DateTime(1900),
-                                initialDate: controller.couponModel.value.id == null ? DateTime.now() : controller.couponModel.value.expiresAt!.toDate(),
+                                initialDate: controller.couponModel.value.id == null ? DateTime.now() : controller.couponModel.value.expiresAt!,
                                 lastDate: DateTime(2100));
                           },
                         ),

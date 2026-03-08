@@ -40,15 +40,15 @@ class AddAdvertisementController extends GetxController {
         advertisementTitleController.value.text = advertisementModel.value.title ?? '';
         descriptionController.value.text = advertisementModel.value.description ?? '';
         validityController.value.text =
-            '${DateFormat('MMM d, yyyy').format(advertisementModel.value.startDate!.toDate())} - ${DateFormat('MMM d, yyyy').format(advertisementModel.value.endDate!.toDate())}';
+            '${DateFormat('MMM d, yyyy').format(advertisementModel.value.startDate!)} - ${DateFormat('MMM d, yyyy').format(advertisementModel.value.endDate!)}';
         isReviewSelected.value = advertisementModel.value.showReview ?? false;
         isRatingsSelected.value = advertisementModel.value.showRating ?? false;
         selectedAdvertisementType.value = advertisementModel.value.type == 'restaurant_promotion' ? 'Restaurant Promotion' : 'Video Promotion';
         profileImageString.value = advertisementModel.value.profileImage ?? '';
         coverImageString.value = advertisementModel.value.coverImage ?? '';
         thumbnailFileString.value = advertisementModel.value.video ?? '';
-        startValidityDate.value = advertisementModel.value.startDate!.toDate();
-        endValidityDate.value = advertisementModel.value.endDate!.toDate();
+        startValidityDate.value = advertisementModel.value.startDate!;
+        endValidityDate.value = advertisementModel.value.endDate!;
       }
     }
   }
