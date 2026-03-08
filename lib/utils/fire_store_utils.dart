@@ -1040,7 +1040,7 @@ class FireStoreUtils {
       }
 
       final model = DriverDocumentModel(
-          id: getCurrentUid(), type: 'restaurant', documents: documentsList);
+          id: getCurrentUid(), documents: documentsList);
       await _db.from(CollectionName.documentsVerify).upsert(model.toJson());
       return true;
     } catch (e) {
