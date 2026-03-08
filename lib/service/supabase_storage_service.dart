@@ -433,7 +433,7 @@ class SupabaseStorageService {
       await _ensureBucketExists(bucketName);
 
       final response =
-          await supabase.storage.from(bucketName).upload(fileName, image,
+          await supabase.storage.from(bucketName).uploadBinary(fileName, await image.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: 'image/jpeg',
                 upsert: true,
