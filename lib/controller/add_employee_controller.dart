@@ -77,9 +77,11 @@ class AddEmployeeController extends GetxController {
         employeeModel.value.phoneNumber = phoneNUmberEditingController.value.text.trim();
         employeeModel.value.countryCode = countryCodeEditingController.value.text.trim();
       } else {
-                final credential = await secondaryAuth.createUserWithEmailAndPassword(
-          email: emailEditingController.value.text.trim(),
-          password: passwordEditingController.value.text.trim(),
+        final authResp = await Supabase.instance.client.auth.admin.createUser(
+          AdminUserAttributes(
+            email: emailEditingController.value.text.trim(),
+            password: passwordEditingController.value.text.trim(),
+          ),
         );
 
         if (authResp.user != null) {
@@ -102,7 +104,7 @@ class AddEmployeeController extends GetxController {
           ShowToastDialog.showToast("Something went to wrong".tr);
           return null;
         }
-              }
+      }
       await FireStoreUtils.updateUser(employeeModel.value).then(
         (value) async {
           if (value == true) {
@@ -114,7 +116,6 @@ class AddEmployeeController extends GetxController {
         },
       );
     } catch (e) {
-      } catch (e) {
       ShowToastDialog.showToast(e.toString());
     }
 

@@ -90,9 +90,11 @@ class AddDriverController extends GetxController {
             countryCodeEditingController.value.text.trim();
         driverModel.value.zoneId = selectedZone.value.id;
       } else {
-                final credential = await secondaryAuth.createUserWithEmailAndPassword(
-          email: emailEditingController.value.text.trim(),
-          password: passwordEditingController.value.text.trim(),
+        final authResp = await Supabase.instance.client.auth.admin.createUser(
+          AdminUserAttributes(
+            email: emailEditingController.value.text.trim(),
+            password: passwordEditingController.value.text.trim(),
+          ),
         );
 
         if (authResp.user != null) {
@@ -121,7 +123,7 @@ class AddDriverController extends GetxController {
           ShowToastDialog.showToast("Something went to wrong".tr);
           return null;
         }
-              }
+      }
       await FireStoreUtils.updateUser(driverModel.value).then(
         (value) async {
           if (value == true) {
@@ -134,7 +136,6 @@ class AddDriverController extends GetxController {
         },
       );
     } catch (e) {
-      } catch (e) {
       ShowToastDialog.showToast(e.toString());
     }
 
