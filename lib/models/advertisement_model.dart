@@ -1,24 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class AdvertisementModel {
   String? coverImage;
-  Timestamp? createdAt;
+  DateTime? createdAt;
   String? description;
-  Timestamp? endDate;
+  DateTime? endDate;
   String? id;
   bool? paymentStatus;
   String? priority;
   String? profileImage;
   bool? showRating;
   bool? showReview;
-  Timestamp? startDate;
+  DateTime? startDate;
   String? status;
   String? title;
   String? type;
   String? vendorId;
   String? video;
   dynamic isPaused;
-  Timestamp? updatedAt;
+  DateTime? updatedAt;
   String? canceledNote;
   String? pauseNote;
 

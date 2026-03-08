@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:restaurant_td/constant/collection_name.dart';
 import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/models/story_model.dart';
-import 'package:restaurant_td/utils/fire_store_utils.dart';
+import 'package:restaurant_td/service/supabase_service.dart';
+import 'package:restaurant_td/service/supabase_storage_service.dart';
 
 class AddStoryController extends GetxController {
   RxBool isLoading = true.obs;
@@ -24,10 +24,11 @@ class AddStoryController extends GetxController {
   RxDouble videoDuration = 0.0.obs;
 
   getStory() async {
-    await FireStoreUtils.getStory(Constant.userModel!.vendorID.toString()).then(
+    await SupabaseService.getStory(Constant.userModel!.vendorID.toString())
+        .then(
       (value) {
         if (value != null) {
-          storyModel.value = value;
+          storyModel.value = StoryModel.fromJson(value);
 
           thumbnailFile.add(storyModel.value.videoThumbnail);
           for (var element in storyModel.value.videoUrl) {
@@ -36,13 +37,10 @@ class AddStoryController extends GetxController {
         }
       },
     );
-    await FireStoreUtils.fireStore
-        .collection(CollectionName.settings)
-        .doc('story')
-        .get()
-        .then((value) {
-      videoDuration.value =
-          double.parse(value.data()!['videoDuration'].toString());
+    await SupabaseService.getSettings('story').then((value) {
+      if (value != null) {
+        videoDuration.value = double.parse(value['videoDuration'].toString());
+      }
     });
     isLoading.value = false;
   }

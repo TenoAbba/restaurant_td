@@ -1,19 +1,17 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class CashbackModel {
   bool? allCustomer;
   bool? allPayment;
   double? cashbackAmount;
   String? cashbackType;
   List<String>? customerIds;
-  Timestamp? endDate;
+  DateTime? endDate;
   String? id;
   bool? isEnabled;
   double? maximumDiscount;
   double? minimumPurchaseAmount;
   List<String>? paymentMethods;
   int? redeemLimit;
-  Timestamp? startDate;
+  DateTime? startDate;
   String? title;
   double? cashbackValue;
 
@@ -39,18 +37,34 @@ class CashbackModel {
     return CashbackModel(
       allCustomer: json['allCustomer'],
       allPayment: json['allPayment'],
-      cashbackAmount: (json['cashbackAmount'] != null) ? double.tryParse(json['cashbackAmount'].toString()) : null,
-      cashbackValue: (json['cashbackValue'] != null) ? double.tryParse(json['cashbackValue'].toString()) : null,
+      cashbackAmount: (json['cashbackAmount'] != null)
+          ? double.tryParse(json['cashbackAmount'].toString())
+          : null,
+      cashbackValue: (json['cashbackValue'] != null)
+          ? double.tryParse(json['cashbackValue'].toString())
+          : null,
       cashbackType: json['cashbackType'] ?? '',
-      customerIds: json['customerIds'] != null ? List<String>.from(json['customerIds']) : null,
-      endDate: json['endDate'] is Timestamp ? json['endDate'] as Timestamp : null,
+      customerIds: json['customerIds'] != null
+          ? List<String>.from(json['customerIds'])
+          : null,
+      endDate: json['endDate'] != null
+          ? DateTime.tryParse(json['endDate'].toString())
+          : null,
       id: json['id'],
       isEnabled: json['isEnabled'],
-      maximumDiscount: (json['maximumDiscount'] != null) ? double.tryParse(json['maximumDiscount'].toString()) : null,
-      minimumPurchaseAmount: (json['minumumPurchaseAmount'] != null) ? double.tryParse(json['minumumPurchaseAmount'].toString()) : null,
-      paymentMethods: json['paymentMethods'] != null ? List<String>.from(json['paymentMethods']) : null,
+      maximumDiscount: (json['maximumDiscount'] != null)
+          ? double.tryParse(json['maximumDiscount'].toString())
+          : null,
+      minimumPurchaseAmount: (json['minumumPurchaseAmount'] != null)
+          ? double.tryParse(json['minumumPurchaseAmount'].toString())
+          : null,
+      paymentMethods: json['paymentMethods'] != null
+          ? List<String>.from(json['paymentMethods'])
+          : null,
       redeemLimit: int.parse("${json['redeemLimit'] ?? 0}"),
-      startDate: json['startDate'] is Timestamp ? json['startDate'] as Timestamp : null,
+      startDate: json['startDate'] != null
+          ? DateTime.tryParse(json['startDate'].toString())
+          : null,
       title: json['title'],
     );
   }

@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/models/subscription_plan_model.dart';
 
@@ -15,7 +14,7 @@ class UserModel {
   bool? active;
   bool? isActive;
   bool? isDocumentVerify;
-  Timestamp? createdAt;
+  DateTime? createdAt;
   String? role;
   UserLocation? location;
   UserBankDetails? userBankDetails;
@@ -31,7 +30,7 @@ class UserModel {
   String? appIdentifier;
   String? provider;
   String? subscriptionPlanId;
-  Timestamp? subscriptionExpiryDate;
+  DateTime? subscriptionExpiryDate;
   SubscriptionPlanModel? subscriptionPlan;
   String? employeePermissionId;
 
@@ -81,14 +80,22 @@ class UserModel {
     fcmToken = json['fcmToken'];
     countryCode = json['countryCode'];
     phoneNumber = json['phoneNumber'];
-    walletAmount = json['wallet_amount'] != null ? double.parse(json['wallet_amount'].toString()) : 0;
-    createdAt = json['createdAt'];
+    walletAmount = json['wallet_amount'] != null
+        ? double.parse(json['wallet_amount'].toString())
+        : 0;
+    createdAt = json['createdAt'] != null
+        ? DateTime.tryParse(json['createdAt'].toString())
+        : null;
     active = json['active'];
     isActive = json['isActive'];
     isDocumentVerify = json['isDocumentVerify'] ?? false;
     role = json['role'] ?? 'user';
-    location = json['location'] != null ? UserLocation.fromJson(json['location']) : null;
-    userBankDetails = json['userBankDetails'] != null ? UserBankDetails.fromJson(json['userBankDetails']) : null;
+    location = json['location'] != null
+        ? UserLocation.fromJson(json['location'])
+        : null;
+    userBankDetails = json['userBankDetails'] != null
+        ? UserBankDetails.fromJson(json['userBankDetails'])
+        : null;
     if (json['shippingAddress'] != null) {
       shippingAddress = <ShippingAddress>[];
       json['shippingAddress'].forEach((v) {
@@ -105,8 +112,12 @@ class UserModel {
     appIdentifier = json['appIdentifier'];
     provider = json['provider'];
     subscriptionPlanId = json['subscriptionPlanId'];
-    subscriptionExpiryDate = json['subscriptionExpiryDate'];
-    subscriptionPlan = json['subscription_plan'] != null ? SubscriptionPlanModel.fromJson(json['subscription_plan']) : null;
+    subscriptionExpiryDate = json['subscriptionExpiryDate'] != null
+        ? DateTime.tryParse(json['subscriptionExpiryDate'].toString())
+        : null;
+    subscriptionPlan = json['subscription_plan'] != null
+        ? SubscriptionPlanModel.fromJson(json['subscription_plan'])
+        : null;
     employeePermissionId = json['employeePermissionId'];
   }
 
@@ -122,7 +133,7 @@ class UserModel {
     data['countryCode'] = countryCode;
     data['phoneNumber'] = phoneNumber;
     data['wallet_amount'] = walletAmount ?? 0;
-    data['createdAt'] = createdAt;
+    data['createdAt'] = createdAt?.toIso8601String();
     data['active'] = active;
     data['role'] = role;
     data['isDocumentVerify'] = isDocumentVerify;
@@ -133,7 +144,8 @@ class UserModel {
       data['userBankDetails'] = userBankDetails!.toJson();
     }
     if (shippingAddress != null) {
-      data['shippingAddress'] = shippingAddress!.map((v) => v.toJson()).toList();
+      data['shippingAddress'] =
+          shippingAddress!.map((v) => v.toJson()).toList();
     }
     if (role == Constant.userRoleDriver) {
       data['vendorID'] = vendorID;
@@ -148,7 +160,8 @@ class UserModel {
     if (role == Constant.userRoleVendor) {
       data['vendorID'] = vendorID;
       data['subscriptionPlanId'] = subscriptionPlanId;
-      data['subscriptionExpiryDate'] = subscriptionExpiryDate;
+      data['subscriptionExpiryDate'] =
+          subscriptionExpiryDate?.toIso8601String();
       data['subscription_plan'] = subscriptionPlan?.toJson();
     }
     if (role == Constant.userRoleEmployee) {
@@ -190,7 +203,14 @@ class ShippingAddress {
   UserLocation? location;
   bool? isDefault;
 
-  ShippingAddress({this.address, this.landmark, this.locality, this.location, this.isDefault, this.addressAs, this.id});
+  ShippingAddress(
+      {this.address,
+      this.landmark,
+      this.locality,
+      this.location,
+      this.isDefault,
+      this.addressAs,
+      this.id});
 
   ShippingAddress.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -199,7 +219,9 @@ class ShippingAddress {
     locality = json['locality'];
     isDefault = json['isDefault'];
     addressAs = json['addressAs'];
-    location = json['location'] == null ? null : UserLocation.fromJson(json['location']);
+    location = json['location'] == null
+        ? null
+        : UserLocation.fromJson(json['location']);
   }
 
   Map<String, dynamic> toJson() {

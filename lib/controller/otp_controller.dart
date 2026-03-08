@@ -1,50 +1,93 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:restaurant_td/app/auth_screen/signup_screen.dart';
+import 'package:restaurant_td/app/dash_board_screens/dash_board_screen.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
+import 'package:restaurant_td/service/supabase_auth_service.dart';
 
 class OtpController extends GetxController {
+  RxString phoneNumber = ''.obs;
+  RxString countryCode = ''.obs;
+  RxBool isLoading = false.obs;
   Rx<TextEditingController> otpController = TextEditingController().obs;
-
-  RxString countryCode = "".obs;
-  RxString phoneNumber = "".obs;
-  RxString verificationId = "".obs;
-  RxInt resendToken = 0.obs;
-  RxBool isLoading = true.obs;
 
   @override
   void onInit() {
-    getArgument();
     super.onInit();
-  }
-
-  getArgument() async {
-    dynamic argumentData = Get.arguments;
-    if (argumentData != null) {
-      countryCode.value = argumentData['countryCode'];
-      phoneNumber.value = argumentData['phoneNumber'];
-      verificationId.value = argumentData['verificationId'];
+    // Get phone number passed from PhoneNumberScreen
+    final args = Get.arguments;
+    if (args != null) {
+      phoneNumber.value = args['phoneNumber'] ?? '';
+      countryCode.value = args['countryCode'] ?? '+235';
     }
-    isLoading.value = false;
-    update();
+    sendOTP();
   }
 
-  Future<bool> sendOTP() async {
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: countryCode.value + phoneNumber.value,
-      verificationCompleted: (PhoneAuthCredential credential) {},
-      verificationFailed: (FirebaseAuthException e) {},
-      codeSent: (String verificationId0, int? resendToken0) async {
-        verificationId.value = verificationId0;
-        resendToken.value = resendToken0!;
-        ShowToastDialog.showToast("OTP sent".tr);
-      },
-      timeout: const Duration(seconds: 25),
-      forceResendingToken: resendToken.value,
-      codeAutoRetrievalTimeout: (String verificationId0) {
-        verificationId0 = verificationId.value;
-      },
-    );
-    return true;
+  // ─── Send OTP ──────────────────────────────────────────────
+
+  Future<void> sendOTP() async {
+    try {
+      isLoading.value = true;
+      await SupabaseAuthService.sendOTP(
+        phoneNumber: phoneNumber.value,
+        countryCode: countryCode.value,
+      );
+      isLoading.value = false;
+      ShowToastDialog.showToast('OTP sent successfully!'.tr);
+    } catch (e) {
+      isLoading.value = false;
+      ShowToastDialog.showToast('Failed to send OTP. Try again.'.tr);
+    }
+  }
+
+  // ─── Verify OTP ────────────────────────────────────────────
+
+  Future<void> verifyOTP() async {
+    if (otpController.value.text.length != 6) {
+      ShowToastDialog.showToast('Enter valid OTP'.tr);
+      return;
+    }
+
+    try {
+      ShowToastDialog.showLoader('Verifying OTP...'.tr);
+
+      final response = await SupabaseAuthService.verifyOTP(
+        phoneNumber: phoneNumber.value,
+        countryCode: countryCode.value,
+        otp: otpController.value.text.trim(),
+      );
+
+      ShowToastDialog.closeLoader();
+
+      if (response.user != null) {
+        // Check if user profile exists
+        final profile =
+            await SupabaseAuthService.getUserProfile(response.user!.id);
+
+        if (profile == null) {
+          // New user — go to signup
+          Get.off(const SignupScreen(), arguments: {
+            'type': 'mobileNumber',
+            'phoneNumber': phoneNumber.value,
+            'countryCode': countryCode.value,
+            'userId': response.user!.id,
+          });
+        } else {
+          // Existing user — go to dashboard
+          if (profile['active'] == false) {
+            ShowToastDialog.showToast(
+                'This user is disabled. Contact administrator.'.tr);
+            await SupabaseAuthService.signOut();
+            return;
+          }
+          Get.offAll(const DashBoardScreen());
+        }
+      } else {
+        ShowToastDialog.showToast('Invalid OTP. Try again.'.tr);
+      }
+    } catch (e) {
+      ShowToastDialog.closeLoader();
+      ShowToastDialog.showToast('Invalid OTP. Try again.'.tr);
+    }
   }
 }

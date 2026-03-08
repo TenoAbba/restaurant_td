@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class RatingModel {
   String? id;
   double? rating;
@@ -13,7 +11,7 @@ class RatingModel {
   String? uname;
   String? profile;
   Map<String, dynamic>? reviewAttributes;
-  Timestamp? createdAt;
+  DateTime? createdAt;
 
   RatingModel({
     this.id,
@@ -46,7 +44,7 @@ class RatingModel {
         customerId: parsedJson['CustomerId'] ?? '',
         uname: parsedJson['uname'] ?? '',
         reviewAttributes: parsedJson['reviewAttributes'] ?? {},
-        createdAt: parsedJson['createdAt'] ?? Timestamp.now(),
+        createdAt: parsedJson['createdAt'] ?? DateTime.now(),
         profile: parsedJson['profile'] ?? '');
   }
 

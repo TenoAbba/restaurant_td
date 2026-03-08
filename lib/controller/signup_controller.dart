@@ -1,18 +1,8 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:restaurant_td/app/auth_screen/login_screen.dart';
-import 'package:restaurant_td/app/dash_board_screens/app_not_access_screen.dart';
-import 'package:restaurant_td/app/dash_board_screens/dash_board_screen.dart';
-import 'package:restaurant_td/app/subscription_plan_screen/subscription_plan_screen.dart';
-import 'package:restaurant_td/constant/constant.dart';
-import 'package:restaurant_td/constant/show_toast_dialog.dart';
-import 'package:restaurant_td/models/user_model.dart';
-import 'package:restaurant_td/utils/fire_store_utils.dart';
-import 'package:restaurant_td/utils/notification_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:restaurant_td/app/dash_board_screens/dash_board_screen.dart';
+import 'package:restaurant_td/constant/show_toast_dialog.dart';
+import 'package:restaurant_td/service/supabase_auth_service.dart';
 
 class SignupController extends GetxController {
   Rx<TextEditingController> firstNameEditingController =
@@ -24,7 +14,7 @@ class SignupController extends GetxController {
   Rx<TextEditingController> phoneNUmberEditingController =
       TextEditingController().obs;
   Rx<TextEditingController> countryCodeEditingController =
-      TextEditingController().obs;
+      TextEditingController(text: '+235').obs;
   Rx<TextEditingController> passwordEditingController =
       TextEditingController().obs;
   Rx<TextEditingController> conformPasswordEditingController =
@@ -32,193 +22,63 @@ class SignupController extends GetxController {
 
   RxBool passwordVisible = true.obs;
   RxBool conformPasswordVisible = true.obs;
-
-  RxString type = "".obs;
-
-  Rx<UserModel> userModel = UserModel().obs;
+  RxString type = ''.obs;
+  RxString userId = ''.obs;
 
   @override
   void onInit() {
-    // TODO: implement onInit
-    getArgument();
     super.onInit();
-  }
-
-  getArgument() {
-    dynamic argumentData = Get.arguments;
-    if (argumentData != null) {
-      type.value = argumentData['type'];
-      userModel.value = argumentData['userModel'];
-      if (type.value == "mobileNumber") {
-        phoneNUmberEditingController.value.text =
-            userModel.value.phoneNumber.toString();
-        countryCodeEditingController.value.text =
-            userModel.value.countryCode.toString();
-      } else if (type.value == "google" || type.value == "apple") {
-        emailEditingController.value.text = userModel.value.email ?? "";
-        firstNameEditingController.value.text = userModel.value.firstName ?? "";
-        lastNameEditingController.value.text = userModel.value.lastName ?? "";
-      }
+    final args = Get.arguments;
+    if (args != null) {
+      type.value = args['type'] ?? '';
+      userId.value = args['userId'] ?? '';
+      // Pre-fill fields if coming from Google/Apple/Phone
+      emailEditingController.value.text = args['email'] ?? '';
+      phoneNUmberEditingController.value.text = args['phoneNumber'] ?? '';
+      countryCodeEditingController.value.text = args['countryCode'] ?? '+235';
     }
   }
 
-  signUpWithEmailAndPassword() async {
-    signUp();
-  }
+  // ─── Sign Up ───────────────────────────────────────────────
 
-  signUp() async {
-    ShowToastDialog.showLoader("Please wait");
-    if (type.value == "google" ||
-        type.value == "apple" ||
-        type.value == "mobileNumber") {
-      userModel.value.firstName =
-          firstNameEditingController.value.text.toString();
-      userModel.value.lastName =
-          lastNameEditingController.value.text.toString();
-      userModel.value.email =
-          emailEditingController.value.text.toString().toLowerCase();
-      userModel.value.phoneNumber =
-          phoneNUmberEditingController.value.text.toString();
-      userModel.value.role = Constant.userRoleVendor;
-      userModel.value.fcmToken = await NotificationService.getToken();
-      userModel.value.active =
-          Constant.autoApproveRestaurant == true ? true : false;
-      userModel.value.countryCode = countryCodeEditingController.value.text;
-      userModel.value.isDocumentVerify =
-          Constant.isRestaurantVerification == true ? false : true;
-      userModel.value.createdAt = Timestamp.now();
-      userModel.value.appIdentifier = Platform.isAndroid ? 'android' : 'ios';
+  Future<void> signUpWithEmailAndPassword() async {
+    try {
+      ShowToastDialog.showLoader('Creating account...'.tr);
 
-      await FireStoreUtils.updateUser(userModel.value).then(
-        (value) async {
-          if (Constant.autoApproveRestaurant == true) {
-            bool isPlanExpire = false;
-            if (userModel.value.subscriptionPlan?.id != null) {
-              if (userModel.value.subscriptionExpiryDate == null) {
-                if (userModel.value.subscriptionPlan?.expiryDay == '-1') {
-                  isPlanExpire = false;
-                } else {
-                  isPlanExpire = true;
-                }
-              } else {
-                DateTime expiryDate =
-                    userModel.value.subscriptionExpiryDate!.toDate();
-                isPlanExpire = expiryDate.isBefore(DateTime.now());
-              }
-            } else {
-              isPlanExpire = true;
-            }
-            if (userModel.value.subscriptionPlanId == null ||
-                isPlanExpire == true) {
-              if (Constant.adminCommission?.isEnabled == false &&
-                  Constant.isSubscriptionModelApplied == false) {
-                Get.offAll(const DashBoardScreen());
-              } else {
-                Get.offAll(const SubscriptionPlanScreen());
-              }
-            } else if (userModel.value.subscriptionPlan?.features
-                        ?.restaurantMobileApp !=
-                    false ||
-                userModel.value.subscriptionPlan?.type == 'free') {
-              Get.offAll(const DashBoardScreen());
-            } else {
-              Get.offAll(const AppNotAccessScreen());
-            }
-          } else {
-            ShowToastDialog.showToast(
-                "Thank you for sign up, your application is under approval so please wait till that approve."
-                    .tr);
-            Get.offAll(const LoginScreen());
-          }
-        },
-      );
-    } else {
-      try {
-        final credential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      String uid = userId.value;
+
+      // If not coming from phone/google/apple — create new auth user
+      if (type.value != 'mobileNumber' &&
+          type.value != 'google' &&
+          type.value != 'apple') {
+        final response = await SupabaseAuthService.signUpWithEmail(
           email: emailEditingController.value.text.trim(),
           password: passwordEditingController.value.text.trim(),
         );
-        if (credential.user != null) {
-          userModel.value.id = credential.user!.uid;
-          userModel.value.firstName =
-              firstNameEditingController.value.text.toString();
-          userModel.value.lastName =
-              lastNameEditingController.value.text.toString();
-          userModel.value.email =
-              emailEditingController.value.text.toString().toLowerCase();
-          userModel.value.phoneNumber =
-              phoneNUmberEditingController.value.text.toString();
-          userModel.value.role = Constant.userRoleVendor;
-          userModel.value.fcmToken = await NotificationService.getToken();
-          userModel.value.active =
-              Constant.autoApproveRestaurant == true ? true : false;
-          userModel.value.isDocumentVerify =
-              Constant.isRestaurantVerification == true ? false : true;
-          userModel.value.countryCode = countryCodeEditingController.value.text;
-          userModel.value.appIdentifier =
-              Platform.isAndroid ? 'android' : 'ios';
-          userModel.value.createdAt = Timestamp.now();
-          userModel.value.provider = 'email';
-
-          await FireStoreUtils.updateUser(userModel.value).then(
-            (value) async {
-              if (Constant.autoApproveRestaurant == true) {
-                bool isPlanExpire = false;
-                if (userModel.value.subscriptionPlan?.id != null) {
-                  if (userModel.value.subscriptionExpiryDate == null) {
-                    if (userModel.value.subscriptionPlan?.expiryDay == '-1') {
-                      isPlanExpire = false;
-                    } else {
-                      isPlanExpire = true;
-                    }
-                  } else {
-                    DateTime expiryDate =
-                        userModel.value.subscriptionExpiryDate!.toDate();
-                    isPlanExpire = expiryDate.isBefore(DateTime.now());
-                  }
-                } else {
-                  isPlanExpire = true;
-                }
-                if (userModel.value.subscriptionPlanId == null ||
-                    isPlanExpire == true) {
-                  if (Constant.adminCommission?.isEnabled == false &&
-                      Constant.isSubscriptionModelApplied == false) {
-                    Get.offAll(const DashBoardScreen());
-                  } else {
-                    Get.offAll(const SubscriptionPlanScreen());
-                  }
-                } else if (userModel.value.subscriptionPlan?.features
-                            ?.restaurantMobileApp !=
-                        false ||
-                    userModel.value.subscriptionPlan?.type == 'free') {
-                  Get.offAll(const DashBoardScreen());
-                } else {
-                  Get.offAll(const AppNotAccessScreen());
-                }
-              } else {
-                ShowToastDialog.showToast(
-                    "Thank you for sign up, your application is under approval so please wait till that approve."
-                        .tr);
-                Get.offAll(const LoginScreen());
-              }
-            },
-          );
+        if (response.user == null) {
+          ShowToastDialog.closeLoader();
+          ShowToastDialog.showToast('Signup failed. Try again.'.tr);
+          return;
         }
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password') {
-          ShowToastDialog.showToast("The password provided is too weak.".tr);
-        } else if (e.code == 'email-already-in-use') {
-          ShowToastDialog.showToast(
-              "The account already exists for that email.".tr);
-        } else if (e.code == 'invalid-email') {
-          ShowToastDialog.showToast("Enter email is Invalid".tr);
-        }
-      } catch (e) {
-        ShowToastDialog.showToast(e.toString());
+        uid = response.user!.id;
       }
-    }
 
-    ShowToastDialog.closeLoader();
+      // Save user profile to database
+      await SupabaseAuthService.saveUserProfile(
+        id: uid,
+        firstName: firstNameEditingController.value.text.trim(),
+        lastName: lastNameEditingController.value.text.trim(),
+        email: emailEditingController.value.text.trim(),
+        phoneNumber: phoneNUmberEditingController.value.text.trim(),
+        countryCode: countryCodeEditingController.value.text.trim(),
+        role: 'vendor',
+      );
+
+      ShowToastDialog.closeLoader();
+      Get.offAll(const DashBoardScreen());
+    } catch (e) {
+      ShowToastDialog.closeLoader();
+      ShowToastDialog.showToast('Signup failed: ${e.toString()}'.tr);
+    }
   }
 }

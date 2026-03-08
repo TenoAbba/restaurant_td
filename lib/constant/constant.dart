@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
@@ -22,12 +21,13 @@ import 'package:restaurant_td/models/zone_model.dart';
 import 'package:restaurant_td/themes/app_them_data.dart';
 import 'package:restaurant_td/utils/preferences.dart';
 import 'package:restaurant_td/widget/permission_dialog.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:mime/mime.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
@@ -77,8 +77,7 @@ class Constant {
   static String? apiSecureKey = "";
 
   static bool? autoApproveRestaurant = true;
-  static bool isSubscriptionModelApplied =
-      false; //Check SubscriptionModel is Active or Not in the Admin Panel.
+  static bool isSubscriptionModelApplied = false;
 
   static bool isRestaurantVerification = false;
   static bool isDineInEnable = false;
@@ -88,7 +87,6 @@ class Constant {
   static String dineInPlaced = "dinein_placed";
   static String dineInCanceled = "dinein_canceled";
   static String dineInAccepted = "dinein_accepted";
-  // static String driverAccepted = "driver_accepted";
   static String restaurantRejected = "restaurant_rejected";
   static String restaurantCancelled = "restaurant_cancelled";
   static String driverCompleted = "driver_completed";
@@ -132,7 +130,7 @@ class Constant {
   static bool singleOrderReceive = false;
 
   static String scheduleOrderTime = '0';
-  static String scheduleOrderTimeType = 'minute'; // hour and day
+  static String scheduleOrderTimeType = 'minute';
 
   static String adminEmail = '';
 
@@ -167,12 +165,40 @@ class Constant {
         isView: false,
         isDelete: false),
     PermissionModel(title: 'Manage Order', isView: false, isAdd: false),
-  ]; //Wallet, manage order
+  ];
 
-  static String dateAndTimeFormatTimestamp(Timestamp? timestamp) {
-    var format = DateFormat('dd MMM yyyy hh:mm aa'); // <- use skeleton here
-    return format.format(timestamp!.toDate());
+  // ─── Date/Time helpers (DateTime replaces Timestamp) ───────────────────
+
+  static String dateAndTimeFormatTimestamp(DateTime? dateTime) {
+    if (dateTime == null) return '';
+    return DateFormat('dd MMM yyyy hh:mm aa').format(dateTime);
   }
+
+  static String timestampToDate(DateTime dateTime) {
+    return DateFormat('MMM dd,yyyy').format(dateTime);
+  }
+
+  static String timestampToDateTime(DateTime dateTime) {
+    return DateFormat('MMM dd,yyyy hh:mm aa').format(dateTime);
+  }
+
+  static String timestampToTime(DateTime dateTime) {
+    return DateFormat('hh:mm aa').format(dateTime);
+  }
+
+  static String timestampToDateChat(DateTime dateTime) {
+    return DateFormat('dd/MM/yyyy').format(dateTime);
+  }
+
+  static DateTime? addDayInTimestamp(
+      {required String? days, required DateTime date}) {
+    if (days?.isNotEmpty == true && days != '0') {
+      return date.add(Duration(days: int.parse(days!)));
+    }
+    return null;
+  }
+
+  // ─── Status helpers ──────────────────────────────────────────────────────
 
   static Color statusColor({required String? status}) {
     if (status == orderPlaced) {
@@ -191,10 +217,19 @@ class Constant {
       return AppThemeData.warning300;
     } else if (status == adsApproved || status == adsRunning) {
       return AppThemeData.success400;
-    } else if (status == adsExpire || status == adsCancel) {
-      return AppThemeData.danger300;
     } else {
       return AppThemeData.danger300;
+    }
+  }
+
+  static Color statusText({required String? status}) {
+    if (status == orderPlaced ||
+        status == orderAccepted ||
+        status == orderCompleted ||
+        status == orderRejected) {
+      return AppThemeData.grey50;
+    } else {
+      return AppThemeData.grey900;
     }
   }
 
@@ -287,9 +322,7 @@ class Constant {
   }
 
   String? validateRequired(String? value, String type) {
-    if (value!.isEmpty) {
-      return '$type required';
-    }
+    if (value!.isEmpty) return '$type required';
     return null;
   }
 
@@ -297,13 +330,9 @@ class Constant {
     String pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
     RegExp regExp = RegExp(pattern);
-    if (value == null || value.isEmpty) {
-      return "Email is Required";
-    } else if (!regExp.hasMatch(value)) {
-      return "Invalid Email";
-    } else {
-      return null;
-    }
+    if (value == null || value.isEmpty) return "Email is Required";
+    if (!regExp.hasMatch(value)) return "Invalid Email";
+    return null;
   }
 
   static String getDistance({
@@ -312,18 +341,15 @@ class Constant {
     required String lat2,
     required String lng2,
   }) {
-    double distance;
     double distanceInMeters = Geolocator.distanceBetween(
       double.parse(lat1),
       double.parse(lng1),
       double.parse(lat2),
       double.parse(lng2),
     );
-    if (distanceType == "miles") {
-      distance = distanceInMeters / 1609;
-    } else {
-      distance = distanceInMeters / 1000;
-    }
+    double distance = distanceType == "miles"
+        ? distanceInMeters / 1609
+        : distanceInMeters / 1000;
     return distance.toStringAsFixed(2);
   }
 
@@ -331,37 +357,36 @@ class Constant {
     String pattern =
         r'(http|https)://[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?';
     RegExp regExp = RegExp(pattern);
-    if (value.isEmpty) {
-      return false;
-    } else if (!regExp.hasMatch(value)) {
-      return false;
-    }
-    return true;
+    if (value.isEmpty) return false;
+    return regExp.hasMatch(value);
   }
+
+  // ─── Supabase Storage image upload (replaces Firebase Storage) ───────────
+  static const String _bucket = 'restaurant-td';
 
   static Future<String> uploadUserImageToFireStorage(
       File image, String filePath, String fileName) async {
-    Reference upload =
-        FirebaseStorage.instance.ref().child('$filePath/$fileName');
-    UploadTask uploadTask = upload.putFile(image);
-    var downloadUrl =
-        await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
-    return downloadUrl.toString();
+    final client = Supabase.instance.client;
+    final path = '$filePath/$fileName';
+    final mimeType = lookupMimeType(image.path) ?? 'image/png';
+    final bytes = await image.readAsBytes();
+    await client.storage.from(_bucket).uploadBinary(
+          path,
+          bytes,
+          fileOptions: FileOptions(contentType: mimeType, upsert: true),
+        );
+    return client.storage.from(_bucket).getPublicUrl(path);
   }
 
+  // ─── Misc ────────────────────────────────────────────────────────────────
+
   static Future<void> makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
+    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
     await launchUrl(launchUri);
   }
 
   launchURL(Uri url) async {
-    if (!await launchUrl(
-      url,
-      mode: LaunchMode.externalApplication,
-    )) {
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch $url');
     }
   }
@@ -377,63 +402,35 @@ class Constant {
   }
 
   static Future<TimeOfDay?> selectTime(context) async {
-    FocusScope.of(context).requestFocus(FocusNode()); //remove focus
-    TimeOfDay? newTime = await showTimePicker(
+    FocusScope.of(context).requestFocus(FocusNode());
+    return await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    if (newTime != null) {
-      return newTime;
-    }
-    return null;
   }
 
   static Future<DateTime?> selectDate(context) async {
-    DateTime? pickedDate = await showDatePicker(
+    return await showDatePicker(
         context: context,
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
               colorScheme: ColorScheme.light(
-                primary: AppThemeData.secondary300, // header background color
-                onPrimary: AppThemeData.grey900, // header text color
-                onSurface: AppThemeData.grey900, // body text color
+                primary: AppThemeData.secondary300,
+                onPrimary: AppThemeData.grey900,
+                onSurface: AppThemeData.grey900,
               ),
               textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: AppThemeData.grey900, // button text color
-                ),
+                style:
+                    TextButton.styleFrom(foregroundColor: AppThemeData.grey900),
               ),
             ),
             child: child!,
           );
         },
         initialDate: DateTime.now(),
-        //get today's date
         firstDate: DateTime(2000),
-        //DateTime.now() - not to allow to choose before today.
         lastDate: DateTime(2101));
-    return pickedDate;
-  }
-
-  static String timestampToDate(Timestamp timestamp) {
-    DateTime dateTime = timestamp.toDate();
-    return DateFormat('MMM dd,yyyy').format(dateTime);
-  }
-
-  static String timestampToDateTime(Timestamp timestamp) {
-    DateTime dateTime = timestamp.toDate();
-    return DateFormat('MMM dd,yyyy hh:mm aa').format(dateTime);
-  }
-
-  static String timestampToTime(Timestamp timestamp) {
-    DateTime dateTime = timestamp.toDate();
-    return DateFormat('hh:mm aa').format(dateTime);
-  }
-
-  static String timestampToDateChat(Timestamp timestamp) {
-    DateTime dateTime = timestamp.toDate();
-    return DateFormat('dd/MM/yyyy').format(dateTime);
   }
 
   static LanguageModel getLanguage() {
@@ -454,27 +451,29 @@ class Constant {
     } else if (permission == LocationPermission.deniedForever) {
       showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return const PermissionDialog();
-        },
+        builder: (BuildContext context) => const PermissionDialog(),
       );
     } else {
       onTap();
     }
   }
 
-  static bool isPointInPolygon(LatLng point, List<GeoPoint> polygon) {
+  // GeoPoint replaced with plain lat/lng doubles stored in ZoneModel
+  static bool isPointInPolygon(
+      LatLng point, List<Map<String, double>> polygon) {
     int crossings = 0;
     for (int i = 0; i < polygon.length; i++) {
       int next = (i + 1) % polygon.length;
-      if (polygon[i].latitude <= point.latitude &&
-              polygon[next].latitude > point.latitude ||
-          polygon[i].latitude > point.latitude &&
-              polygon[next].latitude <= point.latitude) {
-        double edgeLong = polygon[next].longitude - polygon[i].longitude;
-        double edgeLat = polygon[next].latitude - polygon[i].latitude;
-        double interpol = (point.latitude - polygon[i].latitude) / edgeLat;
-        if (point.longitude < polygon[i].longitude + interpol * edgeLong) {
+      final iLat = polygon[i]['latitude']!;
+      final iLng = polygon[i]['longitude']!;
+      final nLat = polygon[next]['latitude']!;
+      final nLng = polygon[next]['longitude']!;
+      if (iLat <= point.latitude && nLat > point.latitude ||
+          iLat > point.latitude && nLat <= point.latitude) {
+        double edgeLng = nLng - iLng;
+        double edgeLat = nLat - iLat;
+        double interpol = (point.latitude - iLat) / edgeLat;
+        if (point.longitude < iLng + interpol * edgeLng) {
           crossings++;
         }
       }
@@ -483,12 +482,10 @@ class Constant {
   }
 
   static bool isWithinChad(LatLng point) {
-    // Approximate bounding box for the Republic of Chad
     const double minLat = 7.44111;
     const double maxLat = 23.4519;
     const double minLng = 13.4111;
     const double maxLng = 24.0000;
-
     return point.latitude >= minLat &&
         point.latitude <= maxLat &&
         point.longitude >= minLng &&
@@ -497,9 +494,6 @@ class Constant {
 
   static MailSettings? mailSettings;
 
-  // ✅ FIX: smtpServer is now built lazily inside sendMail instead of as a
-  // static final field. The old static final ran at class-load time when
-  // mailSettings was still null, causing a null-pointer crash on startup.
   static sendMail(
       {String? subject,
       String? body,
@@ -536,67 +530,9 @@ class Constant {
       print('Message sent: $sendReport');
     } on MailerException catch (e) {
       print(e);
-      print('Message not sent.');
       for (var p in e.problems) {
         print('Problem: ${p.code}: ${p.msg}');
       }
-    }
-  }
-
-  static Color statusText({required String? status}) {
-    if (status == orderPlaced) {
-      return AppThemeData.grey50;
-    } else if (status == orderAccepted || status == orderCompleted) {
-      return AppThemeData.grey50;
-    } else if (status == orderRejected) {
-      return AppThemeData.grey50;
-    } else {
-      return AppThemeData.grey900;
-    }
-  }
-
-  Timestamp? addDayInTimestamp(
-      {required String? days, required Timestamp date}) {
-    if (days?.isNotEmpty == true && days != '0') {
-      Timestamp now = date;
-      DateTime dateTime = now.toDate();
-      DateTime newDateTime = dateTime.add(Duration(days: int.parse(days!)));
-      Timestamp newTimestamp = Timestamp.fromDate(newDateTime);
-      return newTimestamp;
-    } else {
-      return null;
-    }
-  }
-
-  Future<bool> isImageAspectRatioByType(
-      {required String imagePath, required AspectRatioType type}) async {
-    final file = File(imagePath);
-    final bytes = await file.readAsBytes();
-    final codec = await ui.instantiateImageCodec(bytes);
-    final frame = await codec.getNextFrame();
-    final image = frame.image;
-
-    final aspectRatio = image.width / image.height;
-    print("aspectRatio - 2.0).abs() :: ${((aspectRatio - 2.0).abs())}");
-    // Allow a small margin for rounding differences
-    return type == AspectRatioType.square
-        ? (aspectRatio - 1.0).abs() < 0.01
-        : (aspectRatio - 2.0).abs() < 0.05;
-  }
-
-  Future<bool> isVideoLandscape({
-    required String videoPath,
-  }) async {
-    final controller = VideoPlayerController.file(File(videoPath));
-    try {
-      await controller.initialize();
-      var size = controller.value.size;
-      return (size.width > (size.height * 1.7));
-    } catch (e) {
-      print("Error loading video: $e");
-      return false;
-    } finally {
-      await controller.dispose();
     }
   }
 
@@ -604,26 +540,26 @@ class Constant {
     if ((adsModel.status == Constant.adsPending ||
             adsModel.status == Constant.adsUpdated) &&
         adsModel.isPaused != true &&
-        adsModel.endDate!.toDate().isAfter(DateTime.now())) {
+        adsModel.endDate!.isAfter(DateTime.now())) {
       return Constant.adsPending;
     } else if ((adsModel.status == Constant.adsApproved) &&
         adsModel.isPaused != true &&
         adsModel.paymentStatus == true &&
-        adsModel.endDate!.toDate().isAfter(DateTime.now()) &&
-        adsModel.startDate!.toDate().isBefore(DateTime.now())) {
+        adsModel.endDate!.isAfter(DateTime.now()) &&
+        adsModel.startDate!.isBefore(DateTime.now())) {
       return Constant.adsRunning;
     } else if ((adsModel.status == Constant.adsApproved) &&
         adsModel.isPaused != true &&
         (adsModel.paymentStatus == false ||
             (adsModel.paymentStatus == true &&
-                adsModel.startDate!.toDate().isAfter(DateTime.now()))) &&
-        !adsModel.endDate!.toDate().isBefore(DateTime.now())) {
+                adsModel.startDate!.isAfter(DateTime.now()))) &&
+        !adsModel.endDate!.isBefore(DateTime.now())) {
       return Constant.adsApproved;
     } else if (adsModel.status == Constant.adsCancel) {
       return Constant.adsCancel;
     } else if (adsModel.isPaused == true) {
       return Constant.adsPaused;
-    } else if (adsModel.endDate!.toDate().isBefore(DateTime.now())) {
+    } else if (adsModel.endDate!.isBefore(DateTime.now())) {
       return Constant.adsExpire;
     } else {
       return '';
@@ -632,7 +568,6 @@ class Constant {
 
   static DateTime checkScheduleTime({required DateTime scheduleDate}) {
     final int parsedTime = int.tryParse(scheduleOrderTime) ?? 0;
-
     Duration duration;
     switch (scheduleOrderTimeType) {
       case 'minute':
@@ -645,7 +580,7 @@ class Constant {
         duration = Duration(days: parsedTime);
         break;
       default:
-        duration = Duration(minutes: 1);
+        duration = const Duration(minutes: 1);
     }
     return scheduleDate.subtract(duration);
   }
@@ -654,9 +589,7 @@ class Constant {
     required String module,
     required ActionType pType,
   }) {
-    if (Constant.userModel?.role != Constant.userRoleEmployee) {
-      return true;
-    }
+    if (Constant.userModel?.role != Constant.userRoleEmployee) return true;
 
     final permission = Constant.employeeRoleModel?.permissions?.firstWhere(
       (p) => p.title == module,
@@ -678,6 +611,33 @@ class Constant {
         return permission.isDelete == true;
     }
   }
+
+  Future<bool> isImageAspectRatioByType(
+      {required String imagePath, required AspectRatioType type}) async {
+    final file = File(imagePath);
+    final bytes = await file.readAsBytes();
+    final codec = await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
+    final image = frame.image;
+    final aspectRatio = image.width / image.height;
+    return type == AspectRatioType.square
+        ? (aspectRatio - 1.0).abs() < 0.01
+        : (aspectRatio - 2.0).abs() < 0.05;
+  }
+
+  Future<bool> isVideoLandscape({required String videoPath}) async {
+    final controller = VideoPlayerController.file(File(videoPath));
+    try {
+      await controller.initialize();
+      var size = controller.value.size;
+      return (size.width > (size.height * 1.7));
+    } catch (e) {
+      print("Error loading video: $e");
+      return false;
+    } finally {
+      await controller.dispose();
+    }
+  }
 }
 
 extension StringExtension on String {
@@ -686,13 +646,6 @@ extension StringExtension on String {
   }
 }
 
-enum AspectRatioType {
-  square, // 1:1
-  wide, // 2:1
-}
+enum AspectRatioType { square, wide }
 
-enum ActionType {
-  isAdd,
-  isView,
-  isDelete,
-}
+enum ActionType { isAdd, isView, isDelete }

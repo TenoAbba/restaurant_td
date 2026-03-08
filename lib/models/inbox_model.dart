@@ -1,12 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class InboxModel {
   String? senderId;
   String? receiverId;
   String? lastMessage;
   String? lastSenderId;
   String? orderId;
-  Timestamp? createdAt;
+  DateTime? createdAt;
   String? chatType;
   String? lastMessageType;
   String? type;
@@ -32,10 +30,11 @@ class InboxModel {
         orderId: parsedJson['orderId'],
         receiverId: parsedJson['receiverId'] ?? '',
         lastSenderId: parsedJson['lastSenderId'] ?? '',
-        createdAt: parsedJson['createdAt'] ?? Timestamp.now(),
+        createdAt: parsedJson['createdAt'] ?? DateTime.now(),
         chatType: parsedJson['chatType'] ?? '',
         lastMessageType: parsedJson['lastMessageType'],
-        senderReceiverId: List<String>.from(parsedJson['sender_receiver_id'] ?? []),
+        senderReceiverId:
+            List<String>.from(parsedJson['sender_receiver_id'] ?? []),
         type: parsedJson['type']);
   }
 

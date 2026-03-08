@@ -1,4 +1,3 @@
-import 'package:restaurant_td/app/auth_screen/login_screen.dart';
 import 'package:restaurant_td/app/auth_screen/signup_screen.dart';
 import 'package:restaurant_td/app/dash_board_screens/dash_board_screen.dart';
 import 'package:restaurant_td/app/dash_board_screens/app_not_access_screen.dart';
@@ -6,13 +5,11 @@ import 'package:restaurant_td/app/subscription_plan_screen/subscription_plan_scr
 import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
 import 'package:restaurant_td/controller/otp_controller.dart';
-import 'package:restaurant_td/models/user_model.dart';
+import 'package:restaurant_td/service/supabase_auth_service.dart';
 import 'package:restaurant_td/themes/app_them_data.dart';
 import 'package:restaurant_td/themes/round_button_fill.dart';
 import 'package:restaurant_td/utils/dark_theme_provider.dart';
-import 'package:restaurant_td/utils/fire_store_utils.dart';
 import 'package:restaurant_td/utils/notification_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,26 +27,37 @@ class OtpScreen extends StatelessWidget {
         builder: (controller) {
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: themeChange.getThem() ? AppThemeData.surfaceDark : AppThemeData.surface,
+              backgroundColor: themeChange.getThem()
+                  ? AppThemeData.surfaceDark
+                  : AppThemeData.surface,
             ),
             body: controller.isLoading.value
                 ? Constant.loader()
                 : SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 10),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "Verify Your Number 📱".tr,
-                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 22, fontFamily: AppThemeData.semiBold),
+                            style: TextStyle(
+                                color: themeChange.getThem()
+                                    ? AppThemeData.grey50
+                                    : AppThemeData.grey900,
+                                fontSize: 22,
+                                fontFamily: AppThemeData.semiBold),
                           ),
                           Text(
-                            "${'Enter the OTP sent to your mobile number.'.tr} ${controller.countryCode.value} ${Constant.maskingString(controller.phoneNumber.value, 3)}".tr,
+                            "${'Enter the OTP sent to your mobile number.'.tr} ${controller.countryCode.value} ${Constant.maskingString(controller.phoneNumber.value, 3)}"
+                                .tr,
                             textAlign: TextAlign.start,
                             style: TextStyle(
-                              color: themeChange.getThem() ? AppThemeData.grey200 : AppThemeData.grey700,
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey200
+                                  : AppThemeData.grey700,
                               fontSize: 16,
                               fontFamily: AppThemeData.regular,
                               fontWeight: FontWeight.w400,
@@ -66,21 +74,46 @@ class OtpScreen extends StatelessWidget {
                               keyboardType: TextInputType.phone,
                               enablePinAutofill: true,
                               hintCharacter: "-",
-                              hintStyle: TextStyle(color: themeChange.getThem() ? AppThemeData.grey500 : AppThemeData.grey400, fontFamily: AppThemeData.regular),
-                              textStyle: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontFamily: AppThemeData.regular),
+                              hintStyle: TextStyle(
+                                  color: themeChange.getThem()
+                                      ? AppThemeData.grey500
+                                      : AppThemeData.grey400,
+                                  fontFamily: AppThemeData.regular),
+                              textStyle: TextStyle(
+                                  color: themeChange.getThem()
+                                      ? AppThemeData.grey50
+                                      : AppThemeData.grey900,
+                                  fontFamily: AppThemeData.regular),
                               pinTheme: PinTheme(
                                   fieldHeight: 50,
                                   fieldWidth: 50,
-                                  inactiveFillColor: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                  selectedFillColor: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                  activeFillColor: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                  selectedColor: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                  activeColor: themeChange.getThem() ? AppThemeData.secondary300 : AppThemeData.secondary300,
-                                  inactiveColor: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                  disabledColor: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                                  inactiveFillColor: themeChange.getThem()
+                                      ? AppThemeData.grey900
+                                      : AppThemeData.grey50,
+                                  selectedFillColor: themeChange.getThem()
+                                      ? AppThemeData.grey900
+                                      : AppThemeData.grey50,
+                                  activeFillColor: themeChange.getThem()
+                                      ? AppThemeData.grey900
+                                      : AppThemeData.grey50,
+                                  selectedColor: themeChange.getThem()
+                                      ? AppThemeData.grey900
+                                      : AppThemeData.grey50,
+                                  activeColor: themeChange.getThem()
+                                      ? AppThemeData.secondary300
+                                      : AppThemeData.secondary300,
+                                  inactiveColor: themeChange.getThem()
+                                      ? AppThemeData.grey900
+                                      : AppThemeData.grey50,
+                                  disabledColor: themeChange.getThem()
+                                      ? AppThemeData.grey900
+                                      : AppThemeData.grey50,
                                   shape: PinCodeFieldShape.box,
-                                  errorBorderColor: themeChange.getThem() ? AppThemeData.grey600 : AppThemeData.grey300,
-                                  borderRadius: const BorderRadius.all(Radius.circular(10))),
+                                  errorBorderColor: themeChange.getThem()
+                                      ? AppThemeData.grey600
+                                      : AppThemeData.grey300,
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10))),
                               cursorColor: AppThemeData.secondary300,
                               enableActiveFill: true,
                               controller: controller.otpController.value,
@@ -96,91 +129,119 @@ class OtpScreen extends StatelessWidget {
                             color: AppThemeData.secondary300,
                             textColor: AppThemeData.grey50,
                             onPress: () async {
-                              if (controller.otpController.value.text.length == 6) {
-                                ShowToastDialog.showLoader("Verify otp".tr);
+                              if (controller.otpController.value.text.length ==
+                                  6) {
+                                ShowToastDialog.showLoader(
+                                    "Verifying OTP...".tr);
 
-                                PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: controller.verificationId.value, smsCode: controller.otpController.value.text);
-                                String fcmToken = await NotificationService.getToken();
-                                await FirebaseAuth.instance.signInWithCredential(credential).then((value) async {
-                                  if (value.additionalUserInfo!.isNewUser) {
-                                    UserModel userModel = UserModel();
-                                    userModel.id = value.user!.uid;
-                                    userModel.countryCode = controller.countryCode.value;
-                                    userModel.phoneNumber = controller.phoneNumber.value;
-                                    userModel.fcmToken = fcmToken;
-                                    userModel.provider = 'phone';
+                                try {
+                                  final response =
+                                      await SupabaseAuthService.verifyOTP(
+                                    phoneNumber: controller.phoneNumber.value,
+                                    countryCode: controller.countryCode.value,
+                                    otp: controller.otpController.value.text
+                                        .trim(),
+                                  );
 
-                                    ShowToastDialog.closeLoader();
-                                    Get.off(const SignupScreen(), arguments: {
-                                      "userModel": userModel,
-                                      "type": "mobileNumber",
-                                    });
-                                  } else {
-                                    await FireStoreUtils.userExistOrNot(value.user!.uid).then((userExit) async {
-                                      ShowToastDialog.closeLoader();
-                                      if (userExit == true) {
-                                        UserModel? userModel = await FireStoreUtils.getUserProfile(value.user!.uid);
-                                        if (userModel!.role == Constant.userRoleVendor) {
-                                          if (userModel.active == true) {
-                                            userModel.fcmToken = await NotificationService.getToken();
-                                            await FireStoreUtils.updateUser(userModel);
-                                            bool isPlanExpire = false;
-                                            if (userModel.subscriptionPlan?.id != null) {
-                                              if (userModel.subscriptionExpiryDate == null) {
-                                                if (userModel.subscriptionPlan?.expiryDay == '-1') {
-                                                  isPlanExpire = false;
-                                                } else {
-                                                  isPlanExpire = true;
-                                                }
-                                              } else {
-                                                DateTime expiryDate = userModel.subscriptionExpiryDate!.toDate();
-                                                isPlanExpire = expiryDate.isBefore(DateTime.now());
-                                              }
-                                            } else {
-                                              isPlanExpire = true;
-                                            }
-                                            if (userModel.subscriptionPlanId == null || isPlanExpire == true) {
-                                              if (Constant.adminCommission?.isEnabled == false && Constant.isSubscriptionModelApplied == false) {
-                                                Get.offAll(const DashBoardScreen());
-                                              } else {
-                                                Get.offAll(const SubscriptionPlanScreen());
-                                              }
-                                            } else if (userModel.subscriptionPlan?.features?.restaurantMobileApp == true) {
-                                              Get.offAll(const DashBoardScreen());
-                                            } else {
-                                              Get.offAll(const AppNotAccessScreen());
-                                            }
+                                  ShowToastDialog.closeLoader();
+
+                                  if (response.user != null) {
+                                    // Check if user profile exists
+                                    final profile = await SupabaseAuthService
+                                        .getUserProfile(response.user!.id);
+
+                                    if (profile == null) {
+                                      // New user — go to signup
+                                      Get.off(const SignupScreen(), arguments: {
+                                        'type': 'mobileNumber',
+                                        'phoneNumber':
+                                            controller.phoneNumber.value,
+                                        'countryCode':
+                                            controller.countryCode.value,
+                                        'userId': response.user!.id,
+                                      });
+                                    } else {
+                                      // Existing user — check role and active status
+                                      if (profile['role'] != 'vendor') {
+                                        ShowToastDialog.showToast(
+                                            'This user is not an owner.'.tr);
+                                        await SupabaseAuthService.signOut();
+                                        return;
+                                      }
+
+                                      if (profile['active'] == false) {
+                                        ShowToastDialog.showToast(
+                                            'This user is disabled. Please contact administrator.'
+                                                .tr);
+                                        await SupabaseAuthService.signOut();
+                                        return;
+                                      }
+
+                                      // Update FCM token
+                                      final fcmToken =
+                                          await NotificationService.getToken();
+                                      await SupabaseAuthService.updateFcmToken(
+                                        userId: response.user!.id,
+                                        fcmToken: fcmToken,
+                                      );
+
+                                      // Check subscription plan
+                                      bool isPlanExpire = false;
+                                      if (profile['subscription_plan_id'] !=
+                                          null) {
+                                        if (profile[
+                                                'subscription_expiry_date'] ==
+                                            null) {
+                                          if (profile[
+                                                  'subscription_expiry_day'] ==
+                                              '-1') {
+                                            isPlanExpire = false;
                                           } else {
-                                            ShowToastDialog.showToast("This user is disable please contact to administrator".tr);
-                                            await FirebaseAuth.instance.signOut();
-                                            Get.offAll(const LoginScreen());
+                                            isPlanExpire = true;
                                           }
                                         } else {
-                                          await FirebaseAuth.instance.signOut();
-                                          Get.offAll(const LoginScreen());
-                                          ShowToastDialog.showToast("This user is not created in restaurant application.".tr);
+                                          final expiryDate = (profile[
+                                                  'subscription_expiry_date']
+                                              as DateTime);
+                                          isPlanExpire = expiryDate
+                                              .isBefore(DateTime.now());
                                         }
                                       } else {
-                                        UserModel userModel = UserModel();
-                                        userModel.id = value.user!.uid;
-                                        userModel.countryCode = controller.countryCode.value;
-                                        userModel.phoneNumber = controller.phoneNumber.value;
-                                        userModel.fcmToken = fcmToken;
-                                        userModel.provider = 'phone';
-
-                                        Get.off(const SignupScreen(), arguments: {
-                                          "userModel": userModel,
-                                          "type": "mobileNumber",
-                                        });
+                                        isPlanExpire = true;
                                       }
-                                    });
+
+                                      if (profile['subscription_plan_id'] ==
+                                              null ||
+                                          isPlanExpire == true) {
+                                        if (Constant.adminCommission
+                                                    ?.isEnabled ==
+                                                false &&
+                                            Constant.isSubscriptionModelApplied ==
+                                                false) {
+                                          Get.offAll(const DashBoardScreen());
+                                        } else {
+                                          Get.offAll(
+                                              const SubscriptionPlanScreen());
+                                        }
+                                      } else if (profile[
+                                              'restaurant_mobile_app'] ==
+                                          true) {
+                                        Get.offAll(const DashBoardScreen());
+                                      } else {
+                                        Get.offAll(const AppNotAccessScreen());
+                                      }
+                                    }
+                                  } else {
+                                    ShowToastDialog.showToast(
+                                        'Invalid OTP. Try again.'.tr);
                                   }
-                                }).catchError((error) {
+                                } catch (e) {
                                   ShowToastDialog.closeLoader();
-                                  ShowToastDialog.showToast("Invalid Code".tr);
-                                });
+                                  ShowToastDialog.showToast(
+                                      'Invalid OTP. Try again.'.tr);
+                                }
                               } else {
-                                ShowToastDialog.showToast("Enter Valid otp".tr);
+                                ShowToastDialog.showToast("Enter Valid OTP".tr);
                               }
                             },
                           ),
@@ -195,7 +256,9 @@ class OtpScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w500,
                                 fontSize: 14,
                                 fontFamily: AppThemeData.medium,
-                                color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800,
+                                color: themeChange.getThem()
+                                    ? AppThemeData.grey100
+                                    : AppThemeData.grey800,
                               ),
                               children: <TextSpan>[
                                 TextSpan(
@@ -206,12 +269,15 @@ class OtpScreen extends StatelessWidget {
                                     },
                                   text: 'Send Again'.tr,
                                   style: TextStyle(
-                                      color: themeChange.getThem() ? AppThemeData.secondary300 : AppThemeData.secondary300,
+                                      color: themeChange.getThem()
+                                          ? AppThemeData.secondary300
+                                          : AppThemeData.secondary300,
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14,
                                       fontFamily: AppThemeData.medium,
                                       decoration: TextDecoration.underline,
-                                      decorationColor: AppThemeData.secondary300),
+                                      decorationColor:
+                                          AppThemeData.secondary300),
                                 ),
                               ],
                             ),

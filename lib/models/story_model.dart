@@ -1,18 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class StoryModel {
   String? videoThumbnail;
   List<dynamic> videoUrl = [];
   String? vendorID;
-  Timestamp? createdAt;
+  DateTime? createdAt;
 
-  StoryModel({this.videoThumbnail, this.videoUrl = const [], this.vendorID, this.createdAt});
+  StoryModel(
+      {this.videoThumbnail,
+      this.videoUrl = const [],
+      this.vendorID,
+      this.createdAt});
 
   StoryModel.fromJson(Map<String, dynamic> json) {
     videoThumbnail = json['videoThumbnail'] ?? '';
     videoUrl = json['videoUrl'] ?? [];
     vendorID = json['vendorID'] ?? '';
-    createdAt = json['createdAt'] ?? Timestamp.now();
+    createdAt = json['createdAt'] != null
+        ? DateTime.tryParse(json['createdAt'].toString())
+        : DateTime.now();
   }
 
   Map<String, dynamic> toJson() {
@@ -20,7 +24,7 @@ class StoryModel {
     data['videoThumbnail'] = videoThumbnail;
     data['videoUrl'] = videoUrl;
     data['vendorID'] = vendorID;
-    data['createdAt'] = createdAt;
+    data['createdAt'] = createdAt?.toIso8601String();
     return data;
   }
 }

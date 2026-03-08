@@ -1,11 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:restaurant_td/models/subscription_plan_model.dart';
 
 class SubscriptionHistoryModel {
   String? id;
   String? userId;
-  Timestamp? expiryDate;
-  Timestamp? createdAt;
+  DateTime? expiryDate;
+  DateTime? createdAt;
   SubscriptionPlanModel? subscriptionPlan;
   String? paymentType;
 
@@ -24,7 +23,9 @@ class SubscriptionHistoryModel {
       userId: json['user_id'],
       expiryDate: json['expiry_date'],
       createdAt: json['createdAt'],
-      subscriptionPlan: json['subscription_plan'] != null ? SubscriptionPlanModel.fromJson(json['subscription_plan']) : null,
+      subscriptionPlan: json['subscription_plan'] != null
+          ? SubscriptionPlanModel.fromJson(json['subscription_plan'])
+          : null,
       paymentType: json['payment_type'],
     );
   }

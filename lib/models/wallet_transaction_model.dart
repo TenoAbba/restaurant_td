@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class WalletTransactionModel {
   String? userId;
   String? paymentMethod;
@@ -8,7 +6,7 @@ class WalletTransactionModel {
   String? orderId;
   String? subscriptionId;
   String? paymentStatus;
-  Timestamp? date;
+  DateTime? date;
   String? id;
   String? transactionUser;
   String? note;
@@ -36,7 +34,9 @@ class WalletTransactionModel {
     orderId = json['order_id'];
     subscriptionId = json['subscription_id'];
     paymentStatus = json['payment_status'];
-    date = json['date'];
+    date = json['date'] != null
+        ? DateTime.tryParse(json['date'].toString())
+        : null;
     transactionUser = json['transactionUser'] ?? 'customer';
     note = json['note'] ?? 'Order Amount credited';
   }
@@ -51,7 +51,7 @@ class WalletTransactionModel {
     data['order_id'] = orderId;
     data['subscription_id'] = subscriptionId;
     data['payment_status'] = paymentStatus;
-    data['date'] = date;
+    data['date'] = date?.toIso8601String();
     data['transactionUser'] = transactionUser;
     data['note'] = note;
     return data;

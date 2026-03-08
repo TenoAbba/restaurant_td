@@ -1,7 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class ZoneModel {
-  List<GeoPoint>? area;
+  // area stores polygon points as {latitude: x, longitude: y} maps
+  List<Map<String, double>>? area;
   bool? publish;
   double? latitude;
   String? name;
@@ -20,17 +19,21 @@ class ZoneModel {
 
   ZoneModel.fromJson(Map<String, dynamic> json) {
     if (json['area'] != null) {
-      area = <GeoPoint>[];
-      json['area'].forEach((v) {
-        area!.add(v);
+      area = <Map<String, double>>[];
+      (json['area'] as List).forEach((v) {
+        if (v is Map) {
+          area!.add({
+            'latitude': double.tryParse(v['latitude'].toString()) ?? 0.0,
+            'longitude': double.tryParse(v['longitude'].toString()) ?? 0.0,
+          });
+        }
       });
     }
-
     publish = json['publish'];
-    latitude = json['latitude'];
+    latitude = double.tryParse(json['latitude'].toString());
     name = json['name'];
     id = json['id'];
-    longitude = json['longitude'];
+    longitude = double.tryParse(json['longitude'].toString());
     quartiers = json['quartiers'] ?? [];
   }
 

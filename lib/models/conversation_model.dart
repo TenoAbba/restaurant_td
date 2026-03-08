@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class ConversationModel {
   String? id;
   String? senderId;
@@ -9,7 +7,7 @@ class ConversationModel {
   String? messageType;
   String? videoThumbnail;
   Url? url;
-  Timestamp? createdAt;
+  DateTime? createdAt;
   bool? seen;
   int? recordingTimer;
 
@@ -41,7 +39,7 @@ class ConversationModel {
               ? Url.fromJson(parsedJson['url'])
               : null
           : Url(),
-      createdAt: parsedJson['createdAt'] ?? Timestamp.now(),
+      createdAt: parsedJson['createdAt'] ?? DateTime.now(),
       seen: parsedJson['seen'],
       recordingTimer: parsedJson['recordingTimer'],
     );

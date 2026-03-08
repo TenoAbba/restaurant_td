@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:restaurant_td/models/user_model.dart';
 import 'package:restaurant_td/models/vendor_model.dart';
 
@@ -14,33 +13,33 @@ class DineInBookingModel {
   String? occasion;
   String? authorID;
   String? specialRequest;
-  Timestamp? date;
+  DateTime? date;
   String? totalGuest;
   VendorModel? vendor;
   bool? firstVisit;
-  Timestamp? createdAt;
+  DateTime? createdAt;
   String? guestLastName;
   String? discountType;
 
   DineInBookingModel(
       {this.discount,
-        this.id,
-        this.guestPhone,
-        this.guestFirstName,
-        this.status,
-        this.author,
-        this.guestEmail,
-        this.vendorID,
-        this.occasion,
-        this.authorID,
-        this.specialRequest,
-        this.date,
-        this.totalGuest,
-        this.vendor,
-        this.firstVisit,
-        this.createdAt,
-        this.guestLastName,
-        this.discountType});
+      this.id,
+      this.guestPhone,
+      this.guestFirstName,
+      this.status,
+      this.author,
+      this.guestEmail,
+      this.vendorID,
+      this.occasion,
+      this.authorID,
+      this.specialRequest,
+      this.date,
+      this.totalGuest,
+      this.vendor,
+      this.firstVisit,
+      this.createdAt,
+      this.guestLastName,
+      this.discountType});
 
   DineInBookingModel.fromJson(Map<String, dynamic> json) {
     print(json['id']);
@@ -49,19 +48,22 @@ class DineInBookingModel {
     guestPhone = json['guestPhone'];
     guestFirstName = json['guestFirstName'];
     status = json['status'];
-    author =
-    json['author'] != null ?  UserModel.fromJson(json['author']) : null;
+    author = json['author'] != null ? UserModel.fromJson(json['author']) : null;
     guestEmail = json['guestEmail'];
     vendorID = json['vendorID'];
     occasion = json['occasion'];
     authorID = json['authorID'];
     specialRequest = json['specialRequest'];
-    date = json['date'];
+    date = json['date'] != null
+        ? DateTime.tryParse(json['date'].toString())
+        : null;
     totalGuest = json['totalGuest'].toString();
     vendor =
-    json['vendor'] != null ?  VendorModel.fromJson(json['vendor']) : null;
+        json['vendor'] != null ? VendorModel.fromJson(json['vendor']) : null;
     firstVisit = json['firstVisit'];
-    createdAt = json['createdAt'];
+    createdAt = json['createdAt'] != null
+        ? DateTime.tryParse(json['createdAt'].toString())
+        : null;
     guestLastName = json['guestLastName'];
     discountType = json['discountType'];
   }
@@ -81,13 +83,13 @@ class DineInBookingModel {
     data['occasion'] = occasion;
     data['authorID'] = authorID;
     data['specialRequest'] = specialRequest;
-    data['date'] = date;
+    data['date'] = date?.toIso8601String();
     data['totalGuest'] = totalGuest;
     if (vendor != null) {
       data['vendor'] = vendor!.toJson();
     }
     data['firstVisit'] = firstVisit;
-    data['createdAt'] = createdAt;
+    data['createdAt'] = createdAt?.toIso8601String();
     data['guestLastName'] = guestLastName;
     data['discountType'] = discountType;
     return data;

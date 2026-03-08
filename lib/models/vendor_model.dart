@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:restaurant_td/models/admin_commission.dart';
 import 'package:restaurant_td/models/subscription_plan_model.dart';
 
@@ -23,7 +22,7 @@ class VendorModel {
   num? walletAmount;
   String? closeDineTime;
   String? zoneId;
-  Timestamp? createdAt;
+  DateTime? createdAt;
   double? longitude;
   bool? enabledDiveInFuture;
   String? restaurantCost;
@@ -33,7 +32,7 @@ class VendorModel {
   String? phonenumber;
   List<SpecialDiscount>? specialDiscount;
   bool? specialDiscountEnable;
-  GeoPoint? coordinates;
+  Map<String, double>? coordinates; // lat/lng map
   num? reviewsSum;
   num? reviewsCount;
   List<dynamic>? photos;
@@ -41,7 +40,7 @@ class VendorModel {
   List<dynamic>? categoryTitle;
   double? latitude;
   String? subscriptionPlanId;
-  Timestamp? subscriptionExpiryDate;
+  DateTime? subscriptionExpiryDate;
   SubscriptionPlanModel? subscriptionPlan;
   String? subscriptionTotalOrders;
   bool? isSelfDelivery;
@@ -119,7 +118,9 @@ class VendorModel {
     walletAmount = json['walletAmount'];
     closeDineTime = json['closeDineTime'];
     zoneId = json['zoneId'];
-    createdAt = json['createdAt'];
+    createdAt = json['createdAt'] != null
+        ? DateTime.tryParse(json['createdAt'].toString())
+        : null;
     longitude = double.parse(json['longitude'].toString());
     enabledDiveInFuture = json['enabledDiveInFuture'];
     restaurantCost = json['restaurantCost']?.toString();
@@ -139,7 +140,10 @@ class VendorModel {
       });
     }
     specialDiscountEnable = json['specialDiscountEnable'];
-    coordinates = json['coordinates'];
+    coordinates = json['coordinates'] != null
+        ? Map<String, double>.from((json['coordinates'] as Map).map((k, v) =>
+            MapEntry(k.toString(), double.tryParse(v.toString()) ?? 0.0)))
+        : null;
     reviewsSum = json['reviewsSum'] ?? 0.0;
     photos = json['photos'] ?? [];
     title = json['title'];
@@ -147,7 +151,9 @@ class VendorModel {
         json['categoryTitle'] is String ? [] : json['categoryTitle'] ?? [];
     latitude = double.parse(json['latitude'].toString());
     subscriptionPlanId = json['subscriptionPlanId'];
-    subscriptionExpiryDate = json['subscriptionExpiryDate'];
+    subscriptionExpiryDate = json['subscriptionExpiryDate'] != null
+        ? DateTime.tryParse(json['subscriptionExpiryDate'].toString())
+        : null;
     subscriptionPlan = json['subscription_plan'] != null
         ? SubscriptionPlanModel.fromJson(json['subscription_plan'])
         : null;
@@ -166,7 +172,7 @@ class VendorModel {
     data['categoryPhoto'] = categoryPhoto;
     data['restaurantMenuPhotos'] = restaurantMenuPhotos;
     data['subscriptionPlanId'] = subscriptionPlanId;
-    data['subscriptionExpiryDate'] = subscriptionExpiryDate;
+    data['subscriptionExpiryDate'] = subscriptionExpiryDate?.toIso8601String();
     data['subscription_plan'] = subscriptionPlan?.toJson();
     data['subscriptionTotalOrders'] = subscriptionTotalOrders;
     if (workingHours != null) {
@@ -188,7 +194,7 @@ class VendorModel {
     data['walletAmount'] = walletAmount;
     data['closeDineTime'] = closeDineTime;
     data['zoneId'] = zoneId;
-    data['createdAt'] = createdAt;
+    data['createdAt'] = createdAt?.toIso8601String();
     data['longitude'] = longitude;
     data['enabledDiveInFuture'] = enabledDiveInFuture;
     data['restaurantCost'] = restaurantCost;
@@ -265,7 +271,7 @@ class Timeslot {
 
 class G {
   String? geohash;
-  GeoPoint? geopoint;
+  Map<String, double>? geopoint;
 
   G({this.geohash, this.geopoint});
 

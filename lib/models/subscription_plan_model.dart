@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class SubscriptionPlanModel {
-  Timestamp? createdAt;
+  DateTime? createdAt;
   String? description;
   String? expiryDay;
   Features? features;
@@ -37,7 +35,8 @@ class SubscriptionPlanModel {
       createdAt: json['createdAt'],
       description: json['description'],
       expiryDay: json['expiryDay'],
-      features: json['features'] == null ? null : Features.fromJson(json['features']),
+      features:
+          json['features'] == null ? null : Features.fromJson(json['features']),
       id: json['id'],
       isEnable: json['isEnable'],
       itemLimit: json['itemLimit'],
@@ -47,7 +46,9 @@ class SubscriptionPlanModel {
       place: json['place'],
       image: json['image'],
       type: json['type'],
-      planPoints: json['plan_points'] == null ? [] : List<String>.from(json['plan_points']),
+      planPoints: json['plan_points'] == null
+          ? []
+          : List<String>.from(json['plan_points']),
     );
   }
 

@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +13,7 @@ import 'package:restaurant_td/models/product_model.dart';
 import 'package:restaurant_td/models/vendor_category_model.dart';
 import 'package:restaurant_td/models/vendor_model.dart';
 import 'package:restaurant_td/utils/fire_store_utils.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddProductController extends GetxController {
   RxBool isLoading = true.obs;
@@ -62,7 +62,6 @@ class AddProductController extends GetxController {
 
   @override
   void onInit() {
-    // TODO: implement onInit
     getArgument();
     priceAndDiscountPriceListen();
     super.onInit();
@@ -140,16 +139,20 @@ class AddProductController extends GetxController {
       }
     });
 
-    await FireStoreUtils.fireStore
-        .collection(CollectionName.vendorProducts)
-        .where('vendorID', isEqualTo: Constant.userModel!.vendorID)
-        .where('createdAt',
-            isGreaterThan: Constant.userModel?.subscriptionPlan?.createdAt)
-        .get()
+    // Load product list — filtered by subscription plan start date
+    await Supabase.instance.client
+        .from(CollectionName.vendorProducts)
+        .select()
+        .eq('vendor_id', Constant.userModel!.vendorID!)
+        .gt(
+            'created_at',
+            Constant.userModel?.subscriptionPlan?.createdAt
+                    ?.toIso8601String() ??
+                DateTime(2000).toIso8601String())
         .then((value) {
-      for (var element in value.docs) {
-        ProductModel productModel = ProductModel.fromJson(element.data());
-        productList.add(productModel);
+      for (var element in value) {
+        ProductModel product = ProductModel.fromJson(element);
+        productList.add(product);
         log("ProductList :: ${productList.length}");
       }
     });
@@ -216,32 +219,23 @@ class AddProductController extends GetxController {
     print("[DEBUG SAVE] saveDetails started");
     try {
       if (selectedProductCategory.value.id == null) {
-        print("[DEBUG SAVE] Validation failed: Category is null");
         ShowToastDialog.showToast("Please Select category".tr);
       } else if (productTitleController.value.text.isEmpty) {
-        print("[DEBUG SAVE] Validation failed: Title is empty");
         ShowToastDialog.showToast("Please enter title".tr);
       } else if (productDescriptionController.value.text.isEmpty) {
-        print("[DEBUG SAVE] Validation failed: Description is empty");
         ShowToastDialog.showToast("Please enter description".tr);
       } else if (regularPriceController.value.text.isEmpty) {
-        print("[DEBUG SAVE] Validation failed: Regular price is empty");
         ShowToastDialog.showToast("Please enter valid regular price".tr);
       } else if (isDiscountedPriceOk.value == true) {
-        print(
-            "[DEBUG SAVE] Validation failed: isDiscountedPriceOk is true (error state)");
         ShowToastDialog.showToast("Please enter valid discount price".tr);
       } else if (productQuantityController.value.text.isEmpty) {
-        print("[DEBUG SAVE] Validation failed: Quantity is empty");
         ShowToastDialog.showToast("Please enter product quantity");
       } else if ((double.tryParse(
                   regularPriceController.value.text.toString()) ??
               0) <=
           0) {
-        print("[DEBUG SAVE] Validation failed: Regular price is <= 0");
         ShowToastDialog.showToast("Please enter valid regular price".tr);
       } else {
-        print("[DEBUG SAVE] All validations passed");
         specification.clear();
         for (var element in specificationList) {
           if (element.value!.isNotEmpty && element.lable!.isNotEmpty) {
@@ -251,8 +245,6 @@ class AddProductController extends GetxController {
         }
 
         ShowToastDialog.showLoader("Please wait".tr);
-        print(
-            "[DEBUG SAVE] Starting image upload, current images: ${images.length}");
 
         for (int i = 0; i < images.length; i++) {
           if (images[i] is XFile) {
@@ -277,7 +269,6 @@ class AddProductController extends GetxController {
           }
         }
 
-        print("[DEBUG SAVE] Updating product model");
         productModel.value.id = productModel.value.id ?? Constant.getUuid();
         productModel.value.photo = images.isNotEmpty ? images.first : "";
         productModel.value.photos = images;
@@ -308,15 +299,11 @@ class AddProductController extends GetxController {
         productModel.value.addOnsPrice = listAddPrice;
         productModel.value.takeawayOption = takeAway.value;
         productModel.value.productSpecification = specification;
-        productModel.value.createdAt = Timestamp.now();
+        productModel.value.createdAt = DateTime.now(); // ← was Timestamp.now()
 
-        print(
-            "[DEBUG SAVE] Writing to Firestore for ID: ${productModel.value.id}");
         await FireStoreUtils.updateProduct(productModel.value);
-        print("[DEBUG SAVE] Firestore update call finished");
 
         ShowToastDialog.closeLoader();
-        print("[DEBUG SAVE] Save process finished, navigating back");
         Get.back(result: true);
       }
     } catch (e, stack) {

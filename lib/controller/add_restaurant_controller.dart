@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,8 +13,9 @@ import 'package:restaurant_td/models/user_model.dart';
 import 'package:restaurant_td/models/vendor_category_model.dart';
 import 'package:restaurant_td/models/vendor_model.dart';
 import 'package:restaurant_td/models/zone_model.dart';
-import 'package:restaurant_td/utils/fire_store_utils.dart';
-import 'package:restaurant_td/widget/geoflutterfire/src/geoflutterfire.dart';
+import 'package:restaurant_td/service/supabase_service.dart';
+import 'package:restaurant_td/service/supabase_storage_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddRestaurantController extends GetxController {
   RxBool isLoading = true.obs;
@@ -69,32 +69,35 @@ class AddRestaurantController extends GetxController {
 
   Future<void> getRestaurant() async {
     try {
-      await FireStoreUtils.getUserProfile(FireStoreUtils.getCurrentUid())
+      await SupabaseService.getUserProfile(SupabaseService.getCurrentUid())
           .then((model) {
         if (model != null) {
-          userModel.value = model;
+          userModel.value = UserModel.fromJson(model);
         }
       });
 
-      await FireStoreUtils.getVendorCategoryById().then((value) {
+      await SupabaseService.getVendorCategoryById().then((value) {
         if (value != null) {
-          vendorCategoryList.value = value;
+          vendorCategoryList.value = (value as List)
+              .map((item) => VendorCategoryModel.fromJson(item))
+              .toList();
         }
       });
 
-      await FireStoreUtils.getZone().then((value) {
+      await SupabaseService.getZone().then((value) {
         if (value != null) {
-          zoneList.value = value;
+          zoneList.value =
+              (value as List).map((item) => ZoneModel.fromJson(item)).toList();
         }
       });
       if (Constant.userModel?.vendorID != null &&
           Constant.userModel?.vendorID?.isNotEmpty == true) {
-        await FireStoreUtils.getVendorById(
+        await SupabaseService.getVendorById(
                 Constant.userModel!.vendorID.toString())
             .then(
           (value) {
             if (value != null) {
-              vendorModel.value = value;
+              vendorModel.value = VendorModel.fromJson(value);
 
               restaurantNameController.value.text =
                   vendorModel.value.title.toString();
@@ -142,12 +145,12 @@ class AddRestaurantController extends GetxController {
         );
       }
 
-      await FireStoreUtils.getDelivery().then((value) {
+      await SupabaseService.getDelivery().then((value) {
         if (value != null) {
-          deliveryChargeModel.value = value;
+          deliveryChargeModel.value = DeliveryCharge.fromJson(value);
           isEnableDeliverySettings.value =
               deliveryChargeModel.value.vendorCanModify ?? false;
-          if (value.vendorCanModify == true) {
+          if (value['vendorCanModify'] == true) {
             if (vendorModel.value.deliveryCharge != null) {
               chargePerKmController.value.text = vendorModel
                   .value.deliveryCharge!.deliveryChargesPerKm
@@ -328,9 +331,9 @@ class AddRestaurantController extends GetxController {
       final element = currentImages[i];
       if (element is XFile) {
         try {
-          String url = await Constant.uploadUserImageToFireStorage(
+          String url = await SupabaseStorageService.uploadRestaurantImage(
             File(element.path),
-            "restaurants/${FireStoreUtils.getCurrentUid()}/${DateTime.now().millisecondsSinceEpoch}",
+            "restaurants/${SupabaseService.getCurrentUid()}/${DateTime.now().millisecondsSinceEpoch}",
             File(element.path).path.split('/').last,
           ).timeout(const Duration(seconds: 30));
           // replace only after successful upload
@@ -351,7 +354,6 @@ class AddRestaurantController extends GetxController {
 
     if (vendorModel.value.id == null) {
       vendorModel.value = VendorModel();
-      vendorModel.value.createdAt = Timestamp.now();
     }
 
     vendorModel.value.id = Constant.userModel?.vendorID;
@@ -363,14 +365,6 @@ class AddRestaurantController extends GetxController {
         selectedCategories.map((e) => e.id ?? '').toList();
     vendorModel.value.categoryTitle =
         selectedCategories.map((e) => e.title ?? '').toList();
-    vendorModel.value.g = G(
-        geohash: Geoflutterfire()
-            .point(
-                latitude: selectedLocation!.latitude,
-                longitude: selectedLocation!.longitude)
-            .hash,
-        geopoint:
-            GeoPoint(selectedLocation!.latitude, selectedLocation!.longitude));
     vendorModel.value.description =
         restaurantDescriptionController.value.text.trim();
     vendorModel.value.phonenumber = mobileNumberController.value.text.trim();
@@ -426,14 +420,13 @@ class AddRestaurantController extends GetxController {
     try {
       if (Constant.userModel?.vendorID?.isNotEmpty == true) {
         // Update existing vendor
-        VendorModel? updatedVendor =
-            await FireStoreUtils.updateVendor(vendorModel.value);
-        return updatedVendor != null;
+        await SupabaseService.updateVendor(vendorModel.value.toJson());
+        return true;
       } else {
         // Create new vendor
-        VendorModel? newVendor =
-            await FireStoreUtils.firebaseCreateNewVendor(vendorModel.value);
-        return newVendor.id != null;
+        Map<String, dynamic>? result =
+            await SupabaseService.createVendor(vendorModel.value.toJson());
+        return result != null;
       }
     } catch (error) {
       log("Database save error: $error");
@@ -465,12 +458,6 @@ class AddRestaurantController extends GetxController {
       filters['Takes Reservations'] = 'Yes';
     } else {
       filters['Takes Reservations'] = 'No';
-    }
-
-    if (selectedService.contains('Vegetarian Friendly')) {
-      filters['Vegetarian Friendly'] = 'Yes';
-    } else {
-      filters['Vegetarian Friendly'] = 'No';
     }
 
     if (selectedService.contains('Live Music')) {

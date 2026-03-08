@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -34,7 +33,8 @@ class HelpSupportScreen extends StatelessWidget {
     return WillPopScope(
       onWillPop: () async {
         if (isNavigateViaNotification == true) {
-          await Preferences.setBoolean(Preferences.isClickOnNotification, false);
+          await Preferences.setBoolean(
+              Preferences.isClickOnNotification, false);
           Get.offAll(DashBoardScreen());
         } else {
           Get.back();
@@ -45,16 +45,21 @@ class HelpSupportScreen extends StatelessWidget {
           init: HelpSupportController(),
           builder: (controller) {
             return Scaffold(
-              backgroundColor: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey50,
+              backgroundColor: themeChange.getThem()
+                  ? AppThemeData.grey800
+                  : AppThemeData.grey50,
               appBar: AppBar(
-                backgroundColor: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                backgroundColor: themeChange.getThem()
+                    ? AppThemeData.grey900
+                    : AppThemeData.grey50,
                 centerTitle: false,
                 automaticallyImplyLeading: false,
                 titleSpacing: 0,
                 leading: InkWell(
                   onTap: () async {
                     if (isNavigateViaNotification == true) {
-                      await Preferences.setBoolean(Preferences.isClickOnNotification, false);
+                      await Preferences.setBoolean(
+                          Preferences.isClickOnNotification, false);
                       Get.offAll(DashBoardScreen());
                     } else {
                       Get.back();
@@ -62,18 +67,27 @@ class HelpSupportScreen extends StatelessWidget {
                   },
                   child: Icon(
                     Icons.chevron_left_outlined,
-                    color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
+                    color: themeChange.getThem()
+                        ? AppThemeData.grey50
+                        : AppThemeData.grey900,
                   ),
                 ),
                 title: Text(
                   'Help & Support'.tr,
-                  style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800, fontFamily: AppThemeData.bold, fontSize: 18),
+                  style: TextStyle(
+                      color: themeChange.getThem()
+                          ? AppThemeData.grey100
+                          : AppThemeData.grey800,
+                      fontFamily: AppThemeData.bold,
+                      fontSize: 18),
                 ),
                 elevation: 0,
                 bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(4.0),
                   child: Container(
-                    color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200,
+                    color: themeChange.getThem()
+                        ? AppThemeData.grey700
+                        : AppThemeData.grey200,
                     height: 4.0,
                   ),
                 ),
@@ -90,16 +104,29 @@ class HelpSupportScreen extends StatelessWidget {
                         child: FirestorePagination(
                           controller: controller.scrollController,
                           physics: const BouncingScrollPhysics(),
-                          query: FirebaseFirestore.instance.collection(CollectionName.chat).doc(FireStoreUtils.getCurrentUid()).collection('thread').orderBy('createdAt', descending: true),
+                          query: FirebaseFirestore.instance
+                              .collection(CollectionName.chat)
+                              .doc(FireStoreUtils.getCurrentUid())
+                              .collection('thread')
+                              .orderBy('createdAt', descending: true),
                           isLive: true,
                           shrinkWrap: true,
                           reverse: true,
-                          onEmpty: Constant.showEmptyView(message: "No conversion found".tr),
+                          onEmpty: Constant.showEmptyView(
+                              message: "No conversion found".tr),
                           viewType: ViewType.list,
                           // to fetch real-time data
                           itemBuilder: (context, documentSnapshots, index) {
-                            ConversationModel inboxModel = ConversationModel.fromJson(documentSnapshots[index].data() as Map<String, dynamic>);
-                            return chatItemView(isMe: inboxModel.senderId == FireStoreUtils.getCurrentUid(), data: inboxModel, context: context, controller: controller);
+                            ConversationModel inboxModel =
+                                ConversationModel.fromJson(
+                                    documentSnapshots[index].data()
+                                        as Map<String, dynamic>);
+                            return chatItemView(
+                                isMe: inboxModel.senderId ==
+                                    FireStoreUtils.getCurrentUid(),
+                                data: inboxModel,
+                                context: context,
+                                controller: controller);
                           },
                         ),
                       ),
@@ -111,7 +138,12 @@ class HelpSupportScreen extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.only(left: 10),
                           child: TextField(
-                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.primary50 : AppThemeData.secondary600, fontFamily: AppThemeData.medium, fontSize: 14),
+                            style: TextStyle(
+                                color: themeChange.getThem()
+                                    ? AppThemeData.primary50
+                                    : AppThemeData.secondary600,
+                                fontFamily: AppThemeData.medium,
+                                fontSize: 14),
                             textInputAction: TextInputAction.send,
                             keyboardType: TextInputType.text,
                             textCapitalization: TextCapitalization.sentences,
@@ -119,50 +151,104 @@ class HelpSupportScreen extends StatelessWidget {
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.only(left: 10),
                               filled: true,
-                              fillColor: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey100,
+                              fillColor: themeChange.getThem()
+                                  ? AppThemeData.grey900
+                                  : AppThemeData.grey100,
                               disabledBorder: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide(color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey100, width: 1),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
+                                borderSide: BorderSide(
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey900
+                                        : AppThemeData.grey100,
+                                    width: 1),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide(color: themeChange.getThem() ? AppThemeData.secondary300 : AppThemeData.secondary300, width: 1),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
+                                borderSide: BorderSide(
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.secondary300
+                                        : AppThemeData.secondary300,
+                                    width: 1),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide(color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey100, width: 1),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
+                                borderSide: BorderSide(
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey900
+                                        : AppThemeData.grey100,
+                                    width: 1),
                               ),
                               errorBorder: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide(color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey100, width: 1),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
+                                borderSide: BorderSide(
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey900
+                                        : AppThemeData.grey100,
+                                    width: 1),
                               ),
                               border: OutlineInputBorder(
-                                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                borderSide: BorderSide(color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey100, width: 1),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
+                                borderSide: BorderSide(
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey900
+                                        : AppThemeData.grey100,
+                                    width: 1),
                               ),
                               suffixIcon: IconButton(
                                 onPressed: () async {
-                                  if (controller.messageController.value.text.isNotEmpty) {
-                                    controller.sendMessage(message: controller.messageController.value.text, url: null, videoThumbnail: '', messageType: 'text');
+                                  if (controller.messageController.value.text
+                                      .isNotEmpty) {
+                                    controller.sendMessage(
+                                        message: controller
+                                            .messageController.value.text,
+                                        url: null,
+                                        videoThumbnail: '',
+                                        messageType: 'text');
                                     controller.messageController.value.clear();
                                   } else {
-                                    ShowToastDialog.showToast("Please enter text".tr);
+                                    ShowToastDialog.showToast(
+                                        "Please enter text".tr);
                                   }
                                 },
-                                icon: Icon(Icons.send_rounded, color: themeChange.getThem() ? AppThemeData.grey500 : AppThemeData.grey800),
+                                icon: Icon(Icons.send_rounded,
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey500
+                                        : AppThemeData.grey800),
                               ),
                               prefixIcon: IconButton(
                                 onPressed: () async {
-                                  _onCameraClick(themeChange: themeChange, controller: controller, context: context);
+                                  _onCameraClick(
+                                      themeChange: themeChange,
+                                      controller: controller,
+                                      context: context);
                                 },
-                                icon: Icon(Icons.camera_alt, color: themeChange.getThem() ? AppThemeData.grey500 : AppThemeData.grey800),
+                                icon: Icon(Icons.camera_alt,
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey500
+                                        : AppThemeData.grey800),
                               ),
                               hintText: 'Start typing with admin...'.tr,
-                              hintStyle: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey700, fontFamily: AppThemeData.medium, fontSize: 14),
+                              hintStyle: TextStyle(
+                                  color: themeChange.getThem()
+                                      ? AppThemeData.grey50
+                                      : AppThemeData.grey700,
+                                  fontFamily: AppThemeData.medium,
+                                  fontSize: 14),
                             ),
                             onSubmitted: (value) async {
-                              if (controller.messageController.value.text.isNotEmpty) {
-                                controller.sendMessage(message: controller.messageController.value.text, url: null, videoThumbnail: '', messageType: 'text');
+                              if (controller
+                                  .messageController.value.text.isNotEmpty) {
+                                controller.sendMessage(
+                                    message:
+                                        controller.messageController.value.text,
+                                    url: null,
+                                    videoThumbnail: '',
+                                    messageType: 'text');
                                 // Timer(const Duration(milliseconds: 500), () => _controller.jumpTo(_controller.position.maxScrollExtent));
                                 controller.messageController.value.clear();
                               }
@@ -179,7 +265,11 @@ class HelpSupportScreen extends StatelessWidget {
     );
   }
 
-  Widget chatItemView({required bool isMe, required ConversationModel data, required BuildContext context, required HelpSupportController controller}) {
+  Widget chatItemView(
+      {required bool isMe,
+      required ConversationModel data,
+      required BuildContext context,
+      required HelpSupportController controller}) {
     final themeChange = Provider.of<DarkThemeProvider>(context);
 
     return Container(
@@ -197,18 +287,29 @@ class HelpSupportScreen extends StatelessWidget {
                       data.messageType == "text"
                           ? Container(
                               constraints: BoxConstraints(
-                                maxWidth: MediaQuery.of(context).size.width * 0.75, // prevent overflow
+                                maxWidth: MediaQuery.of(context).size.width *
+                                    0.75, // prevent overflow
                               ),
                               decoration: BoxDecoration(
-                                color: themeChange.getThem() ? AppThemeData.primary200 : AppThemeData.secondary300,
-                                borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomLeft: Radius.circular(10)),
+                                color: themeChange.getThem()
+                                    ? AppThemeData.primary200
+                                    : AppThemeData.secondary300,
+                                borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(10),
+                                    topRight: Radius.circular(10),
+                                    bottomLeft: Radius.circular(10)),
                               ),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 10),
                               child: Text(
                                 data.message.toString(),
                                 softWrap: true,
                                 maxLines: null,
-                                style: TextStyle(fontFamily: AppThemeData.semiBold, color: themeChange.getThem() ? Colors.black : Colors.white),
+                                style: TextStyle(
+                                    fontFamily: AppThemeData.semiBold,
+                                    color: themeChange.getThem()
+                                        ? Colors.black
+                                        : Colors.white),
                               ),
                             )
                           : data.messageType == "image"
@@ -218,24 +319,32 @@ class HelpSupportScreen extends StatelessWidget {
                                     maxWidth: 200,
                                   ),
                                   child: ClipRRect(
-                                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomLeft: Radius.circular(10)),
-                                    child: Stack(alignment: Alignment.center, children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          Get.to(FullScreenImageViewer(
-                                            imageUrl: data.url!.url,
-                                          ));
-                                        },
-                                        child: Hero(
-                                          tag: data.url!.url,
-                                          child: CachedNetworkImage(
-                                            imageUrl: data.url!.url,
-                                            placeholder: (context, url) => Constant.loader(),
-                                            errorWidget: (context, url, error) => const Icon(Icons.error),
+                                    borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(10),
+                                        topRight: Radius.circular(10),
+                                        bottomLeft: Radius.circular(10)),
+                                    child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              Get.to(FullScreenImageViewer(
+                                                imageUrl: data.url!.url,
+                                              ));
+                                            },
+                                            child: Hero(
+                                              tag: data.url!.url,
+                                              child: CachedNetworkImage(
+                                                imageUrl: data.url!.url,
+                                                placeholder: (context, url) =>
+                                                    Constant.loader(),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        const Icon(Icons.error),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                    ]),
+                                        ]),
                                   ))
                               : ConstrainedBox(
                                   constraints: const BoxConstraints(
@@ -250,18 +359,27 @@ class HelpSupportScreen extends StatelessWidget {
                                       ));
                                     },
                                     child: ClipRRect(
-                                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomLeft: Radius.circular(10)),
-                                      child: Stack(alignment: Alignment.center, children: [
-                                        Hero(
-                                          tag: data.url!.url,
-                                          child: CachedNetworkImage(
-                                            imageUrl: data.videoThumbnail ?? '',
-                                            placeholder: (context, url) => Constant.loader(),
-                                            errorWidget: (context, url, error) => const Icon(Icons.error),
-                                          ),
-                                        ),
-                                        Icon(Icons.play_arrow, size: 50)
-                                      ]),
+                                      borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(10),
+                                          topRight: Radius.circular(10),
+                                          bottomLeft: Radius.circular(10)),
+                                      child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Hero(
+                                              tag: data.url!.url,
+                                              child: CachedNetworkImage(
+                                                imageUrl:
+                                                    data.videoThumbnail ?? '',
+                                                placeholder: (context, url) =>
+                                                    Constant.loader(),
+                                                errorWidget:
+                                                    (context, url, error) =>
+                                                        const Icon(Icons.error),
+                                              ),
+                                            ),
+                                            Icon(Icons.play_arrow, size: 50)
+                                          ]),
                                     ),
                                   )),
                       Padding(
@@ -271,7 +389,9 @@ class HelpSupportScreen extends StatelessWidget {
                           child: NetworkImageWidget(
                             height: Responsive.width(5, context),
                             width: Responsive.width(5, context),
-                            imageUrl: controller.userModel.value.profilePictureURL.toString(),
+                            imageUrl: controller
+                                .userModel.value.profilePictureURL
+                                .toString(),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -285,10 +405,23 @@ class HelpSupportScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(Constant.dateAndTimeFormatTimestamp(data.createdAt),
-                          style: TextStyle(fontFamily: AppThemeData.regular, fontSize: 12, color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800)),
+                          style: TextStyle(
+                              fontFamily: AppThemeData.regular,
+                              fontSize: 12,
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey100
+                                  : AppThemeData.grey800)),
                       data.seen == true
-                          ? Text("✓✓", style: TextStyle(fontSize: 10, color: AppThemeData.secondary300))
-                          : Text("✓", style: TextStyle(fontSize: 10, color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800))
+                          ? Text("✓✓",
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: AppThemeData.secondary300))
+                          : Text("✓",
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: themeChange.getThem()
+                                      ? AppThemeData.grey100
+                                      : AppThemeData.grey800))
                     ],
                   ),
                 ],
@@ -304,18 +437,30 @@ class HelpSupportScreen extends StatelessWidget {
                     data.messageType == "text"
                         ? Container(
                             constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.75, // prevent overflow
+                              maxWidth: MediaQuery.of(context).size.width *
+                                  0.75, // prevent overflow
                             ),
                             decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomRight: Radius.circular(10)),
-                              color: themeChange.getThem() ? AppThemeData.grey900 : Colors.grey.shade300,
+                              borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(10),
+                                  topRight: Radius.circular(10),
+                                  bottomRight: Radius.circular(10)),
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey900
+                                  : Colors.grey.shade300,
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 10),
                             child: Text(
                               data.message.toString(),
                               softWrap: true,
                               maxLines: null,
-                              style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800, fontFamily: AppThemeData.regular, fontSize: 14),
+                              style: TextStyle(
+                                  color: themeChange.getThem()
+                                      ? AppThemeData.grey100
+                                      : AppThemeData.grey800,
+                                  fontFamily: AppThemeData.regular,
+                                  fontSize: 14),
                             ),
                           )
                         : data.messageType == "image"
@@ -325,24 +470,32 @@ class HelpSupportScreen extends StatelessWidget {
                                   maxWidth: 200,
                                 ),
                                 child: ClipRRect(
-                                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomRight: Radius.circular(10)),
-                                  child: Stack(alignment: Alignment.center, children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        Get.to(FullScreenImageViewer(
-                                          imageUrl: data.url!.url,
-                                        ));
-                                      },
-                                      child: Hero(
-                                        tag: data.url!.url,
-                                        child: CachedNetworkImage(
-                                          imageUrl: data.url!.url,
-                                          placeholder: (context, url) => Constant.loader(),
-                                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                                  borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(10),
+                                      topRight: Radius.circular(10),
+                                      bottomRight: Radius.circular(10)),
+                                  child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Get.to(FullScreenImageViewer(
+                                              imageUrl: data.url!.url,
+                                            ));
+                                          },
+                                          child: Hero(
+                                            tag: data.url!.url,
+                                            child: CachedNetworkImage(
+                                              imageUrl: data.url!.url,
+                                              placeholder: (context, url) =>
+                                                  Constant.loader(),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      const Icon(Icons.error),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ]),
+                                      ]),
                                 ))
                             : ConstrainedBox(
                                 constraints: const BoxConstraints(
@@ -357,18 +510,27 @@ class HelpSupportScreen extends StatelessWidget {
                                     ));
                                   },
                                   child: ClipRRect(
-                                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10), bottomRight: Radius.circular(10)),
-                                    child: Stack(alignment: Alignment.center, children: [
-                                      Hero(
-                                        tag: data.url!.url,
-                                        child: CachedNetworkImage(
-                                          imageUrl: data.videoThumbnail ?? '',
-                                          placeholder: (context, url) => Constant.loader(),
-                                          errorWidget: (context, url, error) => const Icon(Icons.error),
-                                        ),
-                                      ),
-                                      Icon(Icons.play_arrow, size: 50)
-                                    ]),
+                                    borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(10),
+                                        topRight: Radius.circular(10),
+                                        bottomRight: Radius.circular(10)),
+                                    child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Hero(
+                                            tag: data.url!.url,
+                                            child: CachedNetworkImage(
+                                              imageUrl:
+                                                  data.videoThumbnail ?? '',
+                                              placeholder: (context, url) =>
+                                                  Constant.loader(),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      const Icon(Icons.error),
+                                            ),
+                                          ),
+                                          Icon(Icons.play_arrow, size: 50)
+                                        ]),
                                   ),
                                 )),
                   ],
@@ -381,12 +543,19 @@ class HelpSupportScreen extends StatelessWidget {
                   children: [
                     Text("Admin",
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey100
+                              : AppThemeData.grey800,
                           fontFamily: AppThemeData.semiBold,
                           fontSize: 12,
                         )),
                     Text(Constant.dateAndTimeFormatTimestamp(data.createdAt),
-                        style: TextStyle(fontFamily: AppThemeData.regular, fontSize: 12, color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800)),
+                        style: TextStyle(
+                            fontFamily: AppThemeData.regular,
+                            fontSize: 12,
+                            color: themeChange.getThem()
+                                ? AppThemeData.grey100
+                                : AppThemeData.grey800)),
                   ],
                 ),
               ],
@@ -396,11 +565,16 @@ class HelpSupportScreen extends StatelessWidget {
 
   final ImagePicker _imagePicker = ImagePicker();
 
-  void _onCameraClick({required DarkThemeProvider themeChange, required HelpSupportController controller, required BuildContext context}) {
+  void _onCameraClick(
+      {required DarkThemeProvider themeChange,
+      required HelpSupportController controller,
+      required BuildContext context}) {
     final action = CupertinoActionSheet(
       message: Text('Send Media'.tr,
           style: TextStyle(
-            color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100,
+            color: themeChange.getThem()
+                ? AppThemeData.grey800
+                : AppThemeData.grey100,
             fontFamily: AppThemeData.semiBold,
             fontSize: 12,
           )),
@@ -409,10 +583,16 @@ class HelpSupportScreen extends StatelessWidget {
           isDefaultAction: false,
           onPressed: () async {
             Get.back();
-            XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
+            XFile? image =
+                await _imagePicker.pickImage(source: ImageSource.gallery);
             if (image != null) {
-              Url url = await FireStoreUtils.uploadChatImageToFireStorage(File(image.path), context);
-              controller.sendMessage(message: '', url: url, videoThumbnail: '', messageType: 'image');
+              Url url = await FireStoreUtils.uploadChatImageToFireStorage(
+                  File(image.path), context);
+              controller.sendMessage(
+                  message: '',
+                  url: url,
+                  videoThumbnail: '',
+                  messageType: 'image');
             }
           },
           child: Text("Choose image from gallery".tr),
@@ -421,11 +601,18 @@ class HelpSupportScreen extends StatelessWidget {
           isDefaultAction: false,
           onPressed: () async {
             Navigator.pop(context);
-            XFile? galleryVideo = await _imagePicker.pickVideo(source: ImageSource.gallery);
+            XFile? galleryVideo =
+                await _imagePicker.pickVideo(source: ImageSource.gallery);
             if (galleryVideo != null) {
-              ChatVideoContainer? videoContainer = await FireStoreUtils.uploadChatVideoToFireStorage(context, File(galleryVideo.path));
+              ChatVideoContainer? videoContainer =
+                  await FireStoreUtils.uploadChatVideoToFireStorage(
+                      context, File(galleryVideo.path));
               if (videoContainer != null) {
-                controller.sendMessage(message: '', url: videoContainer.videoUrl, videoThumbnail: videoContainer.thumbnailUrl, messageType: 'video');
+                controller.sendMessage(
+                    message: '',
+                    url: videoContainer.videoUrl,
+                    videoThumbnail: videoContainer.thumbnailUrl,
+                    messageType: 'video');
               } else {
                 ShowToastDialog.showToast("Message sent failed");
               }
@@ -437,10 +624,16 @@ class HelpSupportScreen extends StatelessWidget {
           isDestructiveAction: false,
           onPressed: () async {
             Navigator.pop(context);
-            XFile? image = await _imagePicker.pickImage(source: ImageSource.camera);
+            XFile? image =
+                await _imagePicker.pickImage(source: ImageSource.camera);
             if (image != null) {
-              Url url = await FireStoreUtils.uploadChatImageToFireStorage(File(image.path), context);
-              controller.sendMessage(message: '', url: url, videoThumbnail: '', messageType: 'image');
+              Url url = await FireStoreUtils.uploadChatImageToFireStorage(
+                  File(image.path), context);
+              controller.sendMessage(
+                  message: '',
+                  url: url,
+                  videoThumbnail: '',
+                  messageType: 'image');
             }
           },
           child: Text("Take a Photo".tr),
@@ -449,11 +642,18 @@ class HelpSupportScreen extends StatelessWidget {
           isDestructiveAction: false,
           onPressed: () async {
             Navigator.pop(context);
-            XFile? recordedVideo = await _imagePicker.pickVideo(source: ImageSource.camera);
+            XFile? recordedVideo =
+                await _imagePicker.pickVideo(source: ImageSource.camera);
             if (recordedVideo != null) {
-              ChatVideoContainer? videoContainer = await FireStoreUtils.uploadChatVideoToFireStorage(context, File(recordedVideo.path));
+              ChatVideoContainer? videoContainer =
+                  await FireStoreUtils.uploadChatVideoToFireStorage(
+                      context, File(recordedVideo.path));
               if (videoContainer != null) {
-                controller.sendMessage(message: '', url: videoContainer.videoUrl, videoThumbnail: videoContainer.thumbnailUrl, messageType: 'video');
+                controller.sendMessage(
+                    message: '',
+                    url: videoContainer.videoUrl,
+                    videoThumbnail: videoContainer.thumbnailUrl,
+                    messageType: 'video');
               } else {
                 ShowToastDialog.showToast("Message sent failed");
               }

@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class ProductModel {
   String? vendorID;
   bool? veg;
@@ -22,7 +20,7 @@ class ProductModel {
   String? price;
   String? categoryID;
   String? description;
-  Timestamp? createdAt;
+  DateTime? createdAt;
 
   ProductModel(
       {this.vendorID,
@@ -72,7 +70,9 @@ class ProductModel {
     price = json['price'];
     categoryID = json['categoryID'];
     description = json['description'];
-    createdAt = json['createdAt'];
+    createdAt = json['createdAt'] != null
+        ? DateTime.tryParse(json['createdAt'].toString())
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -100,7 +100,7 @@ class ProductModel {
     data['price'] = price;
     data['categoryID'] = categoryID;
     data['description'] = description;
-    data['createdAt'] = createdAt;
+    data['createdAt'] = createdAt?.toIso8601String();
     return data;
   }
 }

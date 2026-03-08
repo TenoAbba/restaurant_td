@@ -2,10 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:restaurant_td/app/chat_screens/ChatVideoContainer.dart';
 import 'package:restaurant_td/constant/collection_name.dart';
 import 'package:restaurant_td/constant/constant.dart';
@@ -55,610 +54,500 @@ import 'package:restaurant_td/models/zone_model.dart';
 import 'package:restaurant_td/service/audio_player_service.dart';
 import 'package:restaurant_td/themes/app_them_data.dart';
 import 'package:restaurant_td/utils/preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_compress/video_compress.dart';
 
 class FireStoreUtils {
-  static FirebaseFirestore fireStore = FirebaseFirestore.instance;
+  static final SupabaseClient _db = Supabase.instance.client;
+
+  // ─── Storage bucket name (create this in Supabase Dashboard → Storage) ───
+  static const String _bucket = 'restaurant-td';
 
   static String getCurrentUid() {
-    return FirebaseAuth.instance.currentUser!.uid;
+    return _db.auth.currentUser!.id;
   }
 
   static Future<bool> isLogin() async {
-    bool isLogin = false;
-    if (FirebaseAuth.instance.currentUser != null) {
-      isLogin = await userExistOrNot(FirebaseAuth.instance.currentUser!.uid);
-    } else {
-      isLogin = false;
+    if (_db.auth.currentUser != null) {
+      return await userExistOrNot(_db.auth.currentUser!.id);
     }
-    return isLogin;
+    return false;
   }
 
   static Future<bool> userExistOrNot(String uid) async {
-    bool isExist = false;
-
-    await fireStore.collection(CollectionName.users).doc(uid).get().then(
-      (value) {
-        if (value.exists) {
-          isExist = true;
-        } else {
-          isExist = false;
-        }
-      },
-    ).catchError((error) {
-      log("Failed to check user exist: $error");
-      isExist = false;
-    });
-    return isExist;
+    try {
+      final data = await _db
+          .from(CollectionName.users)
+          .select('id')
+          .eq('id', uid)
+          .maybeSingle();
+      return data != null;
+    } catch (e) {
+      log('userExistOrNot error: $e');
+      return false;
+    }
   }
 
   static Future<UserModel?> getUserProfile(String uuid) async {
-    UserModel? userModel;
-    await fireStore
-        .collection(CollectionName.users)
-        .doc(uuid)
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        userModel = UserModel.fromJson(value.data()!);
+    try {
+      final data = await _db
+          .from(CollectionName.users)
+          .select()
+          .eq('id', uuid)
+          .maybeSingle();
+      if (data != null) {
+        final userModel = UserModel.fromJson(data);
         Constant.userModel = userModel;
-        if (userModel?.employeePermissionId != null) {
-          Constant.employeeRoleModel = await FireStoreUtils.getEmployeeRoleById(
-              userModel!.employeePermissionId!);
+        if (userModel.employeePermissionId != null) {
+          Constant.employeeRoleModel =
+              await getEmployeeRoleById(userModel.employeePermissionId!);
         }
+        return userModel;
       }
-    });
-    return userModel;
+    } catch (e) {
+      log('getUserProfile error: $e');
+    }
+    return null;
   }
 
   static Future<UserModel?> getUserById(String uuid) async {
-    UserModel? userModel;
-    log("uuid :: $uuid");
-    await fireStore
-        .collection(CollectionName.users)
-        .doc(uuid)
-        .get()
-        .then((value) {
-      if (value.exists) {
-        userModel = UserModel.fromJson(value.data()!);
-      }
-    });
-    return userModel;
+    try {
+      final data = await _db
+          .from(CollectionName.users)
+          .select()
+          .eq('id', uuid)
+          .maybeSingle();
+      if (data != null) return UserModel.fromJson(data);
+    } catch (e) {
+      log('getUserById error: $e');
+    }
+    return null;
   }
 
   static Future<bool?> updateUserWallet(
       {required String amount, required String userId}) async {
-    bool isAdded = false;
-    await getUserProfile(userId).then((value) async {
-      if (value != null) {
-        UserModel userModel = value;
-        userModel.walletAmount =
-            ((userModel.walletAmount ?? 0.0) + double.parse(amount));
-        await FireStoreUtils.updateUser(userModel).then((value) {
-          isAdded = value;
-        });
-      }
-    });
-    return isAdded;
+    final user = await getUserProfile(userId);
+    if (user != null) {
+      user.walletAmount = (user.walletAmount ?? 0.0) + double.parse(amount);
+      return await updateUser(user);
+    }
+    return false;
   }
 
   static Future<bool> updateUser(UserModel userModel) async {
-    bool isUpdate = false;
     try {
-      if (userModel.id == null || userModel.id!.isEmpty) {
-        log("Error: User ID is null or empty in updateUser");
-        return false;
+      if (userModel.id == null || userModel.id!.isEmpty) return false;
+      await _db.from(CollectionName.users).upsert(userModel.toJson());
+      Constant.userModel = userModel;
+      if (userModel.employeePermissionId != null) {
+        Constant.employeeRoleModel =
+            await getEmployeeRoleById(userModel.employeePermissionId!);
       }
-
-      await fireStore
-          .collection(CollectionName.users)
-          .doc(userModel.id)
-          .update(userModel.toJson())
-          .whenComplete(() async {
-        Constant.userModel = userModel;
-        if (userModel.employeePermissionId != null) {
-          Constant.employeeRoleModel = await FireStoreUtils.getEmployeeRoleById(
-              userModel.employeePermissionId!);
-        }
-        isUpdate = true;
-      }).catchError((error) {
-        log("Failed to update user: $error");
-        isUpdate = false;
-      });
+      return true;
     } catch (e) {
-      log("Error updating user: $e");
-      isUpdate = false;
+      log('updateUser error: $e');
+      return false;
     }
-    return isUpdate;
   }
 
   static Future<bool> updateDriverUser(UserModel userModel) async {
-    bool isUpdate = false;
     try {
-      if (userModel.id == null || userModel.id!.isEmpty) {
-        log("Error: User ID is null or empty in updateDriverUser");
-        return false;
-      }
-
-      await fireStore
-          .collection(CollectionName.users)
-          .doc(userModel.id)
-          .update(userModel.toJson())
-          .whenComplete(() {
-        isUpdate = true;
-      }).catchError((error) {
-        log("Failed to update user: $error");
-        isUpdate = false;
-      });
+      if (userModel.id == null || userModel.id!.isEmpty) return false;
+      await _db.from(CollectionName.users).upsert(userModel.toJson());
+      return true;
     } catch (e) {
-      log("Error updating driver user: $e");
-      isUpdate = false;
+      log('updateDriverUser error: $e');
+      return false;
     }
-    return isUpdate;
   }
 
-  static Future<bool> withdrawWalletAmount(WithdrawalModel userModel) async {
-    bool isUpdate = false;
+  static Future<bool> withdrawWalletAmount(WithdrawalModel model) async {
     try {
-      if (userModel.id == null || userModel.id!.isEmpty) {
-        log("Error: Withdrawal ID is null or empty in withdrawWalletAmount");
-        return false;
-      }
-
-      await fireStore
-          .collection(CollectionName.payouts)
-          .doc(userModel.id)
-          .update(userModel.toJson())
-          .whenComplete(() {
-        isUpdate = true;
-      }).catchError((error) {
-        log("Failed to update payout: $error");
-        isUpdate = false;
-      });
+      if (model.id == null || model.id!.isEmpty) return false;
+      await _db.from(CollectionName.payouts).upsert(model.toJson());
+      return true;
     } catch (e) {
-      log("Error updating wallet amount: $e");
-      isUpdate = false;
+      log('withdrawWalletAmount error: $e');
+      return false;
     }
-    return isUpdate;
   }
 
   static Future<List<OnBoardingModel>> getOnBoardingList() async {
-    List<OnBoardingModel> onBoardingModel = [];
-    await fireStore
-        .collection(CollectionName.onBoarding)
-        .where("type", isEqualTo: "restaurantApp")
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        OnBoardingModel documentModel =
-            OnBoardingModel.fromJson(element.data());
-        onBoardingModel.add(documentModel);
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return onBoardingModel;
+    try {
+      final data = await _db
+          .from(CollectionName.onBoarding)
+          .select()
+          .eq('type', 'restaurantApp');
+      return data
+          .map<OnBoardingModel>((e) => OnBoardingModel.fromJson(e))
+          .toList();
+    } catch (e) {
+      log('getOnBoardingList error: $e');
+      return [];
+    }
   }
 
   static Future<bool?> setWalletTransaction(
-      WalletTransactionModel walletTransactionModel) async {
-    bool isAdded = false;
-    await fireStore
-        .collection(CollectionName.wallet)
-        .doc(walletTransactionModel.id)
-        .set(walletTransactionModel.toJson())
-        .then((value) {
-      isAdded = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isAdded = false;
-    });
-    return isAdded;
+      WalletTransactionModel model) async {
+    try {
+      await _db.from(CollectionName.wallet).upsert(model.toJson());
+      return true;
+    } catch (e) {
+      log('setWalletTransaction error: $e');
+      return false;
+    }
   }
 
   Future<void> getSettings() async {
     try {
-      await FirebaseFirestore.instance
-          .collection(CollectionName.settings)
-          .doc("globalSettings")
-          .get()
-          .then((value) async {
-        Constant.orderRingtoneUrl = value.data()?['order_ringtone_url'] ?? '';
+      // globalSettings
+      final global = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'globalSettings')
+          .maybeSingle();
+      if (global != null) {
+        final d = global['data'] as Map<String, dynamic>;
+        Constant.orderRingtoneUrl = d['order_ringtone_url'] ?? '';
         Preferences.setString(
             Preferences.orderRingtone, Constant.orderRingtoneUrl);
-        AppThemeData.secondary300 = Color(int.parse(
-            value.data()!['app_restaurant_color'].replaceFirst("#", "0xff")));
-        Constant.isEnableAdsFeature =
-            value.data()?['isEnableAdsFeature'] ?? false;
-        Constant.isSelfDeliveryFeature =
-            value.data()?['isSelfDelivery'] ?? false;
-        Constant.apiSecureKey = value.data()?['apiSecureKey'] ?? "";
-        Constant.apiBaseUrl = value.data()?['apiBaseUrl'] ?? "";
+        AppThemeData.secondary300 = Color(
+            int.parse(d['app_restaurant_color'].replaceFirst('#', '0xff')));
+        Constant.isEnableAdsFeature = d['isEnableAdsFeature'] ?? false;
+        Constant.isSelfDeliveryFeature = d['isSelfDelivery'] ?? false;
+        Constant.apiSecureKey = d['apiSecureKey'] ?? '';
+        Constant.apiBaseUrl = d['apiBaseUrl'] ?? '';
         if (Constant.orderRingtoneUrl.isNotEmpty) {
           await AudioPlayerService.initAudio();
         }
-      });
+      }
 
-      fireStore
-          .collection(CollectionName.settings)
-          .doc("DriverNearBy")
-          .get()
-          .then((event) {
-        if (event.exists) {
-          if (event.data()!["selectedMapType"].toString().isNotEmpty) {
-            Constant.selectedMapType = event.data()!["selectedMapType"];
-          }
-          Constant.singleOrderReceive = event.data()!['singleOrderReceive'];
+      // DriverNearBy
+      final driverNearBy = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'DriverNearBy')
+          .maybeSingle();
+      if (driverNearBy != null) {
+        final d = driverNearBy['data'] as Map<String, dynamic>;
+        if ((d['selectedMapType'] ?? '').toString().isNotEmpty) {
+          Constant.selectedMapType = d['selectedMapType'];
         }
-      });
+        Constant.singleOrderReceive = d['singleOrderReceive'] ?? false;
+      }
 
-      FirebaseFirestore.instance
-          .collection(CollectionName.settings)
-          .doc("scheduleOrderNotification")
-          .get()
-          .then((time) {
-        if (time.exists) {
-          Constant.scheduleOrderTime = time.data()!["notifyTime"];
-          Constant.scheduleOrderTimeType = time.data()!["timeUnit"];
-        }
-      });
+      // scheduleOrderNotification
+      final schedule = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'scheduleOrderNotification')
+          .maybeSingle();
+      if (schedule != null) {
+        final d = schedule['data'] as Map<String, dynamic>;
+        Constant.scheduleOrderTime = d['notifyTime'];
+        Constant.scheduleOrderTimeType = d['timeUnit'];
+      }
 
-      FirebaseFirestore.instance
-          .collection(CollectionName.settings)
-          .doc("DineinForRestaurant")
-          .get()
-          .then((dineinresult) {
-        if (dineinresult.exists) {
-          Constant.isDineInEnable = dineinresult.data()!["isEnabled"];
-        }
-      });
+      // DineinForRestaurant
+      final dinein = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'DineinForRestaurant')
+          .maybeSingle();
+      if (dinein != null) {
+        Constant.isDineInEnable = (dinein['data'] as Map)['isEnabled'] ?? false;
+      }
 
-      await FirebaseFirestore.instance
-          .collection(CollectionName.settings)
-          .doc('restaurant')
-          .get()
-          .then((value) {
-        Constant.autoApproveRestaurant =
-            value.data()!['auto_approve_restaurant'];
-        Constant.isSubscriptionModelApplied =
-            value.data()!['subscription_model'];
-      });
+      // restaurant
+      final restaurant = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'restaurant')
+          .maybeSingle();
+      if (restaurant != null) {
+        final d = restaurant['data'] as Map<String, dynamic>;
+        Constant.autoApproveRestaurant = d['auto_approve_restaurant'];
+        Constant.isSubscriptionModelApplied = d['subscription_model'];
+      }
 
-      await fireStore
-          .collection(CollectionName.settings)
-          .doc("AdminCommission")
-          .get()
-          .then((value) {
-        if (value.data() != null) {
-          Constant.adminCommission = AdminCommission.fromJson(value.data()!);
-        }
-      });
+      // AdminCommission
+      final commission = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'AdminCommission')
+          .maybeSingle();
+      if (commission != null) {
+        Constant.adminCommission = AdminCommission.fromJson(
+            commission['data'] as Map<String, dynamic>);
+      }
 
-      fireStore
-          .collection(CollectionName.settings)
-          .doc("googleMapKey")
-          .snapshots()
-          .listen((event) {
-        if (event.exists) {
-          if (event.data()!["key"].toString().isNotEmpty) {
-            Constant.mapAPIKey = event.data()!["key"];
-          }
-          Constant.placeHolderImage = event.data()!["placeHolderImage"];
-        }
-      });
+      // googleMapKey
+      final mapKey = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'googleMapKey')
+          .maybeSingle();
+      if (mapKey != null) {
+        final d = mapKey['data'] as Map<String, dynamic>;
+        if ((d['key'] ?? '').toString().isNotEmpty)
+          Constant.mapAPIKey = d['key'];
+        Constant.placeHolderImage = d['placeHolderImage'] ?? '';
+      }
 
-      fireStore
-          .collection(CollectionName.settings)
-          .doc('story')
-          .get()
-          .then((value) {
-        Constant.storyEnable = value.data()!['isEnabled'];
-      });
+      // story
+      final story = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'story')
+          .maybeSingle();
+      if (story != null)
+        Constant.storyEnable = (story['data'] as Map)['isEnabled'];
 
-      fireStore
-          .collection(CollectionName.settings)
-          .doc('placeHolderImage')
-          .get()
-          .then((value) {
-        Constant.placeholderImage = value.data()!['image'];
-      });
+      // placeHolderImage
+      final placeholder = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'placeHolderImage')
+          .maybeSingle();
+      if (placeholder != null)
+        Constant.placeholderImage = (placeholder['data'] as Map)['image'] ?? '';
 
-      fireStore
-          .collection(CollectionName.settings)
-          .doc("Version")
-          .snapshots()
-          .listen((event) {
-        if (event.exists) {
-          Constant.googlePlayLink = event.data()!["googlePlayLink"] ?? '';
-          Constant.appStoreLink = event.data()!["appStoreLink"] ?? '';
-          Constant.appVersion = event.data()!["app_version"] ?? '';
-          Constant.storeUrl = event.data()!["storeUrl"] ?? '';
-        }
-      });
+      // Version
+      final version = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'Version')
+          .maybeSingle();
+      if (version != null) {
+        final d = version['data'] as Map<String, dynamic>;
+        Constant.googlePlayLink = d['googlePlayLink'] ?? '';
+        Constant.appStoreLink = d['appStoreLink'] ?? '';
+        Constant.appVersion = d['app_version'] ?? '';
+        Constant.storeUrl = d['storeUrl'] ?? '';
+      }
 
-      fireStore
-          .collection(CollectionName.settings)
-          .doc("RestaurantNearBy")
-          .snapshots()
-          .listen((event) {
-        if (event.exists) {
-          Constant.distanceType = event.data()!["distanceType"];
-        }
-      });
+      // RestaurantNearBy
+      final nearBy = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'RestaurantNearBy')
+          .maybeSingle();
+      if (nearBy != null)
+        Constant.distanceType = (nearBy['data'] as Map)['distanceType'] ?? 'km';
 
-      FirebaseFirestore.instance
-          .collection(CollectionName.settings)
-          .doc("specialDiscountOffer")
-          .get()
-          .then((dineinresult) {
-        if (dineinresult.exists) {
-          Constant.specialDiscountOfferEnable =
-              dineinresult.data()!["isEnable"];
-        }
-      });
+      // specialDiscountOffer
+      final specialDiscount = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'specialDiscountOffer')
+          .maybeSingle();
+      if (specialDiscount != null)
+        Constant.specialDiscountOfferEnable =
+            (specialDiscount['data'] as Map)['isEnable'] ?? false;
 
-      FirebaseFirestore.instance
-          .collection(CollectionName.settings)
-          .doc("emailSetting")
-          .get()
-          .then((value) {
-        if (value.exists) {
-          Constant.mailSettings = MailSettings.fromJson(value.data()!);
-        }
-      });
+      // emailSetting
+      final emailSetting = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'emailSetting')
+          .maybeSingle();
+      if (emailSetting != null)
+        Constant.mailSettings =
+            MailSettings.fromJson(emailSetting['data'] as Map<String, dynamic>);
 
-      FirebaseFirestore.instance
-          .collection(CollectionName.settings)
-          .doc("ContactUs")
-          .get()
-          .then((time) {
-        if (time.exists) {
-          Constant.adminEmail = time.data()!["Email"];
-        }
-      });
+      // ContactUs
+      final contact = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'ContactUs')
+          .maybeSingle();
+      if (contact != null)
+        Constant.adminEmail = (contact['data'] as Map)['Email'] ?? '';
 
-      fireStore
-          .collection(CollectionName.settings)
-          .doc("notification_setting")
-          .snapshots()
-          .listen((event) {
-        if (event.exists) {
-          Constant.senderId = event.data()?["projectId"];
-          Constant.jsonNotificationFileURL = event.data()?["serviceJson"];
-        }
-      });
+      // notification_setting
+      final notifSetting = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'notification_setting')
+          .maybeSingle();
+      if (notifSetting != null) {
+        final d = notifSetting['data'] as Map<String, dynamic>;
+        Constant.senderId = d['projectId'] ?? '';
+        Constant.jsonNotificationFileURL = d['serviceJson'] ?? '';
+      }
 
-      await FirebaseFirestore.instance
-          .collection(CollectionName.settings)
-          .doc("document_verification_settings")
-          .get()
-          .then((value) {
+      // document_verification_settings
+      final docVerify = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'document_verification_settings')
+          .maybeSingle();
+      if (docVerify != null)
         Constant.isRestaurantVerification =
-            value.data()!['isRestaurantVerification'];
-      });
+            (docVerify['data'] as Map)['isRestaurantVerification'] ?? false;
 
-      fireStore
-          .collection(CollectionName.settings)
-          .doc("privacyPolicy")
-          .get()
-          .then((event) {
-        if (event.exists) {
-          Constant.privacyPolicy = event.data()!["privacy_policy"];
-        }
-      });
+      // privacyPolicy
+      final privacy = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'privacyPolicy')
+          .maybeSingle();
+      if (privacy != null)
+        Constant.privacyPolicy =
+            (privacy['data'] as Map)['privacy_policy'] ?? '';
 
-      fireStore
-          .collection(CollectionName.settings)
-          .doc("termsAndConditions")
-          .get()
-          .then((event) {
-        if (event.exists) {
-          Constant.termsAndConditions = event.data()!["termsAndConditions"];
-        }
-      });
+      // termsAndConditions
+      final terms = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'termsAndConditions')
+          .maybeSingle();
+      if (terms != null)
+        Constant.termsAndConditions =
+            (terms['data'] as Map)['termsAndConditions'] ?? '';
     } catch (e) {
-      log(e.toString());
+      log('getSettings error: $e');
     }
   }
 
   static Future<bool?> checkReferralCodeValidOrNot(String referralCode) async {
-    bool? isExit;
     try {
-      await fireStore
-          .collection(CollectionName.referral)
-          .where("referralCode", isEqualTo: referralCode)
-          .get()
-          .then((value) {
-        if (value.size > 0) {
-          isExit = true;
-        } else {
-          isExit = false;
-        }
-      });
-    } catch (e, s) {
-      print('FireStoreUtils.firebaseCreateNewUser $e $s');
+      final data = await _db
+          .from(CollectionName.referral)
+          .select('id')
+          .eq('referral_code', referralCode);
+      return data.isNotEmpty;
+    } catch (e) {
+      log('checkReferralCode error: $e');
       return false;
     }
-    return isExit;
   }
 
   static Future<ReferralModel?> getReferralUserByCode(
       String referralCode) async {
-    ReferralModel? referralModel;
     try {
-      await fireStore
-          .collection(CollectionName.referral)
-          .where("referralCode", isEqualTo: referralCode)
-          .get()
-          .then((value) {
-        if (value.docs.isNotEmpty) {
-          referralModel = ReferralModel.fromJson(value.docs.first.data());
-        }
-      });
-    } catch (e, s) {
-      log('FireStoreUtils.firebaseCreateNewUser $e $s');
-      return null;
+      final data = await _db
+          .from(CollectionName.referral)
+          .select()
+          .eq('referral_code', referralCode)
+          .maybeSingle();
+      if (data != null) return ReferralModel.fromJson(data);
+    } catch (e) {
+      log('getReferralUserByCode error: $e');
     }
-    return referralModel;
+    return null;
   }
 
   static Future<OrderModel?> getOrderByOrderId(String orderId) async {
-    OrderModel? orderModel;
     try {
-      await fireStore
-          .collection(CollectionName.restaurantOrders)
-          .doc(orderId)
-          .get()
-          .then((value) {
-        if (value.exists) {
-          orderModel = OrderModel.fromJson(value.data()!);
-        }
-      });
-    } catch (e, s) {
-      log('FireStoreUtils.firebaseCreateNewUser $e $s');
-      return null;
+      final data = await _db
+          .from(CollectionName.restaurantOrders)
+          .select()
+          .eq('id', orderId)
+          .maybeSingle();
+      if (data != null) return OrderModel.fromJson(data);
+    } catch (e) {
+      log('getOrderByOrderId error: $e');
     }
-    return orderModel;
+    return null;
   }
 
-  static Future<String?> referralAdd(ReferralModel ratingModel) async {
+  static Future<String?> referralAdd(ReferralModel model) async {
     try {
-      await fireStore
-          .collection(CollectionName.referral)
-          .doc(ratingModel.id)
-          .set(ratingModel.toJson());
-    } catch (e, s) {
-      log('FireStoreUtils.firebaseCreateNewUser $e $s');
-      return null;
+      await _db.from(CollectionName.referral).upsert(model.toJson());
+    } catch (e) {
+      log('referralAdd error: $e');
     }
     return null;
   }
 
   static Future<List<ZoneModel>?> getZone() async {
-    List<ZoneModel> airPortList = [];
-    await fireStore
-        .collection(CollectionName.zone)
-        .where('publish', isEqualTo: true)
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        ZoneModel ariPortModel = ZoneModel.fromJson(element.data());
-        airPortList.add(ariPortModel);
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return airPortList;
+    try {
+      final data =
+          await _db.from(CollectionName.zone).select().eq('publish', true);
+      return data.map<ZoneModel>((e) => ZoneModel.fromJson(e)).toList();
+    } catch (e) {
+      log('getZone error: $e');
+      return [];
+    }
   }
 
   static Future<List<OrderModel>?> getAllOrder() async {
-    List<OrderModel> orderList = [];
     try {
-      await fireStore
-          .collection(CollectionName.restaurantOrders)
-          .where('vendorID', isEqualTo: Constant.userModel!.vendorID)
-          .orderBy('createdAt', descending: true)
-          .get()
-          .then((value) {
-        for (var element in value.docs) {
-          OrderModel orderModel = OrderModel.fromJson(element.data());
-          orderList.add(orderModel);
-        }
-      }).catchError((error) {
-        log(error.toString());
-      });
+      final data = await _db
+          .from(CollectionName.restaurantOrders)
+          .select()
+          .eq('vendor_id', Constant.userModel!.vendorID!)
+          .order('created_at', ascending: false);
+      return data.map<OrderModel>((e) => OrderModel.fromJson(e)).toList();
     } catch (e) {
-      log(e.toString());
+      log('getAllOrder error: $e');
+      return [];
     }
-    return orderList;
   }
 
   static Future<bool> deleteCashbackRedeem(OrderModel orderModel) async {
-    bool isUpdate = false;
     try {
-      final querySnapshot = await fireStore
-          .collection(CollectionName.cashbackRedeem)
-          .where('orderId', isEqualTo: orderModel.id)
-          .where('cashbackId', isEqualTo: orderModel.cashback?.id)
-          .get();
-      if (querySnapshot.docs.isNotEmpty) {
-        for (var doc in querySnapshot.docs) {
-          await fireStore
-              .collection(CollectionName.cashbackRedeem)
-              .doc(doc.id)
-              .delete();
-        }
-        isUpdate = true;
-      } else {
-        isUpdate = false;
-      }
+      await _db
+          .from(CollectionName.cashbackRedeem)
+          .delete()
+          .eq('order_id', orderModel.id!)
+          .eq('cashback_id', orderModel.cashback!.id!);
+      return true;
     } catch (e) {
-      isUpdate = false;
-      rethrow;
+      log('deleteCashbackRedeem error: $e');
+      return false;
     }
-    return isUpdate;
   }
 
   static Future<bool> updateOrder(OrderModel orderModel) async {
-    bool isUpdate = false;
-
-    await fireStore
-        .collection(CollectionName.restaurantOrders)
-        .doc(orderModel.id)
-        .set(orderModel.toJson())
-        .whenComplete(() {
-      isUpdate = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isUpdate = false;
-    });
-    return isUpdate;
+    try {
+      await _db
+          .from(CollectionName.restaurantOrders)
+          .upsert(orderModel.toJson());
+      return true;
+    } catch (e) {
+      log('updateOrder error: $e');
+      return false;
+    }
   }
 
   static Future restaurantVendorWalletSet(OrderModel orderModel) async {
     double subTotal = 0.0;
     double specialDiscount = 0.0;
     double taxAmount = 0.0;
-    // double adminCommission = 0.0;
 
     for (var element in orderModel.products!) {
       if (double.parse(element.discountPrice.toString()) <= 0) {
-        subTotal = subTotal +
-            double.parse(element.price.toString()) *
+        subTotal += double.parse(element.price.toString()) *
                 double.parse(element.quantity.toString()) +
             (double.parse(element.extrasPrice.toString()) *
                 double.parse(element.quantity.toString()));
       } else {
-        subTotal = subTotal +
-            double.parse(element.discountPrice.toString()) *
+        subTotal += double.parse(element.discountPrice.toString()) *
                 double.parse(element.quantity.toString()) +
             (double.parse(element.extrasPrice.toString()) *
                 double.parse(element.quantity.toString()));
       }
     }
 
-    if (orderModel.specialDiscount != null &&
-        orderModel.specialDiscount!['special_discount'] != null) {
+    if (orderModel.specialDiscount?['special_discount'] != null) {
       specialDiscount = double.parse(
           orderModel.specialDiscount!['special_discount'].toString());
     }
 
     if (orderModel.taxSetting != null) {
       for (var element in orderModel.taxSetting!) {
-        taxAmount = taxAmount +
-            Constant.calculateTax(
-                amount: (subTotal -
-                        double.parse(orderModel.discount.toString()) -
-                        specialDiscount)
-                    .toString(),
-                taxModel: element);
+        taxAmount += Constant.calculateTax(
+            amount: (subTotal -
+                    double.parse(orderModel.discount.toString()) -
+                    specialDiscount)
+                .toString(),
+            taxModel: element);
       }
     }
 
-    double basePrice = 0;
-    // var totalamount = (subTotal + taxAmount) - double.parse(orderModel.discount.toString()) - specialDiscount;
+    double basePrice;
     if (Constant.adminCommission!.isEnabled == true) {
       basePrice =
           (subTotal / (1 + (double.parse(orderModel.adminCommission!) / 100))) -
@@ -669,52 +558,33 @@ class FireStoreUtils {
           double.parse(orderModel.discount.toString()) -
           specialDiscount;
     }
-    // if (Constant.isAdminCommissionModelApplied == true) {
-    //   if (orderModel.adminCommissionType == 'Percent') {
-    //     adminCommission = (subTotal - double.parse(orderModel.discount.toString()) - specialDiscount) * double.parse(orderModel.adminCommission!) / 100;
-    //   } else {
-    //     adminCommission = double.parse(orderModel.adminCommission!);
-    //   }
-    // }
 
-    WalletTransactionModel historyModel = WalletTransactionModel(
+    final historyModel = WalletTransactionModel(
         amount: basePrice,
         id: const Uuid().v4(),
         orderId: orderModel.id,
         userId: orderModel.vendor!.author,
-        date: Timestamp.now(),
+        date: DateTime.now(),
         isTopup: true,
-        note: "Order Amount credited",
-        paymentMethod: "Wallet",
-        paymentStatus: "success",
-        transactionUser: "vendor");
+        note: 'Order Amount credited',
+        paymentMethod: 'Wallet',
+        paymentStatus: 'success',
+        transactionUser: 'vendor');
 
-    await fireStore
-        .collection(CollectionName.wallet)
-        .doc(historyModel.id)
-        .set(historyModel.toJson());
-
-    WalletTransactionModel taxModel = WalletTransactionModel(
+    final taxModel = WalletTransactionModel(
         amount: taxAmount,
         id: const Uuid().v4(),
         orderId: orderModel.id,
         userId: orderModel.vendor!.author,
-        date: Timestamp.now(),
+        date: DateTime.now(),
         isTopup: true,
-        note: "Order Tax credited",
-        paymentMethod: "tax",
-        paymentStatus: "success",
-        transactionUser: "vendor");
+        note: 'Order Tax credited',
+        paymentMethod: 'tax',
+        paymentStatus: 'success',
+        transactionUser: 'vendor');
 
-    await fireStore
-        .collection(CollectionName.wallet)
-        .doc(historyModel.id)
-        .set(historyModel.toJson());
-    await fireStore
-        .collection(CollectionName.wallet)
-        .doc(taxModel.id)
-        .set(taxModel.toJson());
-
+    await _db.from(CollectionName.wallet).upsert(historyModel.toJson());
+    await _db.from(CollectionName.wallet).upsert(taxModel.toJson());
     await updateUserWallet(
         amount: (basePrice + taxAmount).toString(),
         userId: orderModel.vendor!.author.toString());
@@ -722,840 +592,566 @@ class FireStoreUtils {
 
   static Future<RatingModel?> getOrderReviewsByID(
       String orderId, String productID) async {
-    RatingModel? ratingModel;
-
-    await fireStore
-        .collection(CollectionName.foodsReview)
-        .where('orderid', isEqualTo: orderId)
-        .where('productId', isEqualTo: productID)
-        .get()
-        .then((value) {
-      print("======>");
-      print(value.docs.length);
-      if (value.docs.isNotEmpty) {
-        ratingModel = RatingModel.fromJson(value.docs.first.data());
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return ratingModel;
+    try {
+      final data = await _db
+          .from(CollectionName.foodsReview)
+          .select()
+          .eq('orderid', orderId)
+          .eq('product_id', productID)
+          .maybeSingle();
+      if (data != null) return RatingModel.fromJson(data);
+    } catch (e) {
+      log('getOrderReviewsByID error: $e');
+    }
+    return null;
   }
 
   static Future<List<ProductModel>?> getProduct() async {
-    List<ProductModel> productList = [];
-    await fireStore
-        .collection(CollectionName.vendorProducts)
-        .where('vendorID', isEqualTo: Constant.userModel!.vendorID)
-        .orderBy('createdAt', descending: false)
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        ProductModel productModel = ProductModel.fromJson(element.data());
-        productList.add(productModel);
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return productList;
+    try {
+      final data = await _db
+          .from(CollectionName.vendorProducts)
+          .select()
+          .eq('vendor_id', Constant.userModel!.vendorID!)
+          .order('created_at', ascending: true);
+      return data.map<ProductModel>((e) => ProductModel.fromJson(e)).toList();
+    } catch (e) {
+      log('getProduct error: $e');
+      return [];
+    }
   }
 
   static Future<List<AdvertisementModel>?> getAdvertisement() async {
-    List<AdvertisementModel> advertisementList = [];
-    await fireStore
-        .collection(CollectionName.advertisements)
-        .where('vendorId', isEqualTo: Constant.userModel!.vendorID)
-        .orderBy('createdAt', descending: true)
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        AdvertisementModel advertisementModel =
-            AdvertisementModel.fromJson(element.data());
-        advertisementList.add(advertisementModel);
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return advertisementList;
+    try {
+      final data = await _db
+          .from(CollectionName.advertisements)
+          .select()
+          .eq('vendor_id', Constant.userModel!.vendorID!)
+          .order('created_at', ascending: false);
+      return data
+          .map<AdvertisementModel>((e) => AdvertisementModel.fromJson(e))
+          .toList();
+    } catch (e) {
+      log('getAdvertisement error: $e');
+      return [];
+    }
   }
 
   static Future<AdvertisementModel> getAdvertisementById(
       {required String advertisementId}) async {
-    AdvertisementModel advertisementdata = AdvertisementModel();
-    await fireStore
-        .collection(CollectionName.advertisements)
-        .doc(advertisementId)
-        .get()
-        .then((value) {
-      AdvertisementModel advertisementModel =
-          AdvertisementModel.fromJson(value.data() as Map<String, dynamic>);
-      advertisementdata = advertisementModel;
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return advertisementdata;
+    try {
+      final data = await _db
+          .from(CollectionName.advertisements)
+          .select()
+          .eq('id', advertisementId)
+          .maybeSingle();
+      if (data != null) return AdvertisementModel.fromJson(data);
+    } catch (e) {
+      log('getAdvertisementById error: $e');
+    }
+    return AdvertisementModel();
   }
 
   static Future<bool> updateProduct(ProductModel productModel) async {
-    bool isUpdate = false;
-    await fireStore
-        .collection(CollectionName.vendorProducts)
-        .doc(productModel.id)
-        .set(productModel.toJson())
-        .whenComplete(() {
-      isUpdate = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isUpdate = false;
-    });
-    return isUpdate;
+    try {
+      await _db
+          .from(CollectionName.vendorProducts)
+          .upsert(productModel.toJson());
+      return true;
+    } catch (e) {
+      log('updateProduct error: $e');
+      return false;
+    }
   }
 
   static Future<bool> deleteProduct(ProductModel productModel) async {
-    bool isUpdate = false;
-    await fireStore
-        .collection(CollectionName.vendorProducts)
-        .doc(productModel.id)
-        .delete()
-        .whenComplete(() {
-      isUpdate = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isUpdate = false;
-    });
-    return isUpdate;
+    try {
+      await _db
+          .from(CollectionName.vendorProducts)
+          .delete()
+          .eq('id', productModel.id!);
+      return true;
+    } catch (e) {
+      log('deleteProduct error: $e');
+      return false;
+    }
   }
 
   static Future<List<WalletTransactionModel>?> getWalletTransaction() async {
-    List<WalletTransactionModel> walletTransactionList = [];
-    await fireStore
-        .collection(CollectionName.wallet)
-        .where('user_id', isEqualTo: FireStoreUtils.getCurrentUid())
-        .orderBy('date', descending: true)
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        WalletTransactionModel walletTransactionModel =
-            WalletTransactionModel.fromJson(element.data());
-        walletTransactionList.add(walletTransactionModel);
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return walletTransactionList;
+    try {
+      final data = await _db
+          .from(CollectionName.wallet)
+          .select()
+          .eq('user_id', getCurrentUid())
+          .order('date', ascending: false);
+      return data
+          .map<WalletTransactionModel>(
+              (e) => WalletTransactionModel.fromJson(e))
+          .toList();
+    } catch (e) {
+      log('getWalletTransaction error: $e');
+      return [];
+    }
   }
 
   static Future<List<WalletTransactionModel>?> getFilterWalletTransaction(
-      Timestamp startTime, Timestamp endTime) async {
-    List<WalletTransactionModel> walletTransactionList = [];
-    await fireStore
-        .collection(CollectionName.wallet)
-        .where('user_id', isEqualTo: FireStoreUtils.getCurrentUid())
-        .where('date', isGreaterThanOrEqualTo: startTime)
-        .where('date', isLessThanOrEqualTo: endTime)
-        .orderBy('date', descending: true)
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        WalletTransactionModel walletTransactionModel =
-            WalletTransactionModel.fromJson(element.data());
-        walletTransactionList.add(walletTransactionModel);
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return walletTransactionList;
+      DateTime startTime, DateTime endTime) async {
+    try {
+      final data = await _db
+          .from(CollectionName.wallet)
+          .select()
+          .eq('user_id', getCurrentUid())
+          .gte('date', startTime.toIso8601String())
+          .lte('date', endTime.toIso8601String())
+          .order('date', ascending: false);
+      return data
+          .map<WalletTransactionModel>(
+              (e) => WalletTransactionModel.fromJson(e))
+          .toList();
+    } catch (e) {
+      log('getFilterWalletTransaction error: $e');
+      return [];
+    }
   }
 
   static Future<List<WithdrawalModel>?> getWithdrawHistory() async {
-    List<WithdrawalModel> walletTransactionList = [];
-    await fireStore
-        .collection(CollectionName.payouts)
-        .where('vendorID', isEqualTo: Constant.userModel!.vendorID.toString())
-        .orderBy('paidDate', descending: true)
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        WithdrawalModel walletTransactionModel =
-            WithdrawalModel.fromJson(element.data());
-        walletTransactionList.add(walletTransactionModel);
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return walletTransactionList;
+    try {
+      final data = await _db
+          .from(CollectionName.payouts)
+          .select()
+          .eq('vendor_id', Constant.userModel!.vendorID!.toString())
+          .order('paid_date', ascending: false);
+      return data
+          .map<WithdrawalModel>((e) => WithdrawalModel.fromJson(e))
+          .toList();
+    } catch (e) {
+      log('getWithdrawHistory error: $e');
+      return [];
+    }
   }
 
   static Future getPaymentSettingsData() async {
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("payFastSettings")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        PayFastModel payFastModel = PayFastModel.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.payFastSettings, jsonEncode(payFastModel.toJson()));
-      }
-    });
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("MercadoPago")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        MercadoPagoModel mercadoPagoModel =
-            MercadoPagoModel.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.mercadoPago, jsonEncode(mercadoPagoModel.toJson()));
-      }
-    });
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("paypalSettings")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        PayPalModel payPalModel = PayPalModel.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.paypalSettings, jsonEncode(payPalModel.toJson()));
-      }
-    });
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("stripeSettings")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        StripeModel stripeModel = StripeModel.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.stripeSettings, jsonEncode(stripeModel.toJson()));
-      }
-    });
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("flutterWave")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        FlutterWaveModel flutterWaveModel =
-            FlutterWaveModel.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.flutterWave, jsonEncode(flutterWaveModel.toJson()));
-      }
-    });
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("payStack")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        PayStackModel payStackModel = PayStackModel.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.payStack, jsonEncode(payStackModel.toJson()));
-      }
-    });
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("PaytmSettings")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        PaytmModel paytmModel = PaytmModel.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.paytmSettings, jsonEncode(paytmModel.toJson()));
-      }
-    });
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("walletSettings")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        WalletSettingModel walletSettingModel =
-            WalletSettingModel.fromJson(value.data()!);
-        await Preferences.setString(Preferences.walletSettings,
-            jsonEncode(walletSettingModel.toJson()));
-      }
-    });
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("razorpaySettings")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        RazorPayModel razorPayModel = RazorPayModel.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.razorpaySettings, jsonEncode(razorPayModel.toJson()));
-      }
-    });
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("CODSettings")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        CodSettingModel codSettingModel =
-            CodSettingModel.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.codSettings, jsonEncode(codSettingModel.toJson()));
-      }
-    });
+    final keys = {
+      'payFastSettings': (data) async => await Preferences.setString(
+          Preferences.payFastSettings,
+          jsonEncode(PayFastModel.fromJson(data).toJson())),
+      'MercadoPago': (data) async => await Preferences.setString(
+          Preferences.mercadoPago,
+          jsonEncode(MercadoPagoModel.fromJson(data).toJson())),
+      'paypalSettings': (data) async => await Preferences.setString(
+          Preferences.paypalSettings,
+          jsonEncode(PayPalModel.fromJson(data).toJson())),
+      'stripeSettings': (data) async => await Preferences.setString(
+          Preferences.stripeSettings,
+          jsonEncode(StripeModel.fromJson(data).toJson())),
+      'flutterWave': (data) async => await Preferences.setString(
+          Preferences.flutterWave,
+          jsonEncode(FlutterWaveModel.fromJson(data).toJson())),
+      'payStack': (data) async => await Preferences.setString(
+          Preferences.payStack,
+          jsonEncode(PayStackModel.fromJson(data).toJson())),
+      'PaytmSettings': (data) async => await Preferences.setString(
+          Preferences.paytmSettings,
+          jsonEncode(PaytmModel.fromJson(data).toJson())),
+      'walletSettings': (data) async => await Preferences.setString(
+          Preferences.walletSettings,
+          jsonEncode(WalletSettingModel.fromJson(data).toJson())),
+      'razorpaySettings': (data) async => await Preferences.setString(
+          Preferences.razorpaySettings,
+          jsonEncode(RazorPayModel.fromJson(data).toJson())),
+      'CODSettings': (data) async => await Preferences.setString(
+          Preferences.codSettings,
+          jsonEncode(CodSettingModel.fromJson(data).toJson())),
+      'midtrans_settings': (data) async => await Preferences.setString(
+          Preferences.midTransSettings,
+          jsonEncode(MidTrans.fromJson(data).toJson())),
+      'orange_money_settings': (data) async => await Preferences.setString(
+          Preferences.orangeMoneySettings,
+          jsonEncode(OrangeMoney.fromJson(data).toJson())),
+      'xendit_settings': (data) async => await Preferences.setString(
+          Preferences.xenditSettings,
+          jsonEncode(Xendit.fromJson(data).toJson())),
+    };
 
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("midtrans_settings")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        MidTrans midTrans = MidTrans.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.midTransSettings, jsonEncode(midTrans.toJson()));
+    for (final entry in keys.entries) {
+      try {
+        final row = await _db
+            .from(CollectionName.settings)
+            .select('data')
+            .eq('key', entry.key)
+            .maybeSingle();
+        if (row != null) await entry.value(row['data']);
+      } catch (e) {
+        log('getPaymentSettingsData [${entry.key}] error: $e');
       }
-    });
-
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("orange_money_settings")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        OrangeMoney orangeMoney = OrangeMoney.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.orangeMoneySettings, jsonEncode(orangeMoney.toJson()));
-      }
-    });
-
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("xendit_settings")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        Xendit xendit = Xendit.fromJson(value.data()!);
-        await Preferences.setString(
-            Preferences.xenditSettings, jsonEncode(xendit.toJson()));
-      }
-    });
+    }
   }
 
   static Future<VendorModel?> getVendorById(String vendorId) async {
-    VendorModel? vendorModel;
     try {
-      if (vendorId.isNotEmpty) {
-        await fireStore
-            .collection(CollectionName.vendors)
-            .doc(vendorId)
-            .get()
-            .then((value) {
-          if (value.exists) {
-            vendorModel = VendorModel.fromJson(value.data()!);
-          }
-        });
-      }
-    } catch (e, s) {
-      log('FireStoreUtils.firebaseCreateNewUser $e $s');
-      return null;
+      if (vendorId.isEmpty) return null;
+      final data = await _db
+          .from(CollectionName.vendors)
+          .select()
+          .eq('id', vendorId)
+          .maybeSingle();
+      if (data != null) return VendorModel.fromJson(data);
+    } catch (e) {
+      log('getVendorById error: $e');
     }
-    return vendorModel;
+    return null;
   }
 
   static Future<List<VendorCategoryModel>?> getVendorCategoryById() async {
-    List<VendorCategoryModel> attributeList = [];
-    await fireStore
-        .collection(CollectionName.vendorCategories)
-        .where('publish', isEqualTo: true)
-        .get()
-        .then(
-      (value) {
-        for (var element in value.docs) {
-          VendorCategoryModel favouriteModel =
-              VendorCategoryModel.fromJson(element.data());
-          attributeList.add(favouriteModel);
-        }
-      },
-    );
-    return attributeList;
+    try {
+      final data = await _db
+          .from(CollectionName.vendorCategories)
+          .select()
+          .eq('publish', true);
+      return data
+          .map<VendorCategoryModel>((e) => VendorCategoryModel.fromJson(e))
+          .toList();
+    } catch (e) {
+      log('getVendorCategoryById error: $e');
+      return [];
+    }
   }
 
   static Future<ProductModel?> getProductById(String productId) async {
-    ProductModel? vendorCategoryModel;
     try {
-      await fireStore
-          .collection(CollectionName.vendorProducts)
-          .doc(productId)
-          .get()
-          .then((value) {
-        if (value.exists) {
-          vendorCategoryModel = ProductModel.fromJson(value.data()!);
-        }
-      });
-    } catch (e, s) {
-      log('FireStoreUtils.firebaseCreateNewUser $e $s');
-      return null;
+      final data = await _db
+          .from(CollectionName.vendorProducts)
+          .select()
+          .eq('id', productId)
+          .maybeSingle();
+      if (data != null) return ProductModel.fromJson(data);
+    } catch (e) {
+      log('getProductById error: $e');
     }
-    return vendorCategoryModel;
+    return null;
   }
 
   static Future<VendorCategoryModel?> getVendorCategoryByCategoryId(
       String categoryId) async {
-    VendorCategoryModel? vendorCategoryModel;
     try {
-      await fireStore
-          .collection(CollectionName.vendorCategories)
-          .doc(categoryId)
-          .get()
-          .then((value) {
-        if (value.exists) {
-          vendorCategoryModel = VendorCategoryModel.fromJson(value.data()!);
-        }
-      });
-    } catch (e, s) {
-      log('FireStoreUtils.firebaseCreateNewUser $e $s');
-      return null;
+      final data = await _db
+          .from(CollectionName.vendorCategories)
+          .select()
+          .eq('id', categoryId)
+          .maybeSingle();
+      if (data != null) return VendorCategoryModel.fromJson(data);
+    } catch (e) {
+      log('getVendorCategoryByCategoryId error: $e');
     }
-    return vendorCategoryModel;
+    return null;
   }
 
   static Future<ReviewAttributeModel?> getVendorReviewAttribute(
       String attributeId) async {
-    ReviewAttributeModel? vendorCategoryModel;
     try {
-      await fireStore
-          .collection(CollectionName.reviewAttributes)
-          .doc(attributeId)
-          .get()
-          .then((value) {
-        if (value.exists) {
-          vendorCategoryModel = ReviewAttributeModel.fromJson(value.data()!);
-        }
-      });
-    } catch (e, s) {
-      log('FireStoreUtils.firebaseCreateNewUser $e $s');
-      return null;
+      final data = await _db
+          .from(CollectionName.reviewAttributes)
+          .select()
+          .eq('id', attributeId)
+          .maybeSingle();
+      if (data != null) return ReviewAttributeModel.fromJson(data);
+    } catch (e) {
+      log('getVendorReviewAttribute error: $e');
     }
-    return vendorCategoryModel;
+    return null;
   }
 
   static Future<List<AttributesModel>?> getAttributes() async {
-    List<AttributesModel> attributeList = [];
-    await fireStore.collection(CollectionName.vendorAttributes).get().then(
-      (value) {
-        for (var element in value.docs) {
-          AttributesModel favouriteModel =
-              AttributesModel.fromJson(element.data());
-          attributeList.add(favouriteModel);
-        }
-      },
-    );
-    return attributeList;
+    try {
+      final data = await _db.from(CollectionName.vendorAttributes).select();
+      return data
+          .map<AttributesModel>((e) => AttributesModel.fromJson(e))
+          .toList();
+    } catch (e) {
+      log('getAttributes error: $e');
+      return [];
+    }
   }
 
   static Future<DeliveryCharge?> getDeliveryCharge() async {
-    DeliveryCharge? deliveryCharge;
     try {
-      await fireStore
-          .collection(CollectionName.settings)
-          .doc("DeliveryCharge")
-          .get()
-          .then((value) {
-        if (value.exists) {
-          deliveryCharge = DeliveryCharge.fromJson(value.data()!);
-        }
-      });
-    } catch (e, s) {
-      log('FireStoreUtils.firebaseCreateNewUser $e $s');
-      return null;
+      final row = await _db
+          .from(CollectionName.settings)
+          .select('data')
+          .eq('key', 'DeliveryCharge')
+          .maybeSingle();
+      if (row != null) return DeliveryCharge.fromJson(row['data']);
+    } catch (e) {
+      log('getDeliveryCharge error: $e');
     }
-    return deliveryCharge;
+    return null;
   }
 
   static Future<List<DineInBookingModel>> getDineInBooking(
       bool isUpcoming) async {
-    List<DineInBookingModel> list = [];
+    try {
+      final now = DateTime.now().toIso8601String();
+      final query = _db
+          .from(CollectionName.bookedTable)
+          .select()
+          .eq('vendor_id', Constant.userModel!.vendorID!);
 
-    if (isUpcoming) {
-      await fireStore
-          .collection(CollectionName.bookedTable)
-          .where('vendorID', isEqualTo: Constant.userModel!.vendorID)
-          .where('date', isGreaterThan: Timestamp.now())
-          .orderBy('date', descending: true)
-          .orderBy('createdAt', descending: true)
-          .get()
-          .then((value) {
-        for (var element in value.docs) {
-          DineInBookingModel taxModel =
-              DineInBookingModel.fromJson(element.data());
-          list.add(taxModel);
-        }
-      }).catchError((error) {
-        log(error.toString());
-      });
-    } else {
-      await fireStore
-          .collection(CollectionName.bookedTable)
-          .where('vendorID', isEqualTo: Constant.userModel!.vendorID)
-          .where('date', isLessThan: Timestamp.now())
-          .orderBy('date', descending: true)
-          .orderBy('createdAt', descending: true)
-          .get()
-          .then((value) {
-        for (var element in value.docs) {
-          DineInBookingModel taxModel =
-              DineInBookingModel.fromJson(element.data());
-          list.add(taxModel);
-        }
-      }).catchError((error) {
-        log(error.toString());
-      });
+      final data = isUpcoming
+          ? await query.gt('date', now).order('date', ascending: false)
+          : await query.lt('date', now).order('date', ascending: false);
+
+      return data
+          .map<DineInBookingModel>((e) => DineInBookingModel.fromJson(e))
+          .toList();
+    } catch (e) {
+      log('getDineInBooking error: $e');
+      return [];
     }
-
-    return list;
   }
 
   static Future<List<CouponModel>> getAllVendorCoupons(String vendorId) async {
-    List<CouponModel> coupon = [];
-
-    await fireStore
-        .collection(CollectionName.coupons)
-        .where("resturant_id", isEqualTo: vendorId)
-        .where('expiresAt', isGreaterThanOrEqualTo: Timestamp.now())
-        .where("isEnabled", isEqualTo: true)
-        .where("isPublic", isEqualTo: true)
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        CouponModel taxModel = CouponModel.fromJson(element.data());
-        coupon.add(taxModel);
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return coupon;
+    try {
+      final data = await _db
+          .from(CollectionName.coupons)
+          .select()
+          .eq('resturant_id', vendorId)
+          .eq('is_enabled', true)
+          .eq('is_public', true)
+          .gt('expires_at', DateTime.now().toIso8601String());
+      return data.map<CouponModel>((e) => CouponModel.fromJson(e)).toList();
+    } catch (e) {
+      log('getAllVendorCoupons error: $e');
+      return [];
+    }
   }
 
   static Future<bool?> setOrder(OrderModel orderModel) async {
-    bool isAdded = false;
-    await fireStore
-        .collection(CollectionName.restaurantOrders)
-        .doc(orderModel.id)
-        .set(orderModel.toJson())
-        .then((value) {
-      isAdded = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isAdded = false;
-    });
-    return isAdded;
+    try {
+      await _db
+          .from(CollectionName.restaurantOrders)
+          .upsert(orderModel.toJson());
+      return true;
+    } catch (e) {
+      log('setOrder error: $e');
+      return false;
+    }
   }
 
-  static Future<bool?> setCoupon(CouponModel orderModel) async {
-    bool isAdded = false;
-    await fireStore
-        .collection(CollectionName.coupons)
-        .doc(orderModel.id)
-        .set(orderModel.toJson())
-        .then((value) {
-      isAdded = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isAdded = false;
-    });
-    return isAdded;
+  static Future<bool?> setCoupon(CouponModel model) async {
+    try {
+      await _db.from(CollectionName.coupons).upsert(model.toJson());
+      return true;
+    } catch (e) {
+      log('setCoupon error: $e');
+      return false;
+    }
   }
 
-  static Future<bool?> deleteCoupon(CouponModel orderModel) async {
-    bool isAdded = false;
-    await fireStore
-        .collection(CollectionName.coupons)
-        .doc(orderModel.id)
-        .delete()
-        .then((value) {
-      isAdded = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isAdded = false;
-    });
-    return isAdded;
+  static Future<bool?> deleteCoupon(CouponModel model) async {
+    try {
+      await _db.from(CollectionName.coupons).delete().eq('id', model.id!);
+      return true;
+    } catch (e) {
+      log('deleteCoupon error: $e');
+      return false;
+    }
   }
 
   static Future<List<CouponModel>> getOffer(String vendorId) async {
-    List<CouponModel> list = [];
-
-    await fireStore
-        .collection(CollectionName.coupons)
-        .where("resturant_id", isEqualTo: vendorId)
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        CouponModel taxModel = CouponModel.fromJson(element.data());
-        list.add(taxModel);
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return list;
+    try {
+      final data = await _db
+          .from(CollectionName.coupons)
+          .select()
+          .eq('resturant_id', vendorId);
+      return data.map<CouponModel>((e) => CouponModel.fromJson(e)).toList();
+    } catch (e) {
+      log('getOffer error: $e');
+      return [];
+    }
   }
 
   static Future<List<DocumentModel>> getDocumentList() async {
-    List<DocumentModel> documentList = [];
-    await fireStore
-        .collection(CollectionName.documents)
-        .where('type', isEqualTo: "restaurant")
-        .where('enable', isEqualTo: true)
-        .get()
-        .then((value) {
-      for (var element in value.docs) {
-        DocumentModel documentModel = DocumentModel.fromJson(element.data());
-        documentList.add(documentModel);
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return documentList;
+    try {
+      final data = await _db
+          .from(CollectionName.documents)
+          .select()
+          .eq('type', 'restaurant')
+          .eq('enable', true);
+      return data.map<DocumentModel>((e) => DocumentModel.fromJson(e)).toList();
+    } catch (e) {
+      log('getDocumentList error: $e');
+      return [];
+    }
   }
 
   static Future<DriverDocumentModel?> getDocumentOfDriver() async {
-    DriverDocumentModel? driverDocumentModel;
-    await fireStore
-        .collection(CollectionName.documentsVerify)
-        .doc(getCurrentUid())
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        driverDocumentModel = DriverDocumentModel.fromJson(value.data()!);
-      }
-    });
-    return driverDocumentModel;
+    try {
+      final data = await _db
+          .from(CollectionName.documentsVerify)
+          .select()
+          .eq('id', getCurrentUid())
+          .maybeSingle();
+      if (data != null) return DriverDocumentModel.fromJson(data);
+    } catch (e) {
+      log('getDocumentOfDriver error: $e');
+    }
+    return null;
   }
 
   static Future addRestaurantInbox(InboxModel inboxModel) async {
-    return await fireStore
-        .collection("chat_restaurant")
-        .doc(inboxModel.orderId)
-        .set(inboxModel.toJson())
-        .then((document) {
-      return inboxModel;
-    });
+    try {
+      await _db.from('chat_restaurant').upsert(inboxModel.toJson());
+    } catch (e) {
+      log('addRestaurantInbox error: $e');
+    }
+    return inboxModel;
   }
 
   static Future addRestaurantChat(ConversationModel conversationModel) async {
-    return await fireStore
-        .collection("chat_restaurant")
-        .doc(conversationModel.orderId)
-        .collection("thread")
-        .doc(conversationModel.id)
-        .set(conversationModel.toJson())
-        .then((document) {
-      return conversationModel;
-    });
+    try {
+      await _db.from('chat_restaurant').upsert(conversationModel.toJson());
+    } catch (e) {
+      log('addRestaurantChat error: $e');
+    }
+    return conversationModel;
   }
 
   static Future<bool> uploadDriverDocument(Documents documents) async {
-    bool isAdded = false;
-    DriverDocumentModel driverDocumentModel = DriverDocumentModel();
-    List<Documents> documentsList = [];
-    await fireStore
-        .collection(CollectionName.documentsVerify)
-        .doc(getCurrentUid())
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        DriverDocumentModel newDriverDocumentModel =
-            DriverDocumentModel.fromJson(value.data()!);
-        documentsList = newDriverDocumentModel.documents!;
-        var contain = newDriverDocumentModel.documents!
-            .where((element) => element.documentId == documents.documentId);
-        if (contain.isEmpty) {
-          documentsList.add(documents);
+    try {
+      final existing = await _db
+          .from(CollectionName.documentsVerify)
+          .select()
+          .eq('id', getCurrentUid())
+          .maybeSingle();
 
-          driverDocumentModel.id = getCurrentUid();
-          driverDocumentModel.type = "restaurant";
-          driverDocumentModel.documents = documentsList;
+      List<Documents> documentsList = [];
+      if (existing != null) {
+        final model = DriverDocumentModel.fromJson(existing);
+        documentsList = model.documents ?? [];
+        final idx = documentsList
+            .indexWhere((e) => e.documentId == documents.documentId);
+        if (idx >= 0) {
+          documentsList.removeAt(idx);
+          documentsList.insert(idx, documents);
         } else {
-          var index = newDriverDocumentModel.documents!.indexWhere(
-              (element) => element.documentId == documents.documentId);
-
-          driverDocumentModel.id = getCurrentUid();
-          driverDocumentModel.type = "restaurant";
-          documentsList.removeAt(index);
-          documentsList.insert(index, documents);
-          driverDocumentModel.documents = documentsList;
-          isAdded = false;
+          documentsList.add(documents);
         }
       } else {
         documentsList.add(documents);
-        driverDocumentModel.id = getCurrentUid();
-        driverDocumentModel.type = "restaurant";
-        driverDocumentModel.documents = documentsList;
       }
-    });
 
-    await fireStore
-        .collection(CollectionName.documentsVerify)
-        .doc(getCurrentUid())
-        .set(driverDocumentModel.toJson())
-        .then((value) {
-      isAdded = true;
-    }).catchError((error) {
-      isAdded = false;
-      log(error.toString());
-    });
-
-    return isAdded;
+      final model = DriverDocumentModel(
+          id: getCurrentUid(), type: 'restaurant', documents: documentsList);
+      await _db.from(CollectionName.documentsVerify).upsert(model.toJson());
+      return true;
+    } catch (e) {
+      log('uploadDriverDocument error: $e');
+      return false;
+    }
   }
 
   static Future<DeliveryCharge?> getDelivery() async {
-    DeliveryCharge? driverDocumentModel;
-    await fireStore
-        .collection(CollectionName.settings)
-        .doc("DeliveryCharge")
-        .get()
-        .then((value) async {
-      if (value.exists) {
-        driverDocumentModel = DeliveryCharge.fromJson(value.data()!);
-      }
-    });
-    return driverDocumentModel;
+    return getDeliveryCharge();
   }
 
   static Future<VendorModel> firebaseCreateNewVendor(VendorModel vendor) async {
-    DocumentReference documentReference =
-        fireStore.collection(CollectionName.vendors).doc();
-    vendor.id = documentReference.id;
-    await documentReference.set(vendor.toJson());
-    Constant.userModel?.vendorID = documentReference.id;
+    vendor.id = const Uuid().v4();
+    await _db.from(CollectionName.vendors).upsert(vendor.toJson());
+    Constant.userModel?.vendorID = vendor.id;
     vendor.fcmToken = Constant.userModel!.fcmToken;
     Constant.vendorAdminCommission = vendor.adminCommission;
-    await FireStoreUtils.updateUser(Constant.userModel!);
+    await updateUser(Constant.userModel!);
     return vendor;
   }
 
   static Future<VendorModel?> updateVendor(VendorModel vendor) async {
     try {
-      if (vendor.id == null || vendor.id!.isEmpty) {
-        log("Error: Vendor ID is null or empty in updateVendor");
-        return null;
-      }
-
-      await fireStore
-          .collection(CollectionName.vendors)
-          .doc(vendor.id)
-          .update(vendor.toJson())
-          .then((document) {
-        Constant.vendorAdminCommission = vendor.adminCommission;
-        log("Vendor updated successfully: ${vendor.id}");
-        return vendor;
-      });
+      if (vendor.id == null || vendor.id!.isEmpty) return null;
+      await _db.from(CollectionName.vendors).upsert(vendor.toJson());
+      Constant.vendorAdminCommission = vendor.adminCommission;
       return vendor;
     } catch (e) {
-      log("Error updating vendor: $e");
+      log('updateVendor error: $e');
       rethrow;
     }
   }
 
   static Future<bool?> deleteUser() async {
-    bool? isDelete;
     try {
-      if (Constant.userModel?.vendorID != null &&
-          Constant.userModel?.vendorID?.isNotEmpty == true) {
-        await fireStore
-            .collection(CollectionName.coupons)
-            .where('resturant_id', isEqualTo: Constant.userModel!.vendorID)
-            .get()
-            .then((value) async {
-          for (var doc in value.docs) {
-            await fireStore
-                .collection(CollectionName.coupons)
-                .doc(doc.reference.id)
-                .delete();
-          }
-        });
-        await fireStore
-            .collection(CollectionName.foodsReview)
-            .where('VendorId', isEqualTo: Constant.userModel!.vendorID)
-            .get()
-            .then((value) async {
-          for (var doc in value.docs) {
-            await fireStore
-                .collection(CollectionName.foodsReview)
-                .doc(doc.reference.id)
-                .delete();
-          }
-        });
+      if (Constant.userModel?.vendorID?.isNotEmpty == true) {
+        final vendorId = Constant.userModel!.vendorID!;
 
-        await fireStore
-            .collection(CollectionName.vendorProducts)
-            .where('vendorID', isEqualTo: Constant.userModel?.vendorID)
-            .get()
-            .then((value) async {
-          for (var doc in value.docs) {
-            await fireStore
-                .collection(CollectionName.favoriteItem)
-                .where('product_id', isEqualTo: doc.reference.id)
-                .get()
-                .then((value0) async {
-              for (var element0 in value0.docs) {
-                await fireStore
-                    .collection(CollectionName.favoriteItem)
-                    .doc(element0.reference.path)
-                    .delete();
-              }
-            });
-            await fireStore
-                .collection(CollectionName.vendorProducts)
-                .doc(doc.reference.id)
-                .delete();
-          }
-        });
+        // Delete coupons
+        await _db
+            .from(CollectionName.coupons)
+            .delete()
+            .eq('resturant_id', vendorId);
 
-        await fireStore
-            .collection(CollectionName.vendors)
-            .doc(Constant.userModel?.vendorID)
-            .delete();
+        // Delete reviews
+        await _db
+            .from(CollectionName.foodsReview)
+            .delete()
+            .eq('vendor_id', vendorId);
+
+        // Get products then delete favorites and products
+        final products = await _db
+            .from(CollectionName.vendorProducts)
+            .select('id')
+            .eq('vendor_id', vendorId);
+        for (final p in products) {
+          await _db
+              .from(CollectionName.favoriteItem)
+              .delete()
+              .eq('product_id', p['id']);
+          await _db
+              .from(CollectionName.vendorProducts)
+              .delete()
+              .eq('id', p['id']);
+        }
+
+        await _db.from(CollectionName.vendors).delete().eq('id', vendorId);
       }
 
-      await fireStore
-          .collection(CollectionName.users)
-          .doc(FireStoreUtils.getCurrentUid())
-          .delete();
+      await _db.from(CollectionName.users).delete().eq('id', getCurrentUid());
 
-      // delete user  from firebase auth
-      await FirebaseAuth.instance.currentUser?.delete().then((value) {
-        isDelete = true;
-      });
-    } catch (e, s) {
-      log('FireStoreUtils.firebaseCreateNewUser $e $s');
+      await _db.auth.admin.deleteUser(getCurrentUid());
+      return true;
+    } catch (e) {
+      log('deleteUser error: $e');
       return false;
     }
-    return isDelete;
+  }
+
+  // ─── STORAGE UPLOAD HELPERS ───────────────────────────────────────────────
+
+  static Future<String> _uploadFile({
+    required File file,
+    required String path,
+    String? contentType,
+  }) async {
+    final mimeType =
+        contentType ?? lookupMimeType(file.path) ?? 'application/octet-stream';
+    final bytes = await file.readAsBytes();
+    await _db.storage.from(_bucket).uploadBinary(
+          path,
+          bytes,
+          fileOptions: FileOptions(contentType: mimeType, upsert: true),
+        );
+    return _db.storage.from(_bucket).getPublicUrl(path);
   }
 
   static Future<Url> uploadChatImageToFireStorage(
       File image, BuildContext context) async {
-    ShowToastDialog.showLoader("Please wait");
+    ShowToastDialog.showLoader('Please wait');
     try {
-      var uniqueID = const Uuid().v4();
-      Reference upload =
-          FirebaseStorage.instance.ref().child('images/$uniqueID.png');
-      UploadTask uploadTask = upload.putFile(image);
-
-      // Wait for upload to complete
-      await uploadTask;
-
-      // Check if upload was successful
-      if (uploadTask.snapshot.state != TaskState.success) {
-        throw Exception(
-            'Upload failed with state: ${uploadTask.snapshot.state}');
-      }
-
-      var downloadUrl = await upload.getDownloadURL();
-      var metaData = await upload.getMetadata();
+      final uniqueID = const Uuid().v4();
+      final url = await _uploadFile(
+          file: image, path: 'images/$uniqueID.png', contentType: 'image/png');
       ShowToastDialog.closeLoader();
-      return Url(
-          mime: metaData.contentType ?? 'image', url: downloadUrl.toString());
+      final mime = lookupMimeType(image.path) ?? 'image';
+      return Url(mime: mime, url: url);
     } catch (e) {
       ShowToastDialog.closeLoader();
-      ShowToastDialog.showToast("Error uploading image: ${e.toString()}");
+      ShowToastDialog.showToast('Error uploading image: $e');
       rethrow;
     }
   }
@@ -1563,686 +1159,511 @@ class FireStoreUtils {
   static Future<ChatVideoContainer?> uploadChatVideoToFireStorage(
       BuildContext context, File video) async {
     try {
-      ShowToastDialog.showLoader("Uploading video...");
-      final String uniqueID = const Uuid().v4();
-      final Reference videoRef =
-          FirebaseStorage.instance.ref('videos/$uniqueID.mp4');
-      final UploadTask uploadTask = videoRef.putFile(
-        video,
-        SettableMetadata(contentType: 'video/mp4'),
-      );
+      ShowToastDialog.showLoader('Uploading video...');
+      final uniqueID = const Uuid().v4();
+      final videoUrl = await _uploadFile(
+          file: video, path: 'videos/$uniqueID.mp4', contentType: 'video/mp4');
 
-      // Wait for video upload to complete
-      await uploadTask;
+      ShowToastDialog.showLoader('Generating thumbnail...');
+      final thumbnail = await VideoCompress.getFileThumbnail(video.path,
+          quality: 75, position: -1);
 
-      // Check if video upload was successful
-      if (uploadTask.snapshot.state != TaskState.success) {
-        throw Exception(
-            'Video upload failed with state: ${uploadTask.snapshot.state}');
-      }
+      final thumbID = const Uuid().v4();
+      final thumbUrl = await _uploadFile(
+          file: thumbnail,
+          path: 'thumbnails/$thumbID.jpg',
+          contentType: 'image/jpeg');
 
-      final String videoUrl = await videoRef.getDownloadURL();
-      ShowToastDialog.showLoader("Generating thumbnail...");
-      File thumbnail = await VideoCompress.getFileThumbnail(
-        video.path,
-        quality: 75, // 0 - 100
-        position: -1, // Get the first frame
-      );
-
-      final String thumbnailID = const Uuid().v4();
-      final Reference thumbnailRef =
-          FirebaseStorage.instance.ref('thumbnails/$thumbnailID.jpg');
-      final UploadTask thumbnailUploadTask = thumbnailRef.putData(
-        thumbnail.readAsBytesSync(),
-        SettableMetadata(contentType: 'image/jpeg'),
-      );
-
-      // Wait for thumbnail upload to complete
-      await thumbnailUploadTask;
-
-      // Check if thumbnail upload was successful
-      if (thumbnailUploadTask.snapshot.state != TaskState.success) {
-        throw Exception(
-            'Thumbnail upload failed with state: ${thumbnailUploadTask.snapshot.state}');
-      }
-
-      final String thumbnailUrl = await thumbnailRef.getDownloadURL();
-      var metaData = await thumbnailRef.getMetadata();
       ShowToastDialog.closeLoader();
-
       return ChatVideoContainer(
-          videoUrl: Url(
-              url: videoUrl.toString(), mime: metaData.contentType ?? 'video'),
-          thumbnailUrl: thumbnailUrl);
+          videoUrl: Url(url: videoUrl, mime: 'video/mp4'),
+          thumbnailUrl: thumbUrl);
     } catch (e) {
       ShowToastDialog.closeLoader();
-      ShowToastDialog.showToast("Error: ${e.toString()}");
+      ShowToastDialog.showToast('Error: $e');
       return null;
     }
   }
 
   static Future<String> uploadImageOfStory(
-      File image, BuildContext context, String extansion) async {
+      File image, BuildContext context, String extension) async {
     try {
       final data = await image.readAsBytes();
       final mime = lookupMimeType('', headerBytes: data);
-
-      Reference upload = FirebaseStorage.instance.ref().child(
-            'Story/images/${image.path.split('/').last}',
-          );
-      UploadTask uploadTask =
-          upload.putFile(image, SettableMetadata(contentType: mime));
-
-      // Wait for upload to complete
-      await uploadTask;
-
-      // Check if upload was successful
-      if (uploadTask.snapshot.state != TaskState.success) {
-        throw Exception(
-            'Upload failed with state: ${uploadTask.snapshot.state}');
-      }
-
-      var downloadUrl = await upload.getDownloadURL();
-      return downloadUrl.toString();
+      final fileName = image.path.split('/').last;
+      return await _uploadFile(
+          file: image, path: 'Story/images/$fileName', contentType: mime);
     } catch (e) {
-      ShowToastDialog.showToast("Error uploading story image: ${e.toString()}");
+      ShowToastDialog.showToast('Error uploading story image: $e');
       rethrow;
     }
   }
 
   static Future<File> _compressVideo(File file) async {
-    MediaInfo? info = await VideoCompress.compressVideo(file.path,
+    final info = await VideoCompress.compressVideo(file.path,
         quality: VideoQuality.DefaultQuality,
         deleteOrigin: false,
         includeAudio: true,
         frameRate: 24);
-    if (info != null) {
-      File compressedVideo = File(info.path!);
-      return compressedVideo;
-    } else {
-      return file;
-    }
+    return info != null ? File(info.path!) : file;
   }
 
   static Future<String?> uploadVideoStory(
       File video, BuildContext context) async {
     try {
-      var uniqueID = const Uuid().v4();
-      Reference upload =
-          FirebaseStorage.instance.ref().child('Story/$uniqueID.mp4');
-      File compressedVideo = await _compressVideo(video);
-      SettableMetadata metadata = SettableMetadata(contentType: 'video');
-      UploadTask uploadTask = upload.putFile(compressedVideo, metadata);
-
-      // Wait for upload to complete
-      await uploadTask;
-
-      // Check if upload was successful
-      if (uploadTask.snapshot.state != TaskState.success) {
-        throw Exception(
-            'Upload failed with state: ${uploadTask.snapshot.state}');
-      }
-
-      var downloadUrl = await upload.getDownloadURL();
-      return downloadUrl.toString();
+      final uniqueID = const Uuid().v4();
+      final compressed = await _compressVideo(video);
+      return await _uploadFile(
+          file: compressed,
+          path: 'Story/$uniqueID.mp4',
+          contentType: 'video/mp4');
     } catch (e) {
-      ShowToastDialog.showToast("Error uploading story video: ${e.toString()}");
+      ShowToastDialog.showToast('Error uploading story video: $e');
       return null;
     }
   }
 
   static Future<String> uploadVideoThumbnailToFireStorage(File file) async {
     try {
-      var uniqueID = const Uuid().v4();
-      Reference upload =
-          FirebaseStorage.instance.ref().child('thumbnails/$uniqueID.png');
-      UploadTask uploadTask = upload.putFile(file);
-
-      // Wait for upload to complete
-      await uploadTask;
-
-      // Check if upload was successful
-      if (uploadTask.snapshot.state != TaskState.success) {
-        throw Exception(
-            'Upload failed with state: ${uploadTask.snapshot.state}');
-      }
-
-      var downloadUrl = await upload.getDownloadURL();
-      return downloadUrl.toString();
+      final uniqueID = const Uuid().v4();
+      return await _uploadFile(
+          file: file,
+          path: 'thumbnails/$uniqueID.png',
+          contentType: 'image/png');
     } catch (e) {
-      ShowToastDialog.showToast("Error uploading thumbnail: ${e.toString()}");
+      ShowToastDialog.showToast('Error uploading thumbnail: $e');
       rethrow;
     }
   }
 
+  static Future<String> uploadUserImageToFireStorage(
+      File image, String userID) async {
+    return await _uploadFile(
+        file: image, path: 'images/$userID.png', contentType: 'image/png');
+  }
+
+  // ─── STORY ────────────────────────────────────────────────────────────────
+
   static Future<StoryModel?> getStory(String vendorId) async {
-    DocumentSnapshot<Map<String, dynamic>> userDocument =
-        await fireStore.collection(CollectionName.story).doc(vendorId).get();
-    if (userDocument.data() != null && userDocument.exists) {
-      return StoryModel.fromJson(userDocument.data()!);
-    } else {
-      return null;
+    try {
+      final data = await _db
+          .from(CollectionName.story)
+          .select()
+          .eq('vendor_id', vendorId)
+          .maybeSingle();
+      if (data != null) return StoryModel.fromJson(data);
+    } catch (e) {
+      log('getStory error: $e');
     }
+    return null;
   }
 
   static Future addOrUpdateStory(StoryModel storyModel) async {
-    await fireStore
-        .collection(CollectionName.story)
-        .doc(storyModel.vendorID)
-        .set(storyModel.toJson());
+    await _db.from(CollectionName.story).upsert(storyModel.toJson());
   }
 
   static Future removeStory(String vendorId) async {
-    await fireStore.collection(CollectionName.story).doc(vendorId).delete();
+    await _db.from(CollectionName.story).delete().eq('vendor_id', vendorId);
   }
 
+  // ─── WITHDRAW METHOD ──────────────────────────────────────────────────────
+
   static Future<WithdrawMethodModel?> getWithdrawMethod() async {
-    WithdrawMethodModel? withdrawMethodModel;
-    await fireStore
-        .collection(CollectionName.withdrawMethod)
-        .where("userId", isEqualTo: getCurrentUid())
-        .get()
-        .then((value) async {
-      if (value.docs.isNotEmpty) {
-        withdrawMethodModel =
-            WithdrawMethodModel.fromJson(value.docs.first.data());
-      }
-    });
-    return withdrawMethodModel;
+    try {
+      final data = await _db
+          .from(CollectionName.withdrawMethod)
+          .select()
+          .eq('user_id', getCurrentUid())
+          .maybeSingle();
+      if (data != null) return WithdrawMethodModel.fromJson(data);
+    } catch (e) {
+      log('getWithdrawMethod error: $e');
+    }
+    return null;
   }
 
   static Future<WithdrawMethodModel?> setWithdrawMethod(
-      WithdrawMethodModel withdrawMethodModel) async {
-    if (withdrawMethodModel.id == null) {
-      withdrawMethodModel.id = const Uuid().v4();
-      withdrawMethodModel.userId = getCurrentUid();
-    }
-    await fireStore
-        .collection(CollectionName.withdrawMethod)
-        .doc(withdrawMethodModel.id)
-        .set(withdrawMethodModel.toJson())
-        .then((value) async {});
-    return withdrawMethodModel;
+      WithdrawMethodModel model) async {
+    model.id ??= const Uuid().v4();
+    model.userId = getCurrentUid();
+    await _db.from(CollectionName.withdrawMethod).upsert(model.toJson());
+    return model;
   }
 
+  // ─── EMAIL TEMPLATES ──────────────────────────────────────────────────────
+
   static Future<EmailTemplateModel?> getEmailTemplates(String type) async {
-    EmailTemplateModel? emailTemplateModel;
-    await fireStore
-        .collection(CollectionName.emailTemplates)
-        .where('type', isEqualTo: type)
-        .get()
-        .then((value) {
-      if (value.docs.isNotEmpty) {
-        emailTemplateModel =
-            EmailTemplateModel.fromJson(value.docs.first.data());
-      }
-    });
-    return emailTemplateModel;
+    try {
+      final data = await _db
+          .from(CollectionName.emailTemplates)
+          .select()
+          .eq('type', type)
+          .maybeSingle();
+      if (data != null) return EmailTemplateModel.fromJson(data);
+    } catch (e) {
+      log('getEmailTemplates error: $e');
+    }
+    return null;
   }
 
   static sendPayoutMail(
       {required String amount, required String payoutrequestid}) async {
-    EmailTemplateModel? emailTemplateModel =
-        await FireStoreUtils.getEmailTemplates(Constant.payoutRequest);
+    final template = await getEmailTemplates(Constant.payoutRequest);
+    if (template == null) return;
 
-    String body = emailTemplateModel!.subject.toString();
-    body = body.replaceAll("{userid}", Constant.userModel!.id.toString());
+    String body = template.subject
+        .toString()
+        .replaceAll('{userid}', Constant.userModel!.id.toString());
 
-    String newString = emailTemplateModel.message.toString();
-    newString =
-        newString.replaceAll("{username}", Constant.userModel!.fullName());
-    newString =
-        newString.replaceAll("{userid}", Constant.userModel!.id.toString());
-    newString =
-        newString.replaceAll("{amount}", Constant.amountShow(amount: amount));
-    newString =
-        newString.replaceAll("{payoutrequestid}", payoutrequestid.toString());
-    newString = newString.replaceAll("{usercontactinfo}",
-        "${Constant.userModel!.email}\n${Constant.userModel!.phoneNumber}");
+    String msg = template.message
+        .toString()
+        .replaceAll('{username}', Constant.userModel!.fullName())
+        .replaceAll('{userid}', Constant.userModel!.id.toString())
+        .replaceAll('{amount}', Constant.amountShow(amount: amount))
+        .replaceAll('{payoutrequestid}', payoutrequestid)
+        .replaceAll('{usercontactinfo}',
+            '${Constant.userModel!.email}\n${Constant.userModel!.phoneNumber}');
+
     await Constant.sendMail(
         subject: body,
-        isAdmin: emailTemplateModel.isSendToAdmin,
-        body: newString,
+        isAdmin: template.isSendToAdmin,
+        body: msg,
         recipients: [Constant.userModel!.email]);
   }
 
-  static Future<NotificationModel?> getNotificationContent(String type) async {
-    NotificationModel? notificationModel;
-    await fireStore
-        .collection(CollectionName.dynamicNotification)
-        .where('type', isEqualTo: type)
-        .get()
-        .then((value) {
-      print("------>");
-      if (value.docs.isNotEmpty) {
-        print(value.docs.first.data());
+  // ─── NOTIFICATIONS ────────────────────────────────────────────────────────
 
-        notificationModel = NotificationModel.fromJson(value.docs.first.data());
-      } else {
-        notificationModel = NotificationModel(
-            id: "",
-            message: "Notification setup is pending",
-            subject: "setup notification",
-            type: "");
-      }
-    });
-    return notificationModel;
+  static Future<NotificationModel?> getNotificationContent(String type) async {
+    try {
+      final data = await _db
+          .from(CollectionName.dynamicNotification)
+          .select()
+          .eq('type', type)
+          .maybeSingle();
+      if (data != null) return NotificationModel.fromJson(data);
+    } catch (e) {
+      log('getNotificationContent error: $e');
+    }
+    return NotificationModel(
+        id: '',
+        message: 'Notification setup is pending',
+        subject: 'setup notification',
+        type: '');
   }
+
+  // ─── DINE IN ──────────────────────────────────────────────────────────────
 
   static Future<bool?> setBookedOrder(DineInBookingModel orderModel) async {
-    bool isAdded = false;
-    await fireStore
-        .collection(CollectionName.bookedTable)
-        .doc(orderModel.id)
-        .set(orderModel.toJson())
-        .then((value) {
-      isAdded = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isAdded = false;
-    });
-    return isAdded;
+    try {
+      await _db.from(CollectionName.bookedTable).upsert(orderModel.toJson());
+      return true;
+    } catch (e) {
+      log('setBookedOrder error: $e');
+      return false;
+    }
   }
 
-  static Future<bool?> setProduct(ProductModel orderModel) async {
-    bool isAdded = false;
-    await fireStore
-        .collection(CollectionName.vendorProducts)
-        .doc(orderModel.id)
-        .set(orderModel.toJson())
-        .then((value) {
-      isAdded = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isAdded = false;
-    });
-    return isAdded;
+  // ─── PRODUCTS ─────────────────────────────────────────────────────────────
+
+  static Future<bool?> setProduct(ProductModel model) async {
+    try {
+      await _db.from(CollectionName.vendorProducts).upsert(model.toJson());
+      return true;
+    } catch (e) {
+      log('setProduct error: $e');
+      return false;
+    }
   }
 
-  static Future<String> uploadUserImageToFireStorage(
-      File image, String userID) async {
-    Reference upload =
-        FirebaseStorage.instance.ref().child('images/$userID.png');
-    UploadTask uploadTask = upload.putFile(image);
-    var downloadUrl =
-        await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
-    return downloadUrl.toString();
-  }
+  // ─── SUBSCRIPTION ─────────────────────────────────────────────────────────
 
   static Future<List<SubscriptionPlanModel>> getAllSubscriptionPlans() async {
-    List<SubscriptionPlanModel> subscriptionPlanModels = [];
-    await fireStore
-        .collection(CollectionName.subscriptionPlans)
-        .where('isEnable', isEqualTo: true)
-        .orderBy('place', descending: false)
-        .get()
-        .then((value) async {
-      if (value.docs.isNotEmpty) {
-        for (var element in value.docs) {
-          SubscriptionPlanModel subscriptionPlanModel =
-              SubscriptionPlanModel.fromJson(element.data());
-          if (subscriptionPlanModel.id != Constant.commissionSubscriptionID) {
-            subscriptionPlanModels.add(subscriptionPlanModel);
-          }
-        }
-      }
-    });
-    return subscriptionPlanModels;
+    try {
+      final data = await _db
+          .from(CollectionName.subscriptionPlans)
+          .select()
+          .eq('is_enable', true)
+          .order('place', ascending: true);
+      return data
+          .map<SubscriptionPlanModel>((e) => SubscriptionPlanModel.fromJson(e))
+          .where((e) => e.id != Constant.commissionSubscriptionID)
+          .toList();
+    } catch (e) {
+      log('getAllSubscriptionPlans error: $e');
+      return [];
+    }
   }
 
   static Future<SubscriptionPlanModel?> getSubscriptionPlanById(
       {required String planId}) async {
-    SubscriptionPlanModel? subscriptionPlanModel = SubscriptionPlanModel();
-    if (planId.isNotEmpty) {
-      await fireStore
-          .collection(CollectionName.subscriptionPlans)
-          .doc(planId)
-          .get()
-          .then((value) async {
-        if (value.exists) {
-          subscriptionPlanModel = SubscriptionPlanModel.fromJson(
-              value.data() as Map<String, dynamic>);
-        }
-      });
+    try {
+      if (planId.isEmpty) return null;
+      final data = await _db
+          .from(CollectionName.subscriptionPlans)
+          .select()
+          .eq('id', planId)
+          .maybeSingle();
+      if (data != null) return SubscriptionPlanModel.fromJson(data);
+    } catch (e) {
+      log('getSubscriptionPlanById error: $e');
     }
-    return subscriptionPlanModel;
+    return null;
   }
 
   static Future<SubscriptionPlanModel> setSubscriptionPlan(
-      SubscriptionPlanModel subscriptionPlanModel) async {
-    if (subscriptionPlanModel.id?.isEmpty == true) {
-      subscriptionPlanModel.id = const Uuid().v4();
-    }
-    await fireStore
-        .collection(CollectionName.subscriptionPlans)
-        .doc(subscriptionPlanModel.id)
-        .set(subscriptionPlanModel.toJson())
-        .then((value) async {});
-    return subscriptionPlanModel;
+      SubscriptionPlanModel model) async {
+    if (model.id?.isEmpty == true) model.id = const Uuid().v4();
+    await _db.from(CollectionName.subscriptionPlans).upsert(model.toJson());
+    return model;
   }
 
   static Future<bool?> setSubscriptionTransaction(
-      SubscriptionHistoryModel subscriptionPlan) async {
-    bool isAdded = false;
-    await fireStore
-        .collection(CollectionName.subscriptionHistory)
-        .doc(subscriptionPlan.id)
-        .set(subscriptionPlan.toJson())
-        .then((value) {
-      isAdded = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isAdded = false;
-    });
-    return isAdded;
+      SubscriptionHistoryModel model) async {
+    try {
+      await _db.from(CollectionName.subscriptionHistory).upsert(model.toJson());
+      return true;
+    } catch (e) {
+      log('setSubscriptionTransaction error: $e');
+      return false;
+    }
   }
 
   static Future<List<SubscriptionHistoryModel>> getSubscriptionHistory() async {
-    List<SubscriptionHistoryModel> subscriptionHistoryList = [];
-    await fireStore
-        .collection(CollectionName.subscriptionHistory)
-        .where('user_id', isEqualTo: getCurrentUid())
-        .orderBy('createdAt', descending: true)
-        .get()
-        .then((value) async {
-      if (value.docs.isNotEmpty) {
-        for (var element in value.docs) {
-          SubscriptionHistoryModel subscriptionHistoryModel =
-              SubscriptionHistoryModel.fromJson(element.data());
-          subscriptionHistoryList.add(subscriptionHistoryModel);
-        }
-      }
-    });
-    return subscriptionHistoryList;
+    try {
+      final data = await _db
+          .from(CollectionName.subscriptionHistory)
+          .select()
+          .eq('user_id', getCurrentUid())
+          .order('created_at', ascending: false);
+      return data
+          .map<SubscriptionHistoryModel>(
+              (e) => SubscriptionHistoryModel.fromJson(e))
+          .toList();
+    } catch (e) {
+      log('getSubscriptionHistory error: $e');
+      return [];
+    }
   }
+
+  // ─── ADVERTISEMENTS ───────────────────────────────────────────────────────
 
   static Future<AdvertisementModel> firebaseCreateAdvertisement(
       AdvertisementModel model) async {
-    await fireStore
-        .collection(CollectionName.advertisements)
-        .doc(model.id)
-        .set(model.toJson());
+    await _db.from(CollectionName.advertisements).upsert(model.toJson());
     return model;
   }
 
   static Future<AdvertisementModel> removeAdvertisement(
       AdvertisementModel model) async {
-    await fireStore
-        .collection(CollectionName.advertisements)
-        .doc(model.id)
-        .delete();
+    await _db.from(CollectionName.advertisements).delete().eq('id', model.id!);
     return model;
   }
 
   static Future<AdvertisementModel> pauseAndResumeAdvertisement(
       AdvertisementModel model) async {
-    await fireStore
-        .collection(CollectionName.advertisements)
-        .doc(model.id)
-        .update(model.toJson());
+    await _db.from(CollectionName.advertisements).upsert(model.toJson());
     return model;
   }
 
+  // ─── REVIEWS ──────────────────────────────────────────────────────────────
+
   static Future<List<RatingModel>> getOrderReviewsByVenderId(
       {required String venderId}) async {
-    List<RatingModel> ratingModelList = [];
-    await fireStore
-        .collection(CollectionName.foodsReview)
-        .where('VendorId', isEqualTo: venderId)
-        .get()
-        .then((value) {
-      print("======>");
-      print(value.docs.length);
-      if (value.docs.isNotEmpty) {
-        for (int i = 0; i < value.docs.length; i++) {
-          ratingModelList.add(RatingModel.fromJson(value.docs[i].data()));
-        }
-      }
-    }).catchError((error) {
-      log(error.toString());
-    });
-    return ratingModelList;
+    try {
+      final data = await _db
+          .from(CollectionName.foodsReview)
+          .select()
+          .eq('vendor_id', venderId);
+      return data.map<RatingModel>((e) => RatingModel.fromJson(e)).toList();
+    } catch (e) {
+      log('getOrderReviewsByVenderId error: $e');
+      return [];
+    }
   }
 
-  static Future<List<UserModel>> getAvalibleDrivers() async {
-    List<UserModel> driverList = [];
-    try {
-      log("getAvalibleDrivers :: 22");
-      await fireStore
-          .collection(CollectionName.users)
-          .where('vendorID', isEqualTo: Constant.userModel?.vendorID)
-          .where('role', isEqualTo: Constant.userRoleDriver)
-          .where('active', isEqualTo: true)
-          .where('isActive', isEqualTo: true)
-          .orderBy('createdAt', descending: true)
-          .get()
-          .then((value) {
-        if (value.docs.isNotEmpty) {
-          for (int i = 0; i < value.docs.length; i++) {
-            driverList.add(UserModel.fromJson(value.docs[i].data()));
-          }
-        }
-      });
-    } catch (e) {
-      log("Error fetching drivers: ${e.toString()}");
-    }
+  // ─── DRIVERS ──────────────────────────────────────────────────────────────
 
-    return driverList;
+  static Future<List<UserModel>> getAvalibleDrivers() async {
+    try {
+      final data = await _db
+          .from(CollectionName.users)
+          .select()
+          .eq('vendor_id', Constant.userModel!.vendorID!)
+          .eq('role', Constant.userRoleDriver)
+          .eq('active', true)
+          .eq('is_active', true)
+          .order('created_at', ascending: false);
+      return data.map<UserModel>((e) => UserModel.fromJson(e)).toList();
+    } catch (e) {
+      log('getAvalibleDrivers error: $e');
+      return [];
+    }
   }
 
   static Future<List<UserModel>> getAllDrivers() async {
-    List<UserModel> driverList = [];
     try {
-      await fireStore
-          .collection(CollectionName.users)
-          .where('vendorID', isEqualTo: Constant.userModel?.vendorID)
-          .where('role', isEqualTo: Constant.userRoleDriver)
-          .orderBy('createdAt', descending: true)
-          .get()
-          .then((value) {
-        if (value.docs.isNotEmpty) {
-          for (int i = 0; i < value.docs.length; i++) {
-            driverList.add(UserModel.fromJson(value.docs[i].data()));
-          }
-        }
-      });
+      final data = await _db
+          .from(CollectionName.users)
+          .select()
+          .eq('vendor_id', Constant.userModel!.vendorID!)
+          .eq('role', Constant.userRoleDriver)
+          .order('created_at', ascending: false);
+      return data.map<UserModel>((e) => UserModel.fromJson(e)).toList();
     } catch (e) {
-      log("Error fetching drivers: ${e.toString()}");
+      log('getAllDrivers error: $e');
+      return [];
     }
-    return driverList;
   }
 
-  static late StreamSubscription<QuerySnapshot> adminChatSeenSubscription;
-  static void setSeen() {
-    final currentUserId = FireStoreUtils.getCurrentUid();
+  // ─── CHAT ─────────────────────────────────────────────────────────────────
 
-    adminChatSeenSubscription = FirebaseFirestore.instance
-        .collection(CollectionName.chat)
-        .doc(currentUserId)
-        .collection("thread")
-        .where('senderId', isEqualTo: Constant.adminType)
-        .where('seen', isEqualTo: false)
-        .snapshots()
-        .listen((querySnapshot) async {
-      for (final doc in querySnapshot.docs) {
-        try {
-          await doc.reference.update({'seen': true});
-        } catch (e) {
-          log(e.toString());
-        }
-      }
-    }, onError: (error) {
-      log(error.toString());
-    });
+  static StreamSubscription<List<Map<String, dynamic>>>?
+      _adminChatSeenSubscription;
+
+  static void setSeen() {
+    final currentUserId = getCurrentUid();
+    _adminChatSeenSubscription = _db
+        .from(CollectionName.chat)
+        .stream(primaryKey: ['id'])
+        .eq('sender_id', 'admin')
+        .listen((rows) async {
+          for (final row in rows) {
+            if (row['seen'] == false && row['receiver_id'] == currentUserId) {
+              try {
+                await _db
+                    .from(CollectionName.chat)
+                    .update({'seen': true}).eq('id', row['id']);
+              } catch (e) {
+                log('setSeen update error: $e');
+              }
+            }
+          }
+        });
   }
 
   static void stopSeenListener() {
-    adminChatSeenSubscription.cancel();
+    _adminChatSeenSubscription?.cancel();
   }
 
   static Future<ConversationModel> addChat(
       ConversationModel conversationModel) async {
-    final chatCollection = fireStore.collection(CollectionName.chat);
-    final docId = (conversationModel.receiverId?.contains('admin') == false)
-        ? conversationModel.orderId
-        : (conversationModel.orderId != null)
-            ? conversationModel.orderId
-            : conversationModel.senderId;
-    await chatCollection
-        .doc(docId)
-        .collection("thread")
-        .doc(conversationModel.id)
-        .set(conversationModel.toJson());
+    await _db.from(CollectionName.chat).upsert(conversationModel.toJson());
     return conversationModel;
   }
 
   static Future<InboxModel> addInbox(InboxModel inboxModel) async {
-    final collection = fireStore.collection(CollectionName.chat);
-    final docId = (inboxModel.senderReceiverId?.contains('admin') == false)
-        ? inboxModel.orderId
-        : (inboxModel.orderId != null)
-            ? inboxModel.orderId
-            : inboxModel.senderId;
-    await collection.doc(docId).set(inboxModel.toJson());
+    await _db.from(CollectionName.chat).upsert(inboxModel.toJson());
     return inboxModel;
   }
 
-  static Future<bool?> setEmployeeRole(
-      EmployeeRoleModel employeeRoleModel) async {
-    bool isAdded = false;
-    await fireStore
-        .collection(CollectionName.vendorEmployeeRoles)
-        .doc(employeeRoleModel.id)
-        .set(employeeRoleModel.toJson())
-        .then((value) {
-      isAdded = true;
-    }).catchError((error) {
-      log("Failed to update user: $error");
-      isAdded = false;
-    });
-    return isAdded;
+  static StreamSubscription<List<Map<String, dynamic>>>?
+      _orderChatSeenSubscription;
+
+  static void setSeenChatForOrder({required String orderId}) {
+    final currentUserId = getCurrentUid();
+    _orderChatSeenSubscription = _db
+        .from(CollectionName.chat)
+        .stream(primaryKey: ['id'])
+        .eq('order_id', orderId)
+        .listen((rows) async {
+          for (final row in rows) {
+            if (row['seen'] == false && row['sender_id'] != currentUserId) {
+              try {
+                await _db
+                    .from(CollectionName.chat)
+                    .update({'seen': true}).eq('id', row['id']);
+              } catch (e) {
+                log('setSeenChatForOrder update error: $e');
+              }
+            }
+          }
+        });
+  }
+
+  static void stopSeenForOrderListener() {
+    _orderChatSeenSubscription?.cancel();
+  }
+
+  // ─── EMPLOYEE ROLES ───────────────────────────────────────────────────────
+
+  static Future<bool?> setEmployeeRole(EmployeeRoleModel model) async {
+    try {
+      await _db.from(CollectionName.vendorEmployeeRoles).upsert(model.toJson());
+      return true;
+    } catch (e) {
+      log('setEmployeeRole error: $e');
+      return false;
+    }
   }
 
   static Future<List<EmployeeRoleModel>> getAllEmployeeRoles(
       {bool isActive = false}) async {
     try {
-      var query = fireStore
-          .collection(CollectionName.vendorEmployeeRoles)
-          .where('vendorId', isEqualTo: Constant.userModel?.vendorID);
-      if (isActive) {
-        query = query.where('isEnable', isEqualTo: true);
-      }
-      final querySnapshot = await query.get();
-      return querySnapshot.docs.map((doc) {
-        return EmployeeRoleModel.fromJson(doc.data());
-      }).toList();
-    } catch (error) {
-      log("Failed to get employee roles: $error");
+      var query = _db
+          .from(CollectionName.vendorEmployeeRoles)
+          .select()
+          .eq('vendor_id', Constant.userModel!.vendorID!);
+      final data = isActive ? await query.eq('is_enable', true) : await query;
+      return data
+          .map<EmployeeRoleModel>((e) => EmployeeRoleModel.fromJson(e))
+          .toList();
+    } catch (e) {
+      log('getAllEmployeeRoles error: $e');
       return [];
     }
   }
 
   static Future<EmployeeRoleModel?> getEmployeeRoleById(String id) async {
     try {
-      final docSnapshot = await fireStore
-          .collection(CollectionName.vendorEmployeeRoles)
-          .doc(id)
-          .get();
-      log("docSnapshot.data() :: ${docSnapshot.data()}");
-      if (docSnapshot.exists && docSnapshot.data() != null) {
-        return EmployeeRoleModel.fromJson(docSnapshot.data()!);
-      }
-      return null; // Not found
-    } catch (error) {
-      log("Failed to get employee role by ID: $error");
-      return null;
+      final data = await _db
+          .from(CollectionName.vendorEmployeeRoles)
+          .select()
+          .eq('id', id)
+          .maybeSingle();
+      if (data != null) return EmployeeRoleModel.fromJson(data);
+    } catch (e) {
+      log('getEmployeeRoleById error: $e');
     }
+    return null;
   }
 
   static Future<bool> deleteEmployeeRole(String id) async {
-    bool isDeleted = false;
-    await fireStore
-        .collection(CollectionName.vendorEmployeeRoles)
-        .doc(id)
-        .delete()
-        .then((value) {
-      isDeleted = true;
-    }).catchError((error) {
-      log("Failed to delete employee role: $error");
-      isDeleted = false;
-    });
-    return isDeleted;
+    try {
+      await _db.from(CollectionName.vendorEmployeeRoles).delete().eq('id', id);
+      return true;
+    } catch (e) {
+      log('deleteEmployeeRole error: $e');
+      return false;
+    }
   }
 
   static Future<List<UserModel>> getAllEmployee() async {
-    List<UserModel> employeeList = [];
     try {
-      await fireStore
-          .collection(CollectionName.users)
-          .where('vendorID', isEqualTo: Constant.userModel?.vendorID)
-          .where('role', isEqualTo: Constant.userRoleEmployee)
-          .orderBy('createdAt', descending: true)
-          .get()
-          .then((value) {
-        log("value.docs.isNotEmpty :: ${value.docs.length}");
-        if (value.docs.isNotEmpty) {
-          for (int i = 0; i < value.docs.length; i++) {
-            employeeList.add(UserModel.fromJson(value.docs[i].data()));
-          }
-        }
-      });
+      final data = await _db
+          .from(CollectionName.users)
+          .select()
+          .eq('vendor_id', Constant.userModel!.vendorID!)
+          .eq('role', Constant.userRoleEmployee)
+          .order('created_at', ascending: false);
+      return data.map<UserModel>((e) => UserModel.fromJson(e)).toList();
     } catch (e) {
-      log("Error fetching drivers: ${e.toString()}");
+      log('getAllEmployee error: $e');
+      return [];
     }
-    return employeeList;
   }
 
   static Future<UserModel?> getUserByEmail(String email) async {
-    UserModel? userModel;
     try {
-      QuerySnapshot snapshot = await fireStore
-          .collection(CollectionName.users)
-          .where('email', isEqualTo: email)
+      final data = await _db
+          .from(CollectionName.users)
+          .select()
+          .eq('email', email)
           .limit(1)
-          .get();
-
-      if (snapshot.docs.isNotEmpty) {
-        userModel = UserModel.fromJson(
-            snapshot.docs.first.data() as Map<String, dynamic>);
-      } else {
-        userModel = null; // No user found
-      }
-    } catch (error) {
-      log("Failed to get user by email: $error");
-      userModel = null;
+          .maybeSingle();
+      if (data != null) return UserModel.fromJson(data);
+    } catch (e) {
+      log('getUserByEmail error: $e');
     }
-
-    return userModel;
-  }
-
-  static late StreamSubscription<QuerySnapshot> orderChatSeenSubscription;
-  static void setSeenChatForOrder({required String orderId}) {
-    orderChatSeenSubscription = FirebaseFirestore.instance
-        .collection(CollectionName.chat)
-        .doc(orderId)
-        .collection("thread")
-        .where('senderId', isNotEqualTo: FireStoreUtils.getCurrentUid())
-        .where('seen', isEqualTo: false)
-        .snapshots()
-        .listen((querySnapshot) async {
-      for (final doc in querySnapshot.docs) {
-        try {
-          await doc.reference.update({'seen': true});
-        } catch (e) {
-          log(e.toString());
-        }
-      }
-    }, onError: (error) {
-      log(error.toString());
-    });
-  }
-
-  static void stopSeenForOrderListener() {
-    orderChatSeenSubscription.cancel();
+    return null;
   }
 }

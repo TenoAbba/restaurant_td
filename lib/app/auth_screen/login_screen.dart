@@ -25,7 +25,9 @@ class LoginScreen extends StatelessWidget {
       builder: (controller) {
         return Scaffold(
           appBar: AppBar(
-            backgroundColor: themeChange.getThem() ? AppThemeData.surfaceDark : AppThemeData.surface,
+            backgroundColor: themeChange.getThem()
+                ? AppThemeData.surfaceDark
+                : AppThemeData.surface,
           ),
           body: DefaultTabController(
             length: 2,
@@ -37,15 +39,20 @@ class LoginScreen extends StatelessWidget {
                   Text(
                     "Welcome Back! 👋".tr,
                     style: TextStyle(
-                      color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
+                      color: themeChange.getThem()
+                          ? AppThemeData.grey50
+                          : AppThemeData.grey900,
                       fontSize: 22,
                       fontFamily: AppThemeData.semiBold,
                     ),
                   ),
                   Text(
-                    "Log in to continue managing your restaurant’s orders and reservations seamlessly.".tr,
+                    "Log in to continue managing your restaurant’s orders and reservations seamlessly."
+                        .tr,
                     style: TextStyle(
-                      color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500,
+                      color: themeChange.getThem()
+                          ? AppThemeData.grey400
+                          : AppThemeData.grey500,
                       fontSize: 16,
                       fontFamily: AppThemeData.regular,
                     ),
@@ -59,9 +66,13 @@ class LoginScreen extends StatelessWidget {
                     dividerColor: Colors.transparent,
                     indicatorColor: AppThemeData.secondary300,
                     labelColor: AppThemeData.secondary300,
-                    unselectedLabelColor: themeChange.getThem() ? AppThemeData.grey600 : AppThemeData.grey400,
-                    labelStyle: TextStyle(fontFamily: AppThemeData.semiBold, fontSize: 16),
-                    unselectedLabelStyle: TextStyle(fontFamily: AppThemeData.medium, fontSize: 16),
+                    unselectedLabelColor: themeChange.getThem()
+                        ? AppThemeData.grey600
+                        : AppThemeData.grey400,
+                    labelStyle: TextStyle(
+                        fontFamily: AppThemeData.semiBold, fontSize: 16),
+                    unselectedLabelStyle: TextStyle(
+                        fontFamily: AppThemeData.medium, fontSize: 16),
                     indicatorWeight: 2,
                     indicatorSize: TabBarIndicatorSize.label,
                     tabs: const [
@@ -85,7 +96,8 @@ class LoginScreen extends StatelessWidget {
           bottomNavigationBar: controller.selectedTabbar.value == 1
               ? SizedBox()
               : Padding(
-                  padding: EdgeInsets.symmetric(vertical: Platform.isAndroid ? 20 : 30),
+                  padding: EdgeInsets.symmetric(
+                      vertical: Platform.isAndroid ? 20 : 30),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -95,7 +107,9 @@ class LoginScreen extends StatelessWidget {
                             TextSpan(
                                 text: 'Didn’t have an account?'.tr,
                                 style: TextStyle(
-                                  color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
+                                  color: themeChange.getThem()
+                                      ? AppThemeData.grey50
+                                      : AppThemeData.grey900,
                                   fontFamily: AppThemeData.medium,
                                   fontWeight: FontWeight.w500,
                                 )),
@@ -114,7 +128,8 @@ class LoginScreen extends StatelessWidget {
                                     fontFamily: AppThemeData.bold,
                                     fontWeight: FontWeight.w500,
                                     decoration: TextDecoration.underline,
-                                    decorationColor: AppThemeData.secondary300)),
+                                    decorationColor:
+                                        AppThemeData.secondary300)),
                           ],
                         ),
                       ),
@@ -149,7 +164,9 @@ class OwnerLoginForm extends StatelessWidget {
                 child: SvgPicture.asset(
                   'assets/icons/ic_mail.svg',
                   colorFilter: ColorFilter.mode(
-                    themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                    themeChange.getThem()
+                        ? AppThemeData.grey300
+                        : AppThemeData.grey600,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -165,7 +182,9 @@ class OwnerLoginForm extends StatelessWidget {
                 child: SvgPicture.asset(
                   'assets/icons/ic_lock.svg',
                   colorFilter: ColorFilter.mode(
-                    themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                    themeChange.getThem()
+                        ? AppThemeData.grey300
+                        : AppThemeData.grey600,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -174,11 +193,16 @@ class OwnerLoginForm extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 child: InkWell(
                   splashColor: Colors.transparent,
-                  onTap: () => controller.passwordVisible.value = !controller.passwordVisible.value,
+                  onTap: () => controller.passwordVisible.value =
+                      !controller.passwordVisible.value,
                   child: SvgPicture.asset(
-                    controller.passwordVisible.value ? "assets/icons/ic_password_show.svg" : "assets/icons/ic_password_close.svg",
+                    controller.passwordVisible.value
+                        ? "assets/icons/ic_password_show.svg"
+                        : "assets/icons/ic_password_close.svg",
                     colorFilter: ColorFilter.mode(
-                      themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                      themeChange.getThem()
+                          ? AppThemeData.grey300
+                          : AppThemeData.grey600,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -208,9 +232,13 @@ class OwnerLoginForm extends StatelessWidget {
               color: AppThemeData.secondary300,
               textColor: AppThemeData.grey50,
               onPress: () {
-                if (controller.emailEditingControllerOwner.value.text.trim().isEmpty) {
+                if (controller.emailEditingControllerOwner.value.text
+                    .trim()
+                    .isEmpty) {
                   ShowToastDialog.showToast("Please enter valid email".tr);
-                } else if (controller.passwordEditingControllerOwner.value.text.trim().isEmpty) {
+                } else if (controller.passwordEditingControllerOwner.value.text
+                    .trim()
+                    .isEmpty) {
                   ShowToastDialog.showToast("Please enter valid password".tr);
                 } else {
                   controller.onwerloginWithEmailAndPassword();
@@ -223,11 +251,14 @@ class OwnerLoginForm extends StatelessWidget {
                 children: [
                   const Expanded(child: Divider(thickness: 1)),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 30),
                     child: Text(
                       "or".tr,
                       style: TextStyle(
-                        color: themeChange.getThem() ? AppThemeData.grey500 : AppThemeData.grey400,
+                        color: themeChange.getThem()
+                            ? AppThemeData.grey500
+                            : AppThemeData.grey400,
                         fontSize: 16,
                         fontFamily: AppThemeData.medium,
                         fontWeight: FontWeight.w500,
@@ -240,11 +271,16 @@ class OwnerLoginForm extends StatelessWidget {
             ),
             RoundedButtonFill(
               title: "Continue with Mobile Number".tr,
-              textColor: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey900,
-              color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey100,
+              textColor: themeChange.getThem()
+                  ? AppThemeData.grey100
+                  : AppThemeData.grey900,
+              color: themeChange.getThem()
+                  ? AppThemeData.grey900
+                  : AppThemeData.grey100,
               icon: SvgPicture.asset(
                 "assets/icons/ic_phone.svg",
-                colorFilter: const ColorFilter.mode(AppThemeData.grey900, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(
+                    AppThemeData.grey900, BlendMode.srcIn),
               ),
               isRight: false,
               onPress: () => Get.to(const PhoneNumberScreen()),
@@ -255,8 +291,12 @@ class OwnerLoginForm extends StatelessWidget {
                 Expanded(
                   child: RoundedButtonFill(
                     title: "with Google".tr,
-                    textColor: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey900,
-                    color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey100,
+                    textColor: themeChange.getThem()
+                        ? AppThemeData.grey100
+                        : AppThemeData.grey900,
+                    color: themeChange.getThem()
+                        ? AppThemeData.grey900
+                        : AppThemeData.grey100,
                     icon: SvgPicture.asset("assets/icons/ic_google.svg"),
                     isRight: false,
                     onPress: () => controller.loginWithGoogle(),
@@ -267,8 +307,12 @@ class OwnerLoginForm extends StatelessWidget {
                   Expanded(
                     child: RoundedButtonFill(
                       title: "with Apple".tr,
-                      textColor: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey900,
-                      color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey100,
+                      textColor: themeChange.getThem()
+                          ? AppThemeData.grey100
+                          : AppThemeData.grey900,
+                      color: themeChange.getThem()
+                          ? AppThemeData.grey900
+                          : AppThemeData.grey100,
                       icon: SvgPicture.asset("assets/icons/ic_apple.svg"),
                       isRight: false,
                       onPress: () => controller.loginWithApple(),
@@ -305,7 +349,9 @@ class EmployeeLoginForm extends StatelessWidget {
                 child: SvgPicture.asset(
                   'assets/icons/ic_mail.svg',
                   colorFilter: ColorFilter.mode(
-                    themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                    themeChange.getThem()
+                        ? AppThemeData.grey300
+                        : AppThemeData.grey600,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -321,7 +367,9 @@ class EmployeeLoginForm extends StatelessWidget {
                 child: SvgPicture.asset(
                   'assets/icons/ic_lock.svg',
                   colorFilter: ColorFilter.mode(
-                    themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                    themeChange.getThem()
+                        ? AppThemeData.grey300
+                        : AppThemeData.grey600,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -330,11 +378,16 @@ class EmployeeLoginForm extends StatelessWidget {
                 padding: const EdgeInsets.all(12),
                 child: InkWell(
                   splashColor: Colors.transparent,
-                  onTap: () => controller.passwordVisible.value = !controller.passwordVisible.value,
+                  onTap: () => controller.passwordVisible.value =
+                      !controller.passwordVisible.value,
                   child: SvgPicture.asset(
-                    controller.passwordVisible.value ? "assets/icons/ic_password_show.svg" : "assets/icons/ic_password_close.svg",
+                    controller.passwordVisible.value
+                        ? "assets/icons/ic_password_show.svg"
+                        : "assets/icons/ic_password_close.svg",
                     colorFilter: ColorFilter.mode(
-                      themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                      themeChange.getThem()
+                          ? AppThemeData.grey300
+                          : AppThemeData.grey600,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -347,9 +400,14 @@ class EmployeeLoginForm extends StatelessWidget {
               color: AppThemeData.secondary300,
               textColor: AppThemeData.grey50,
               onPress: () {
-                if (controller.emailEditingControllerEmployee.value.text.trim().isEmpty) {
+                if (controller.emailEditingControllerEmployee.value.text
+                    .trim()
+                    .isEmpty) {
                   ShowToastDialog.showToast("Please enter valid email".tr);
-                } else if (controller.passwordEditingControllerEmployee.value.text.trim().isEmpty) {
+                } else if (controller
+                    .passwordEditingControllerEmployee.value.text
+                    .trim()
+                    .isEmpty) {
                   ShowToastDialog.showToast("Please enter valid password".tr);
                 } else {
                   controller.employeeloginWithEmailAndPassword();

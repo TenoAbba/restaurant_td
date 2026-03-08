@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +11,16 @@ import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
 import 'package:restaurant_td/controller/add_story_controller.dart';
 import 'package:restaurant_td/models/story_model.dart';
+import 'package:restaurant_td/service/supabase_service.dart';
+import 'package:restaurant_td/service/supabase_storage_service.dart';
 import 'package:restaurant_td/themes/app_them_data.dart';
 import 'package:restaurant_td/themes/responsive.dart';
 import 'package:restaurant_td/themes/round_button_fill.dart';
 import 'package:restaurant_td/utils/dark_theme_provider.dart';
-import 'package:restaurant_td/utils/fire_store_utils.dart';
 import 'package:restaurant_td/utils/network_image_widget.dart';
 import 'package:restaurant_td/widget/video_widget.dart';
 import 'package:video_player/video_player.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddStoryScreen extends StatelessWidget {
   const AddStoryScreen({super.key});
@@ -37,13 +38,17 @@ class AddStoryScreen extends StatelessWidget {
               iconTheme: IconThemeData(color: AppThemeData.grey50, size: 20),
               title: Text(
                 "Add Story".tr,
-                style: TextStyle(color: AppThemeData.grey50, fontSize: 18, fontFamily: AppThemeData.medium),
+                style: TextStyle(
+                    color: AppThemeData.grey50,
+                    fontSize: 18,
+                    fontFamily: AppThemeData.medium),
               ),
             ),
             body: controller.isLoading.value
                 ? Constant.loader()
                 : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,11 +57,15 @@ class AddStoryScreen extends StatelessWidget {
                             options: RoundedRectDottedBorderOptions(
                               radius: const Radius.circular(12),
                               dashPattern: const [6, 6, 6, 6],
-                              color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200,
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey700
+                                  : AppThemeData.grey200,
                             ),
                             child: Container(
                               decoration: BoxDecoration(
-                                color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                                color: themeChange.getThem()
+                                    ? AppThemeData.grey900
+                                    : AppThemeData.grey50,
                                 borderRadius: const BorderRadius.all(
                                   Radius.circular(12),
                                 ),
@@ -65,7 +74,8 @@ class AddStoryScreen extends StatelessWidget {
                                   height: Responsive.height(20, context),
                                   width: Responsive.width(90, context),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       SvgPicture.asset(
@@ -76,27 +86,45 @@ class AddStoryScreen extends StatelessWidget {
                                       ),
                                       Text(
                                         "Choose a image for thumbnail".tr,
-                                        style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800, fontFamily: AppThemeData.medium, fontSize: 16),
+                                        style: TextStyle(
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey100
+                                                : AppThemeData.grey800,
+                                            fontFamily: AppThemeData.medium,
+                                            fontSize: 16),
                                       ),
                                       const SizedBox(
                                         height: 5,
                                       ),
                                       Text(
                                         "JPEG, PNG, JPG, GIF format".tr,
-                                        style: TextStyle(fontSize: 12, color: themeChange.getThem() ? AppThemeData.grey200 : AppThemeData.grey700, fontFamily: AppThemeData.regular),
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey200
+                                                : AppThemeData.grey700,
+                                            fontFamily: AppThemeData.regular),
                                       ),
                                       const SizedBox(
                                         height: 10,
                                       ),
                                       RoundedButtonFill(
                                         title: "Brows Image".tr,
-                                        color: themeChange.getThem() ? AppThemeData.secondary600 : AppThemeData.secondary50,
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.secondary600
+                                            : AppThemeData.secondary50,
                                         width: 30,
                                         height: 5,
                                         textColor: AppThemeData.secondary300,
                                         onPress: () async {
-                                          if (Constant.getEmployeeRolePermission(module: "Add Story", pType: ActionType.isAdd) == true) {
-                                            onCameraClick(context, controller, false);
+                                          if (Constant
+                                                  .getEmployeeRolePermission(
+                                                      module: "Add Story",
+                                                      pType:
+                                                          ActionType.isAdd) ==
+                                              true) {
+                                            onCameraClick(
+                                                context, controller, false);
                                           }
                                         },
                                       ),
@@ -107,20 +135,26 @@ class AddStoryScreen extends StatelessWidget {
                           controller.thumbnailFile.isEmpty
                               ? const SizedBox()
                               : Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
                                   child: Stack(
                                     children: [
                                       ClipRRect(
-                                        borderRadius: const BorderRadius.all(Radius.circular(10)),
-                                        child: controller.thumbnailFile[0].runtimeType == XFile
+                                        borderRadius: const BorderRadius.all(
+                                            Radius.circular(10)),
+                                        child: controller.thumbnailFile[0]
+                                                    .runtimeType ==
+                                                XFile
                                             ? Image.file(
-                                                File(controller.thumbnailFile[0].path),
+                                                File(controller
+                                                    .thumbnailFile[0].path),
                                                 fit: BoxFit.cover,
                                                 width: 80,
                                                 height: 80,
                                               )
                                             : NetworkImageWidget(
-                                                imageUrl: controller.thumbnailFile[0],
+                                                imageUrl:
+                                                    controller.thumbnailFile[0],
                                                 fit: BoxFit.cover,
                                                 width: 80,
                                                 height: 80,
@@ -150,11 +184,15 @@ class AddStoryScreen extends StatelessWidget {
                             options: RoundedRectDottedBorderOptions(
                               radius: const Radius.circular(12),
                               dashPattern: const [6, 6, 6, 6],
-                              color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200,
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey700
+                                  : AppThemeData.grey200,
                             ),
                             child: Container(
                               decoration: BoxDecoration(
-                                color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                                color: themeChange.getThem()
+                                    ? AppThemeData.grey900
+                                    : AppThemeData.grey50,
                                 borderRadius: const BorderRadius.all(
                                   Radius.circular(12),
                                 ),
@@ -163,7 +201,8 @@ class AddStoryScreen extends StatelessWidget {
                                   height: Responsive.height(20, context),
                                   width: Responsive.width(90, context),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       SvgPicture.asset(
@@ -174,27 +213,46 @@ class AddStoryScreen extends StatelessWidget {
                                       ),
                                       Text(
                                         "Choose a story video".tr,
-                                        style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800, fontFamily: AppThemeData.medium, fontSize: 16),
+                                        style: TextStyle(
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey100
+                                                : AppThemeData.grey800,
+                                            fontFamily: AppThemeData.medium,
+                                            fontSize: 16),
                                       ),
                                       const SizedBox(
                                         height: 5,
                                       ),
                                       Text(
-                                        "${'mp4 format,  less then'.tr} ${double.parse(controller.videoDuration.toString()).toStringAsFixed(0)} ${'sec.'.tr}".tr,
-                                        style: TextStyle(fontSize: 12, color: themeChange.getThem() ? AppThemeData.grey200 : AppThemeData.grey700, fontFamily: AppThemeData.regular),
+                                        "${'mp4 format,  less then'.tr} ${double.parse(controller.videoDuration.toString()).toStringAsFixed(0)} ${'sec.'.tr}"
+                                            .tr,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey200
+                                                : AppThemeData.grey700,
+                                            fontFamily: AppThemeData.regular),
                                       ),
                                       const SizedBox(
                                         height: 10,
                                       ),
                                       RoundedButtonFill(
                                         title: "Brows Video".tr,
-                                        color: themeChange.getThem() ? AppThemeData.secondary600 : AppThemeData.secondary50,
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.secondary600
+                                            : AppThemeData.secondary50,
                                         width: 30,
                                         height: 5,
                                         textColor: AppThemeData.secondary300,
                                         onPress: () async {
-                                          if (Constant.getEmployeeRolePermission(module: "Add Story", pType: ActionType.isAdd) == true) {
-                                            onCameraClick(context, controller, true);
+                                          if (Constant
+                                                  .getEmployeeRolePermission(
+                                                      module: "Add Story",
+                                                      pType:
+                                                          ActionType.isAdd) ==
+                                              true) {
+                                            onCameraClick(
+                                                context, controller, true);
                                           }
                                         },
                                       ),
@@ -217,15 +275,18 @@ class AddStoryScreen extends StatelessWidget {
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemBuilder: (context, index) {
                                   return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
                                     child: Stack(children: [
-                                      VideoWidget(url: controller.mediaFiles[index]),
+                                      VideoWidget(
+                                          url: controller.mediaFiles[index]),
                                       Positioned(
                                           right: 0,
                                           child: InkWell(
                                             splashColor: Colors.transparent,
                                             onTap: () {
-                                              controller.mediaFiles.removeAt(index);
+                                              controller.mediaFiles
+                                                  .removeAt(index);
                                             },
                                             child: const Padding(
                                               padding: EdgeInsets.all(8.0),
@@ -246,24 +307,37 @@ class AddStoryScreen extends StatelessWidget {
                     ),
                   ),
             bottomNavigationBar: Container(
-              color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+              color: themeChange.getThem()
+                  ? AppThemeData.grey900
+                  : AppThemeData.grey50,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Padding(
                 padding: EdgeInsets.only(
-                    bottom: ((Constant.getEmployeeRolePermission(module: "Add Story", pType: ActionType.isAdd) == true) &&
-                            (Constant.getEmployeeRolePermission(module: "Add Story", pType: ActionType.isDelete) == true))
+                    bottom: ((Constant.getEmployeeRolePermission(
+                                    module: "Add Story",
+                                    pType: ActionType.isAdd) ==
+                                true) &&
+                            (Constant.getEmployeeRolePermission(
+                                    module: "Add Story",
+                                    pType: ActionType.isDelete) ==
+                                true))
                         ? 20
                         : 0),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (Constant.getEmployeeRolePermission(module: "Add Story", pType: ActionType.isDelete) == true)
+                    if (Constant.getEmployeeRolePermission(
+                            module: "Add Story", pType: ActionType.isDelete) ==
+                        true)
                       InkWell(
                         onTap: () async {
                           ShowToastDialog.showLoader("Please wait".tr);
-                          await FireStoreUtils.removeStory(Constant.userModel!.vendorID.toString()).then((value) {
+                          await SupabaseService.removeStory(
+                                  Constant.userModel!.vendorID.toString())
+                              .then((value) {
                             ShowToastDialog.closeLoader();
-                            ShowToastDialog.showToast("Story remove successfully".tr);
+                            ShowToastDialog.showToast(
+                                "Story remove successfully".tr);
                             controller.getStory();
                           });
                         },
@@ -280,25 +354,39 @@ class AddStoryScreen extends StatelessWidget {
                             ),
                             Text(
                               "Delete Story".tr,
-                              style: TextStyle(color: themeChange.getThem() ? AppThemeData.danger300 : AppThemeData.danger300, fontSize: 16, fontFamily: AppThemeData.medium),
+                              style: TextStyle(
+                                  color: themeChange.getThem()
+                                      ? AppThemeData.danger300
+                                      : AppThemeData.danger300,
+                                  fontSize: 16,
+                                  fontFamily: AppThemeData.medium),
                             ),
                           ],
                         ),
                       ),
-                    if (Constant.getEmployeeRolePermission(module: "Add Story", pType: ActionType.isDelete) == true)
+                    if (Constant.getEmployeeRolePermission(
+                            module: "Add Story", pType: ActionType.isDelete) ==
+                        true)
                       const SizedBox(
                         height: 10,
                       ),
-                    if (Constant.getEmployeeRolePermission(module: "Add Story", pType: ActionType.isAdd) == true)
+                    if (Constant.getEmployeeRolePermission(
+                            module: "Add Story", pType: ActionType.isAdd) ==
+                        true)
                       RoundedButtonFill(
                         title: "Save Story".tr,
                         height: 5.5,
-                        color: themeChange.getThem() ? AppThemeData.secondary300 : AppThemeData.secondary300,
-                        textColor: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                        color: themeChange.getThem()
+                            ? AppThemeData.secondary300
+                            : AppThemeData.secondary300,
+                        textColor: themeChange.getThem()
+                            ? AppThemeData.grey900
+                            : AppThemeData.grey50,
                         fontSizes: 16,
                         onPress: () async {
                           if (controller.thumbnailFile.isEmpty) {
-                            ShowToastDialog.showToast("Please select thumbnail.".tr);
+                            ShowToastDialog.showToast(
+                                "Please select thumbnail.".tr);
                           } else if (controller.mediaFiles.isEmpty) {
                             ShowToastDialog.showToast("Please Select video".tr);
                           } else {
@@ -306,17 +394,27 @@ class AddStoryScreen extends StatelessWidget {
 
                             String? url;
                             if (controller.thumbnailFile[0] is XFile) {
-                              url = await FireStoreUtils.uploadImageOfStory(File(controller.thumbnailFile[0].path), context, getFileExtension(controller.thumbnailFile[0]!.path)!);
+                              url = await SupabaseStorageService
+                                  .uploadStoryThumbnail(
+                                      File(controller.thumbnailFile[0].path),
+                                      context);
                             } else {
                               url = controller.thumbnailFile[0];
                             }
 
-                            List<String> mediaFilesURLs = controller.mediaFiles.whereType<String>().toList().cast<String>();
-                            List<File> imagesToUpload = controller.mediaFiles.whereType<File>().toList().cast<File>();
+                            List<String> mediaFilesURLs = controller.mediaFiles
+                                .whereType<String>()
+                                .toList()
+                                .cast<String>();
+                            List<File> imagesToUpload = controller.mediaFiles
+                                .whereType<File>()
+                                .toList()
+                                .cast<File>();
 
                             if (imagesToUpload.isNotEmpty) {
                               for (int i = 0; i < imagesToUpload.length; i++) {
-                                String? url = await FireStoreUtils.uploadVideoStory(
+                                String? url = await SupabaseStorageService
+                                    .uploadStoryVideo(
                                   imagesToUpload[i],
                                   context,
                                 );
@@ -324,15 +422,18 @@ class AddStoryScreen extends StatelessWidget {
                               }
                             }
 
-                            StoryModel? storyModel = StoryModel(
-                              vendorID: Constant.userModel!.vendorID,
-                              videoThumbnail: url,
-                              videoUrl: mediaFilesURLs,
-                              createdAt: Timestamp.now(),
-                            );
-                            await FireStoreUtils.addOrUpdateStory(storyModel).then((value) {
+                            final storyData = {
+                              'vendor_id': Constant.userModel!.vendorID,
+                              'video_thumbnail': url,
+                              'video_url': mediaFilesURLs,
+                              'created_at': DateTime.now().toIso8601String(),
+                            };
+
+                            await SupabaseService.addOrUpdateStory(storyData)
+                                .then((value) {
                               ShowToastDialog.closeLoader();
-                              ShowToastDialog.showToast("Story upload successfully".tr);
+                              ShowToastDialog.showToast(
+                                  "Story upload successfully".tr);
                               Get.back();
                             });
                           }
@@ -346,7 +447,8 @@ class AddStoryScreen extends StatelessWidget {
         });
   }
 
-  void onCameraClick(BuildContext context, AddStoryController controller, bool multipleSelect) {
+  void onCameraClick(BuildContext context, AddStoryController controller,
+      bool multipleSelect) {
     final action = CupertinoActionSheet(
       message: Text(
         'Send Video'.tr,
@@ -359,16 +461,21 @@ class AddStoryScreen extends StatelessWidget {
             isDefaultAction: false,
             onPressed: () async {
               Navigator.pop(context);
-              XFile? galleryVideo = await controller.imagePicker.pickVideo(source: ImageSource.gallery);
+              XFile? galleryVideo = await controller.imagePicker
+                  .pickVideo(source: ImageSource.gallery);
               if (galleryVideo != null) {
-                VideoPlayerController controllers = VideoPlayerController.file(File(galleryVideo.path)); //Your file here
+                VideoPlayerController controllers = VideoPlayerController.file(
+                    File(galleryVideo.path)); //Your file here
 
-                String rounded = prettyDuration(double.parse(controllers.value.duration.inSeconds.toString()));
+                String rounded = prettyDuration(double.parse(
+                    controllers.value.duration.inSeconds.toString()));
 
-                if (double.parse(rounded).round() <= controller.videoDuration.value) {
+                if (double.parse(rounded).round() <=
+                    controller.videoDuration.value) {
                   controller.mediaFiles.add(File(galleryVideo.path));
                 } else {
-                  ShowToastDialog.showToast("${'Please select'.tr} ${controller.videoDuration.value.toString()} ${'second below video.'.tr}");
+                  ShowToastDialog.showToast(
+                      "${'Please select'.tr} ${controller.videoDuration.value.toString()} ${'second below video.'.tr}");
                 }
               }
             },
@@ -381,7 +488,8 @@ class AddStoryScreen extends StatelessWidget {
             isDefaultAction: false,
             onPressed: () async {
               Navigator.pop(context);
-              XFile? galleryVideo = await controller.imagePicker.pickImage(source: ImageSource.gallery);
+              XFile? galleryVideo = await controller.imagePicker
+                  .pickImage(source: ImageSource.gallery);
               if (galleryVideo != null) {
                 controller.thumbnailFile.clear();
                 controller.thumbnailFile.add(galleryVideo);

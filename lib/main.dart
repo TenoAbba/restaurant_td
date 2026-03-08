@@ -1,15 +1,14 @@
 import 'dart:convert';
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:restaurant_td/app/splash_screen.dart';
 import 'package:restaurant_td/constant/constant.dart';
+import 'package:restaurant_td/constant/supabase_constant.dart';
 import 'package:restaurant_td/controller/global_setting_controller.dart';
-import 'package:restaurant_td/firebase_options.dart';
 import 'package:restaurant_td/models/language_model.dart';
 import 'package:restaurant_td/service/audio_player_service.dart';
 import 'package:restaurant_td/service/localization_service.dart';
@@ -17,20 +16,18 @@ import 'package:restaurant_td/themes/styles.dart';
 import 'package:restaurant_td/utils/dark_theme_provider.dart';
 import 'package:restaurant_td/utils/preferences.dart';
 
+// Global Supabase client — use this anywhere in the app
+final supabase = Supabase.instance.client;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: SupabaseConstant.supabaseUrl,
+    anonKey: SupabaseConstant.supabaseAnonKey,
   );
-  await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.debug,
-    appleProvider: AppleProvider.debug,
-  );
-  await FirebaseAppCheck.instance.activate(
-    webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
-    androidProvider: AndroidProvider.playIntegrity,
-    appleProvider: AppleProvider.appAttest,
-  );
+
   await Preferences.initPref();
   runApp(const MyApp());
 }
@@ -67,8 +64,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.paused) {
       AudioPlayerService.initAudio();
     }
     getCurrentAppTheme();
@@ -82,9 +78,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) {
-        return themeChangeProvider;
-      },
+      create: (_) => themeChangeProvider,
       child: Consumer<DarkThemeProvider>(
         builder: (context, value, child) {
           return GetMaterialApp(

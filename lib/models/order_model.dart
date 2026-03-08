@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:restaurant_td/models/cart_product_model.dart';
 import 'package:restaurant_td/models/cashback_model.dart';
 import 'package:restaurant_td/models/tax_model.dart';
@@ -14,8 +13,8 @@ class OrderModel {
   num? discount;
   String? authorID;
   String? estimatedTimeToPrepare;
-  Timestamp? createdAt;
-  Timestamp? triggerDelivery;
+  DateTime? createdAt;
+  DateTime? triggerDelivery;
   List<TaxModel>? taxSetting;
   String? paymentMethod;
   List<CartProductModel>? products;
@@ -26,7 +25,7 @@ class OrderModel {
   String? couponCode;
   Map<String, dynamic>? specialDiscount;
   String? deliveryCharge;
-  Timestamp? scheduleTime;
+  DateTime? scheduleTime;
   String? tipAmount;
   String? notes;
   UserModel? author;
@@ -68,7 +67,9 @@ class OrderModel {
       this.isFreeDelivery});
 
   OrderModel.fromJson(Map<String, dynamic> json) {
-    address = json['address'] != null ? ShippingAddress.fromJson(json['address']) : null;
+    address = json['address'] != null
+        ? ShippingAddress.fromJson(json['address'])
+        : null;
     status = json['status'];
     couponId = json['couponId'];
     vendorID = json['vendorID'];
@@ -76,8 +77,10 @@ class OrderModel {
     discount = json['discount'];
     authorID = json['authorID'];
     estimatedTimeToPrepare = json['estimatedTimeToPrepare'];
-    createdAt = json['createdAt'];
-    triggerDelivery = json['triggerDelevery'] ?? Timestamp.now();
+    createdAt = json['createdAt'] != null
+        ? DateTime.tryParse(json['createdAt'].toString())
+        : null;
+    triggerDelivery = json['triggerDelevery'] ?? DateTime.now();
     if (json['taxSetting'] != null) {
       taxSetting = <TaxModel>[];
       json['taxSetting'].forEach((v) {
@@ -92,20 +95,29 @@ class OrderModel {
       });
     }
     adminCommissionType = json['adminCommissionType'];
-    vendor = json['vendor'] != null ? VendorModel.fromJson(json['vendor']) : null;
+    vendor =
+        json['vendor'] != null ? VendorModel.fromJson(json['vendor']) : null;
     id = json['id'];
     adminCommission = json['adminCommission'];
     couponCode = json['couponCode'];
     specialDiscount = json['specialDiscount'];
-    deliveryCharge = json['deliveryCharge'].toString().isEmpty ? "0.0" : json['deliveryCharge'] ?? '0.0';
-    scheduleTime = json['scheduleTime'];
-    tipAmount = json['tip_amount'].toString().isEmpty ? "0.0" : json['tip_amount'] ?? "0.0";
+    deliveryCharge = json['deliveryCharge'].toString().isEmpty
+        ? "0.0"
+        : json['deliveryCharge'] ?? '0.0';
+    scheduleTime = json['scheduleTime'] != null
+        ? DateTime.tryParse(json['scheduleTime'].toString())
+        : null;
+    tipAmount = json['tip_amount'].toString().isEmpty
+        ? "0.0"
+        : json['tip_amount'] ?? "0.0";
     notes = json['notes'];
     author = json['author'] != null ? UserModel.fromJson(json['author']) : null;
     driver = json['driver'] != null ? UserModel.fromJson(json['driver']) : null;
     takeAway = json['takeAway'];
     rejectedByDrivers = json['rejectedByDrivers'] ?? [];
-    cashback = json['cashback'] != null ? CashbackModel.fromJson(json['cashback']) : null;
+    cashback = json['cashback'] != null
+        ? CashbackModel.fromJson(json['cashback'])
+        : null;
     isFreeDelivery = json['isFreeDelivery'] ?? false;
   }
 
@@ -121,8 +133,8 @@ class OrderModel {
     data['discount'] = discount;
     data['authorID'] = authorID;
     data['estimatedTimeToPrepare'] = estimatedTimeToPrepare;
-    data['createdAt'] = createdAt;
-    data['triggerDelivery'] = triggerDelivery;
+    data['createdAt'] = createdAt?.toIso8601String();
+    data['triggerDelivery'] = triggerDelivery?.toIso8601String();
     if (taxSetting != null) {
       data['taxSetting'] = taxSetting!.map((v) => v.toJson()).toList();
     }
@@ -139,7 +151,7 @@ class OrderModel {
     data['couponCode'] = couponCode;
     data['specialDiscount'] = specialDiscount;
     data['deliveryCharge'] = deliveryCharge;
-    data['scheduleTime'] = scheduleTime;
+    data['scheduleTime'] = scheduleTime?.toIso8601String();
     data['tip_amount'] = tipAmount;
     data['notes'] = notes;
     if (author != null) {

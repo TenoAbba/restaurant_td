@@ -1,12 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class CouponModel {
   String? discountType;
   String? id;
   String? code;
   String? discount;
   String? image;
-  Timestamp? expiresAt;
+  DateTime? expiresAt;
   String? description;
   bool? isPublic;
   String? resturantId;
@@ -14,15 +12,15 @@ class CouponModel {
 
   CouponModel(
       {this.discountType,
-        this.id,
-        this.code,
-        this.discount,
-        this.image,
-        this.expiresAt,
-        this.description,
-        this.isPublic,
-        this.resturantId,
-        this.isEnabled});
+      this.id,
+      this.code,
+      this.discount,
+      this.image,
+      this.expiresAt,
+      this.description,
+      this.isPublic,
+      this.resturantId,
+      this.isEnabled});
 
   CouponModel.fromJson(Map<String, dynamic> json) {
     discountType = json['discountType'];
@@ -30,7 +28,9 @@ class CouponModel {
     code = json['code'];
     discount = json['discount'];
     image = json['image'];
-    expiresAt = json['expiresAt'];
+    expiresAt = json['expiresAt'] != null
+        ? DateTime.tryParse(json['expiresAt'].toString())
+        : null;
     description = json['description'];
     isPublic = json['isPublic'];
     resturantId = json['resturant_id'];
@@ -44,7 +44,7 @@ class CouponModel {
     data['code'] = code;
     data['discount'] = discount;
     data['image'] = image;
-    data['expiresAt'] = expiresAt;
+    data['expiresAt'] = expiresAt?.toIso8601String();
     data['description'] = description;
     data['isPublic'] = isPublic;
     data['resturant_id'] = resturantId;
