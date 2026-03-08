@@ -1,3 +1,4 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_td/constant/collection_name.dart';
@@ -80,55 +81,17 @@ class WithdrawMethodSetupController extends GetxController {
     userBankDetails.value = Constant.userModel!.userBankDetails!;
     isBankDetailsAdded.value = userBankDetails.value.accountNumber.isNotEmpty;
 
-    await FireStoreUtils.fireStore
-        .collection(CollectionName.settings)
-        .doc("razorpaySettings")
-        .get()
-        .then((user) {
-      try {
-        razorPayModel.value = RazorPayModel.fromJson(user.data() ?? {});
-      } catch (e) {
-        debugPrint(
-            'FireStoreUtils.getUserByID failed to parse user object ${user.id}');
-      }
-    });
+    final _razorRow = await Supabase.instance.client.from(CollectionName.settings).select('data').eq('key','razorpaySettings').maybeSingle();
+    if (_razorRow != null) razorPayModel.value = RazorPayModel.fromJson(_razorRow['data'] ?? {});
 
-    await FireStoreUtils.fireStore
-        .collection(CollectionName.settings)
-        .doc("paypalSettings")
-        .get()
-        .then((paypalData) {
-      try {
-        paypalDataModel.value = PayPalModel.fromJson(paypalData.data() ?? {});
-      } catch (error) {
-        debugPrint(error.toString());
-      }
-    });
+    final _paypalRow = await Supabase.instance.client.from(CollectionName.settings).select('data').eq('key','paypalSettings').maybeSingle();
+    if (_paypalRow != null) paypalDataModel.value = PayPalModel.fromJson(_paypalRow['data'] ?? {});
 
-    await FireStoreUtils.fireStore
-        .collection(CollectionName.settings)
-        .doc("stripeSettings")
-        .get()
-        .then((paypalData) {
-      try {
-        stripeSettingData.value = StripeModel.fromJson(paypalData.data() ?? {});
-      } catch (error) {
-        debugPrint(error.toString());
-      }
-    });
+    final _stripeRow = await Supabase.instance.client.from(CollectionName.settings).select('data').eq('key','stripeSettings').maybeSingle();
+    if (_stripeRow != null) stripeSettingData.value = StripeModel.fromJson(_stripeRow['data'] ?? {});
 
-    await FireStoreUtils.fireStore
-        .collection(CollectionName.settings)
-        .doc("flutterWave")
-        .get()
-        .then((paypalData) {
-      try {
-        flutterWaveSettingData.value =
-            FlutterWaveModel.fromJson(paypalData.data() ?? {});
-      } catch (error) {
-        debugPrint(error.toString());
-      }
-    });
+    final _fwRow = await Supabase.instance.client.from(CollectionName.settings).select('data').eq('key','flutterWave').maybeSingle();
+    if (_fwRow != null) flutterWaveSettingData.value = FlutterWaveModel.fromJson(_fwRow['data'] ?? {});
     isLoading.value = false;
   }
 }

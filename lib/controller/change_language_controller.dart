@@ -1,3 +1,4 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/models/language_model.dart';
@@ -20,13 +21,15 @@ class ChangeLanguageController extends GetxController {
   }
 
   getLanguage() async {
-    await FireStoreUtils.fireStore
-        .collection(CollectionName.settings)
-        .doc("languages")
-        .get()
-        .then((event) {
-      if (event.exists) {
-        List languageListTemp = event.data()!["list"];
+    final row = await Supabase.instance.client
+        .from(CollectionName.settings)
+        .select('data')
+        .eq('key', 'languages')
+        .maybeSingle();
+    if (row != null) {
+      final event = row['data'] as Map<String, dynamic>? ?? {};
+      if (event.isNotEmpty) {
+        List languageListTemp = event["list"] ?? [];
         for (var element in languageListTemp) {
           LanguageModel languageModel = LanguageModel.fromJson(element);
           languageList.add(languageModel);

@@ -82,8 +82,8 @@ class AddEditCouponController extends GetxController {
       couponModel.value.discount = priceController.value.text.trim();
       couponModel.value.discountType = selectCouponType.value;
       couponModel.value.image = images.isEmpty ? "" : images.first;
-      couponModel.value.expiresAt = 
-          DateFormat("MMM dd,yyyy".parse(selectDateController.value.text));
+      couponModel.value.expiresAt =
+          DateFormat("MMM dd,yyyy").parse(selectDateController.value.text);
       couponModel.value.isEnabled = isActive.value;
       couponModel.value.isPublic = isPublic.value;
       couponModel.value.resturantId = Constant.userModel!.vendorID.toString();
