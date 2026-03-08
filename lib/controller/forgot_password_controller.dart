@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ForgotPasswordController extends GetxController {
   Rx<TextEditingController> emailEditingController =
@@ -9,7 +10,8 @@ class ForgotPasswordController extends GetxController {
   forgotPassword() async {
     try {
       ShowToastDialog.showLoader("Please wait".tr);
-      await Supabase.instance.client.auth.resetPasswordForEmail(emailEditingController.value.text);
+      await Supabase.instance.client.auth
+          .resetPasswordForEmail(emailEditingController.value.text);
       ShowToastDialog.closeLoader();
       ShowToastDialog.showToast(
           '${'Reset Password link sent your'.tr} ${emailEditingController.value.text} ${'email'.tr}');

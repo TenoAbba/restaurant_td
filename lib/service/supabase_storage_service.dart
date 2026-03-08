@@ -347,7 +347,7 @@ class SupabaseStorageService {
             bucketName,
             BucketOptions(
               public: true,
-              fileSizeLimit: 50 * 1024 * 1024, // 50MB limit
+              fileSizeLimit: '50MB', // 50MB limit
               allowedMimeTypes: [
                 'image/jpeg',
                 'image/png',
@@ -408,7 +408,7 @@ class SupabaseStorageService {
   static Future<List<FileObject>> listFiles(String bucketName,
       {String? path}) async {
     try {
-      final response = await supabase.storage.from(bucketName).list(path ?? '');
+      final response = await supabase.storage.from(bucketName).list();
       return response;
     } catch (e) {
       ShowToastDialog.showToast("Error listing files: ${e.toString()}");
@@ -432,8 +432,9 @@ class SupabaseStorageService {
       // Ensure bucket exists and is configured for public access
       await _ensureBucketExists(bucketName);
 
-      final response =
-          await supabase.storage.from(bucketName).uploadBinary(fileName, await image.readAsBytes(),
+      final response = await supabase.storage
+          .from(bucketName)
+          .uploadBinary(fileName, await image.readAsBytes(),
               fileOptions: FileOptions(
                 contentType: 'image/jpeg',
                 upsert: true,

@@ -46,7 +46,7 @@ class ChangeLanguageController extends GetxController {
           }
         }
       }
-    });
+    }
 
     isLoading.value = false;
   }

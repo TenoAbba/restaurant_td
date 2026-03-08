@@ -646,7 +646,7 @@ class SubscriptionController extends GetxController {
     userModel.value.subscriptionExpiryDate =
         selectedSubscriptionPlan.value.expiryDay == '-1'
             ? null
-            : Constant().addDayInTimestamp(
+            : Constant.addDayInTimestamp(
                 days: selectedSubscriptionPlan.value.expiryDay,
                 date: DateTime.now());
 
@@ -663,7 +663,7 @@ class SubscriptionController extends GetxController {
         vendorModel.subscriptionExpiryDate =
             selectedSubscriptionPlan.value.expiryDay == '-1'
                 ? null
-                : Constant().addDayInTimestamp(
+                : Constant.addDayInTimestamp(
                     days: selectedSubscriptionPlan.value.expiryDay,
                     date: DateTime.now());
         vendorModel.subscriptionTotalOrders =
