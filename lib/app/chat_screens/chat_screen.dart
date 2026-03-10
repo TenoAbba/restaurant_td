@@ -11,7 +11,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_td/app/chat_screens/full_screen_image_viewer.dart';
 import 'package:restaurant_td/app/chat_screens/full_screen_video_viewer.dart';
-import 'package:restaurant_td/constant/collection_name.dart';
 import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/controller/chat_controller.dart';
 import 'package:restaurant_td/models/conversation_model.dart';
