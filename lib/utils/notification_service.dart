@@ -1,53 +1,103 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:restaurant_td/app/help_support_screen/help_support_screen.dart';
-import 'package:restaurant_td/utils/fire_store_utils.dart';
 import 'package:restaurant_td/utils/preferences.dart';
 
-Future<void> firebaseMessageBackgroundHandle(RemoteMessage message) async {
-  log("BackGround Message :: ${message.messageId}");
-}
-
+/// Local notification service.
+///
+/// This app uses Supabase as its backend, so there is no Firebase Cloud
+/// Messaging integration. Notifications are rendered locally through
+/// `flutter_local_notifications` (triggered by in-app events / Supabase
+/// realtime streams).
+///
+/// If a remote push provider is added later, feed its payload into
+/// [showNotification] and keep using [handleMessageClick] for tap routing.
 class NotificationService {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
+  static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
+    'high_importance_channel',
+    'High Importance Notifications',
+    description: 'This channel is used for important notifications.',
+    importance: Importance.max,
+  );
+
+  static bool _isInitialized = false;
+
+  /// Initializes the local notification plugin, creates the Android channel
+  /// and asks the user for notification permission.
   Future<void> initInfo() async {
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
+    if (_isInitialized) return;
+
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings initializationSettingsDarwin =
+        DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
     );
-    var request = await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
     );
 
-    if (request.authorizationStatus == AuthorizationStatus.authorized || request.authorizationStatus == AuthorizationStatus.provisional) {
-      const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-      var iosInitializationSettings = const DarwinInitializationSettings();
-      final InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: iosInitializationSettings);
-      await flutterLocalNotificationsPlugin.initialize(initializationSettings, onDidReceiveNotificationResponse: (response) {
-        if (response.payload != null) {
-          final data = jsonDecode(response.payload!);
-          final String type = data['type'] ?? '';
-          handleMessageClick(type: type, isBgApp: false);
-        }
-      });
-      setupInteractedMessage();
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        _handlePayload(response.payload, isBgApp: false);
+      },
+    );
+
+    final AndroidFlutterLocalNotificationsPlugin? androidPlugin =
+        flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+    await androidPlugin?.createNotificationChannel(_channel);
+    await androidPlugin?.requestNotificationsPermission();
+
+    _isInitialized = true;
+
+    await _handleAppLaunchNotification();
+  }
+
+  /// Handles the case where the app was launched by tapping a notification.
+  Future<void> _handleAppLaunchNotification() async {
+    try {
+      final NotificationAppLaunchDetails? details =
+          await flutterLocalNotificationsPlugin
+              .getNotificationAppLaunchDetails();
+      if (details?.didNotificationLaunchApp == true) {
+        _handlePayload(details?.notificationResponse?.payload, isBgApp: true);
+      }
+    } catch (e) {
+      log('getNotificationAppLaunchDetails error: $e');
     }
   }
 
-  Future<void> handleMessageClick({required String type, required bool isBgApp}) async {
-    final String uid = FireStoreUtils.getCurrentUid();
-    if (type == 'admin_chat' && uid.isNotEmpty) {
+  void _handlePayload(String? payload, {required bool isBgApp}) {
+    if (payload == null || payload.isEmpty) return;
+    try {
+      final data = jsonDecode(payload);
+      if (data is Map<String, dynamic>) {
+        final String type = data['type']?.toString() ?? '';
+        handleMessageClick(type: type, isBgApp: isBgApp);
+      }
+    } catch (e) {
+      log('notification payload decode error: $e');
+    }
+  }
+
+  /// Routes the user to the correct screen after a notification tap.
+  Future<void> handleMessageClick({
+    required String type,
+    required bool isBgApp,
+  }) async {
+    if (type == 'admin_chat') {
       await Preferences.setBoolean(Preferences.isClickOnNotification, true);
       if (isBgApp == false) {
         Get.offAll(HelpSupportScreen(isNavigateViaNotification: true));
@@ -55,64 +105,42 @@ class NotificationService {
     }
   }
 
-  Future<void> setupInteractedMessage() async {
-    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-    if (initialMessage != null) {
-      FirebaseMessaging.onBackgroundMessage((message) => firebaseMessageBackgroundHandle(message));
-    }
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      log("::::::::::::onMessage:::::::::::::::::");
-      if (message.notification != null) {
-        log(message.notification.toString());
-        display(message);
-      }
-    });
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
-      if (message != null) {
-        final String type = message.data['type'] ?? '';
-        handleMessageClick(type: type, isBgApp: false);
-      }
-    });
-    FirebaseMessaging.instance.getInitialMessage().then((message) {
-      log("::::::::::::getInitialMessage:::::::::::::::::");
-      if (message != null) {
-        final String type = message.data['type'] ?? '';
-        handleMessageClick(type: type, isBgApp: true);
-      }
-    });
-    log("::::::::::::Permission authorized:::::::::::::::::");
-    await FirebaseMessaging.instance.subscribeToTopic("restaurant");
-  }
-
-  static Future<String> getToken() async {
-    String? token = await FirebaseMessaging.instance.getToken();
-    return token!;
-  }
-
-  void display(RemoteMessage message) async {
-    log('Got a message whilst in the foreground!');
-    log('Message data: ${message.notification!.body.toString()}');
+  /// Displays a local notification.
+  Future<void> showNotification({
+    required String title,
+    required String body,
+    Map<String, dynamic>? payload,
+    int? id,
+  }) async {
     try {
-      AndroidNotificationChannel channel = const AndroidNotificationChannel(
-        '0',
-        'goRide-customer',
-        description: 'Show QuickLAI Notification',
-        importance: Importance.max,
+      final AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails(
+        _channel.id,
+        _channel.name,
+        channelDescription: _channel.description,
+        importance: Importance.high,
+        priority: Priority.high,
+        ticker: 'ticker',
       );
-      AndroidNotificationDetails notificationDetails =
-          AndroidNotificationDetails(channel.id, channel.name, channelDescription: 'your channel Description', importance: Importance.high, priority: Priority.high, ticker: 'ticker');
-      const DarwinNotificationDetails darwinNotificationDetails = DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true);
-      NotificationDetails notificationDetailsBoth = NotificationDetails(android: notificationDetails, iOS: darwinNotificationDetails);
-      await FlutterLocalNotificationsPlugin().show(
-        0,
-        message.notification!.title,
-        message.notification!.body,
-        notificationDetailsBoth,
-        payload: jsonEncode(message.data),
+      const DarwinNotificationDetails darwinDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
       );
-    } on Exception catch (e) {
-      log(e.toString());
+      final NotificationDetails notificationDetails = NotificationDetails(
+        android: androidDetails,
+        iOS: darwinDetails,
+      );
+
+      await flutterLocalNotificationsPlugin.show(
+        id ?? DateTime.now().millisecondsSinceEpoch.remainder(100000),
+        title,
+        body,
+        notificationDetails,
+        payload: payload == null ? null : jsonEncode(payload),
+      );
+    } catch (e) {
+      log('showNotification error: $e');
     }
   }
 }

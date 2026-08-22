@@ -364,18 +364,6 @@ class FireStoreUtils {
       if (contact != null)
         Constant.adminEmail = (contact['data'] as Map)['Email'] ?? '';
 
-      // notification_setting
-      final notifSetting = await _db
-          .from(CollectionName.settings)
-          .select('data')
-          .eq('key', 'notification_setting')
-          .maybeSingle();
-      if (notifSetting != null) {
-        final d = notifSetting['data'] as Map<String, dynamic>;
-        Constant.senderId = d['projectId'] ?? '';
-        Constant.jsonNotificationFileURL = d['serviceJson'] ?? '';
-      }
-
       // document_verification_settings
       final docVerify = await _db
           .from(CollectionName.settings)
@@ -1039,8 +1027,8 @@ class FireStoreUtils {
         documentsList.add(documents);
       }
 
-      final model = DriverDocumentModel(
-          id: getCurrentUid(), documents: documentsList);
+      final model =
+          DriverDocumentModel(id: getCurrentUid(), documents: documentsList);
       await _db.from(CollectionName.documentsVerify).upsert(model.toJson());
       return true;
     } catch (e) {

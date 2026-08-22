@@ -1,6 +1,5 @@
 import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/models/currency_model.dart';
-import 'package:restaurant_td/models/user_model.dart';
 import 'package:restaurant_td/utils/fire_store_utils.dart';
 import 'package:restaurant_td/utils/notification_service.dart';
 import 'package:get/get.dart';
@@ -43,19 +42,8 @@ class GlobalSettingController extends GetxController {
   NotificationService notificationService = NotificationService();
 
   void notificationInit() {
-    notificationService.initInfo().then((value) async {
-      String token = await NotificationService.getToken();
-      if (Supabase.instance.client.auth.currentUser != null) {
-        await FireStoreUtils.getUserProfile(FireStoreUtils.getCurrentUid())
-            .then((value) {
-          if (value != null) {
-            UserModel model = value;
-            model.fcmToken = token;
-            FireStoreUtils.updateUser(model);
-          }
-        });
-      }
-    });
+    // Local notifications only (Supabase backend, no Firebase Cloud Messaging).
+    notificationService.initInfo();
   }
 
   Future<void> seedArrondissements() async {

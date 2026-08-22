@@ -9,7 +9,6 @@ import 'package:restaurant_td/service/supabase_auth_service.dart';
 import 'package:restaurant_td/themes/app_them_data.dart';
 import 'package:restaurant_td/themes/round_button_fill.dart';
 import 'package:restaurant_td/utils/dark_theme_provider.dart';
-import 'package:restaurant_td/utils/notification_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -176,14 +175,6 @@ class OtpScreen extends StatelessWidget {
                                         await SupabaseAuthService.signOut();
                                         return;
                                       }
-
-                                      // Update FCM token
-                                      final fcmToken =
-                                          await NotificationService.getToken();
-                                      await SupabaseAuthService.updateFcmToken(
-                                        userId: response.user!.id,
-                                        fcmToken: fcmToken,
-                                      );
 
                                       // Check subscription plan
                                       bool isPlanExpire = false;

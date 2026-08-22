@@ -9,7 +9,6 @@ import 'package:restaurant_td/app/subscription_plan_screen/subscription_plan_scr
 import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/models/vendor_model.dart';
 import 'package:restaurant_td/utils/fire_store_utils.dart';
-import 'package:restaurant_td/utils/notification_service.dart';
 import 'package:restaurant_td/utils/preferences.dart';
 import 'package:get/get.dart';
 
@@ -33,8 +32,6 @@ class SplashController extends GetxController {
               Constant.userModel = value;
               if (Constant.userModel?.role == Constant.userRoleVendor) {
                 if (Constant.userModel?.active == true) {
-                  Constant.userModel?.fcmToken =
-                      await NotificationService.getToken();
                   await FireStoreUtils.updateUser(Constant.userModel!);
                   bool isPlanExpire = false;
                   if (Constant.userModel?.subscriptionPlan?.id != null) {
@@ -76,8 +73,6 @@ class SplashController extends GetxController {
               } else if (Constant.userModel?.role ==
                   Constant.userRoleEmployee) {
                 if (Constant.userModel?.active == true) {
-                  Constant.userModel?.fcmToken =
-                      await NotificationService.getToken();
                   await FireStoreUtils.updateUser(Constant.userModel!);
                   VendorModel? vendor = await FireStoreUtils.getVendorById(
                       Constant.userModel!.vendorID!);
@@ -90,8 +85,7 @@ class SplashController extends GetxController {
                         isPlanExpire = true;
                       }
                     } else {
-                      DateTime expiryDate =
-                          vendor!.subscriptionExpiryDate!;
+                      DateTime expiryDate = vendor!.subscriptionExpiryDate!;
                       isPlanExpire = expiryDate.isBefore(DateTime.now());
                     }
                   } else {

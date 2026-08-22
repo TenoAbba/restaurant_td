@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:restaurant_td/constant/send_notification.dart';
 import 'package:restaurant_td/models/conversation_model.dart';
 import 'package:restaurant_td/models/inbox_model.dart';
 import 'package:restaurant_td/models/user_model.dart';
@@ -18,7 +17,10 @@ class ChatController extends GetxController {
   @override
   void onInit() {
     if (scrollController.hasClients) {
-      Timer(const Duration(milliseconds: 500), () => scrollController.jumpTo(scrollController.position.maxScrollExtent));
+      Timer(
+          const Duration(milliseconds: 500),
+          () => scrollController
+              .jumpTo(scrollController.position.maxScrollExtent));
     }
     getArgument();
     super.onInit();
@@ -48,7 +50,8 @@ class ChatController extends GetxController {
       senderProfileUrl.value = argumentData['senderProfileUrl'] ?? "";
       token.value = argumentData['token'];
       chatType.value = argumentData['chatType'];
-      receiverUser.value = await FireStoreUtils.getUserProfile(receivedId.value);
+      receiverUser.value =
+          await FireStoreUtils.getUserProfile(receivedId.value);
     }
     setSeen();
     isLoading.value = false;
@@ -58,7 +61,8 @@ class ChatController extends GetxController {
     FireStoreUtils.setSeenChatForOrder(orderId: orderId.value);
   }
 
-  Future<void> sendMessage(String message, Url? url, String videoThumbnail, String messageType) async {
+  Future<void> sendMessage(String message, Url? url, String videoThumbnail,
+      String messageType) async {
     List<String> senderReceiverId = [receivedId.value, senderId.value];
     InboxModel inboxModel = InboxModel(
         chatType: chatType.value,
@@ -97,9 +101,9 @@ class ChatController extends GetxController {
     }
 
     FireStoreUtils.addChat(conversationModel);
-    if (receiverUser.value?.fcmToken != null) {
-      SendNotification.sendChatFcmMessage(receivedName.value, conversationModel.message.toString(), receiverUser.value?.fcmToken ?? '', {});
-    }
+    // NOTE: Remote push notifications are not sent here. The Firebase Cloud
+    // Messaging integration was removed with the migration to Supabase.
+    // Plug in a push provider (using `receiverUser.value?.fcmToken`) if needed.
   }
 
   final ImagePicker imagePicker = ImagePicker();

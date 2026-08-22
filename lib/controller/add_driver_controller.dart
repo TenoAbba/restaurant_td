@@ -7,6 +7,7 @@ import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
 import 'package:restaurant_td/models/user_model.dart';
 import 'package:restaurant_td/models/zone_model.dart';
+import 'package:restaurant_td/utils/auth_error_handler.dart';
 import 'package:restaurant_td/utils/fire_store_utils.dart';
 
 class AddDriverController extends GetxController {
@@ -136,7 +137,11 @@ class AddDriverController extends GetxController {
         },
       );
     } catch (e) {
-      ShowToastDialog.showToast(e.toString());
+      ShowToastDialog.closeLoader();
+      ShowToastDialog.showToastDuration(
+        AuthErrorHandler.getMessage(e),
+        duration: Duration(seconds: AuthErrorHandler.isRateLimit(e) ? 5 : 3),
+      );
     }
 
     ShowToastDialog.closeLoader();

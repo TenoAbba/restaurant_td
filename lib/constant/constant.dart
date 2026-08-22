@@ -54,9 +54,6 @@ class Constant {
       : mapAPIKeyIOS;
   static String placeHolderImage = "";
 
-  static String senderId = '';
-  static String jsonNotificationFileURL = '';
-
   static String distanceType = "km";
 
   static String placeholderImage = "";

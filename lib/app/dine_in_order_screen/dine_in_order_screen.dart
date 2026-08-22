@@ -6,7 +6,6 @@ import 'package:restaurant_td/app/add_restaurant_screen/add_restaurant_screen.da
 import 'package:restaurant_td/app/dine_in_screen/dine_in_create_screen.dart';
 import 'package:restaurant_td/app/verification_screen/verification_screen.dart';
 import 'package:restaurant_td/constant/constant.dart';
-import 'package:restaurant_td/constant/send_notification.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
 import 'package:restaurant_td/controller/dine_in_order_controller.dart';
 import 'package:restaurant_td/models/dine_in_booking_model.dart';
@@ -39,7 +38,9 @@ class DineInOrderScreen extends StatelessWidget {
                         children: [
                           ClipOval(
                             child: NetworkImageWidget(
-                              imageUrl: controller.userModel.value.profilePictureURL.toString(),
+                              imageUrl: controller
+                                  .userModel.value.profilePictureURL
+                                  .toString(),
                               height: 42,
                               width: 42,
                               fit: BoxFit.cover,
@@ -53,11 +54,17 @@ class DineInOrderScreen extends StatelessWidget {
                             children: [
                               Text(
                                 "Welcome to Foodie Restaurant".tr,
-                                style: TextStyle(color: AppThemeData.grey50, fontSize: 12, fontFamily: AppThemeData.regular),
+                                style: TextStyle(
+                                    color: AppThemeData.grey50,
+                                    fontSize: 12,
+                                    fontFamily: AppThemeData.regular),
                               ),
                               Text(
                                 "${controller.userModel.value.fullName()}".tr,
-                                style: TextStyle(color: AppThemeData.grey50, fontSize: 16, fontFamily: AppThemeData.semiBold),
+                                style: TextStyle(
+                                    color: AppThemeData.grey50,
+                                    fontSize: 16,
+                                    fontFamily: AppThemeData.semiBold),
                               ),
                             ],
                           ),
@@ -68,7 +75,8 @@ class DineInOrderScreen extends StatelessWidget {
                           controller.selectedTabIndex.value = value;
                         },
                         labelColor: AppThemeData.grey50,
-                        unselectedLabelStyle: const TextStyle(fontFamily: AppThemeData.medium),
+                        unselectedLabelStyle:
+                            const TextStyle(fontFamily: AppThemeData.medium),
                         unselectedLabelColor: AppThemeData.secondary100,
                         indicatorColor: AppThemeData.grey50,
                         isScrollable: false,
@@ -83,7 +91,8 @@ class DineInOrderScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    body: Constant.isRestaurantVerification == true && controller.userModel.value.isDocumentVerify == false
+                    body: Constant.isRestaurantVerification == true &&
+                            controller.userModel.value.isDocumentVerify == false
                         ? Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Column(
@@ -92,14 +101,17 @@ class DineInOrderScreen extends StatelessWidget {
                               children: [
                                 Container(
                                   decoration: ShapeDecoration(
-                                    color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200,
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey700
+                                        : AppThemeData.grey200,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(120),
                                     ),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(20),
-                                    child: SvgPicture.asset("assets/icons/ic_document.svg"),
+                                    child: SvgPicture.asset(
+                                        "assets/icons/ic_document.svg"),
                                   ),
                                 ),
                                 const SizedBox(
@@ -107,15 +119,26 @@ class DineInOrderScreen extends StatelessWidget {
                                 ),
                                 Text(
                                   "Document Verification in Pending".tr,
-                                  style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800, fontSize: 22, fontFamily: AppThemeData.semiBold),
+                                  style: TextStyle(
+                                      color: themeChange.getThem()
+                                          ? AppThemeData.grey100
+                                          : AppThemeData.grey800,
+                                      fontSize: 22,
+                                      fontFamily: AppThemeData.semiBold),
                                 ),
                                 const SizedBox(
                                   height: 5,
                                 ),
                                 Text(
-                                  "Your documents are being reviewed. We will notify you once the verification is complete.".tr,
+                                  "Your documents are being reviewed. We will notify you once the verification is complete."
+                                      .tr,
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey500, fontSize: 16, fontFamily: AppThemeData.bold),
+                                  style: TextStyle(
+                                      color: themeChange.getThem()
+                                          ? AppThemeData.grey50
+                                          : AppThemeData.grey500,
+                                      fontSize: 16,
+                                      fontFamily: AppThemeData.bold),
                                 ),
                                 const SizedBox(
                                   height: 20,
@@ -133,23 +156,29 @@ class DineInOrderScreen extends StatelessWidget {
                               ],
                             ),
                           )
-                        : controller.userModel.value.vendorID == null || controller.userModel.value.vendorID!.isEmpty
+                        : controller.userModel.value.vendorID == null ||
+                                controller.userModel.value.vendorID!.isEmpty
                             ? Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
                                       decoration: ShapeDecoration(
-                                        color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200,
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.grey700
+                                            : AppThemeData.grey200,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(120),
+                                          borderRadius:
+                                              BorderRadius.circular(120),
                                         ),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(20),
-                                        child: SvgPicture.asset("assets/icons/ic_building_two.svg"),
+                                        child: SvgPicture.asset(
+                                            "assets/icons/ic_building_two.svg"),
                                       ),
                                     ),
                                     const SizedBox(
@@ -157,15 +186,26 @@ class DineInOrderScreen extends StatelessWidget {
                                     ),
                                     Text(
                                       "Add Your First Restaurant".tr,
-                                      style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800, fontSize: 22, fontFamily: AppThemeData.semiBold),
+                                      style: TextStyle(
+                                          color: themeChange.getThem()
+                                              ? AppThemeData.grey100
+                                              : AppThemeData.grey800,
+                                          fontSize: 22,
+                                          fontFamily: AppThemeData.semiBold),
                                     ),
                                     const SizedBox(
                                       height: 5,
                                     ),
                                     Text(
-                                      "Get started by adding your restaurant details to manage your menu, orders, and reservations.".tr,
+                                      "Get started by adding your restaurant details to manage your menu, orders, and reservations."
+                                          .tr,
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey500, fontSize: 16, fontFamily: AppThemeData.bold),
+                                      style: TextStyle(
+                                          color: themeChange.getThem()
+                                              ? AppThemeData.grey50
+                                              : AppThemeData.grey500,
+                                          fontSize: 16,
+                                          fontFamily: AppThemeData.bold),
                                     ),
                                     const SizedBox(
                                       height: 20,
@@ -183,23 +223,33 @@ class DineInOrderScreen extends StatelessWidget {
                                   ],
                                 ),
                               )
-                            : (controller.vendorModel.value.restaurantCost == null || controller.vendorModel.value.restaurantCost!.isEmpty)
+                            : (controller.vendorModel.value.restaurantCost ==
+                                        null ||
+                                    controller.vendorModel.value.restaurantCost!
+                                        .isEmpty)
                                 ? Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
                                       children: [
                                         Container(
                                           decoration: ShapeDecoration(
-                                            color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200,
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey700
+                                                : AppThemeData.grey200,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(120),
+                                              borderRadius:
+                                                  BorderRadius.circular(120),
                                             ),
                                           ),
                                           child: Padding(
                                             padding: const EdgeInsets.all(20),
-                                            child: SvgPicture.asset("assets/icons/ic_dinein.svg"),
+                                            child: SvgPicture.asset(
+                                                "assets/icons/ic_dinein.svg"),
                                           ),
                                         ),
                                         const SizedBox(
@@ -207,15 +257,27 @@ class DineInOrderScreen extends StatelessWidget {
                                         ),
                                         Text(
                                           "Dine-In Details Missing".tr,
-                                          style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800, fontSize: 22, fontFamily: AppThemeData.semiBold),
+                                          style: TextStyle(
+                                              color: themeChange.getThem()
+                                                  ? AppThemeData.grey100
+                                                  : AppThemeData.grey800,
+                                              fontSize: 22,
+                                              fontFamily:
+                                                  AppThemeData.semiBold),
                                         ),
                                         const SizedBox(
                                           height: 5,
                                         ),
                                         Text(
-                                          "Please add your restaurant’s dine-in details to start accepting reservations.".tr,
+                                          "Please add your restaurant’s dine-in details to start accepting reservations."
+                                              .tr,
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey500, fontSize: 16, fontFamily: AppThemeData.bold),
+                                          style: TextStyle(
+                                              color: themeChange.getThem()
+                                                  ? AppThemeData.grey50
+                                                  : AppThemeData.grey500,
+                                              fontSize: 16,
+                                              fontFamily: AppThemeData.bold),
                                         ),
                                         const SizedBox(
                                           height: 20,
@@ -234,35 +296,65 @@ class DineInOrderScreen extends StatelessWidget {
                                     ),
                                   )
                                 : Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 10),
                                     child: TabBarView(
                                       children: [
                                         controller.featureList.isEmpty
-                                            ? Constant.showEmptyView(message: "Upcoming Booking not found.".tr)
+                                            ? Constant.showEmptyView(
+                                                message:
+                                                    "Upcoming Booking not found."
+                                                        .tr)
                                             : RefreshIndicator(
-                                                onRefresh: () => controller.getDineBooking(),
+                                                onRefresh: () =>
+                                                    controller.getDineBooking(),
                                                 child: ListView.builder(
                                                   shrinkWrap: true,
                                                   padding: EdgeInsets.zero,
-                                                  scrollDirection: Axis.vertical,
-                                                  itemCount: controller.featureList.length,
-                                                  itemBuilder: (BuildContext context, int index) {
-                                                    DineInBookingModel dineBookingModel = controller.featureList[index];
-                                                    return itemView(themeChange, context, dineBookingModel, true, controller);
+                                                  scrollDirection:
+                                                      Axis.vertical,
+                                                  itemCount: controller
+                                                      .featureList.length,
+                                                  itemBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
+                                                    DineInBookingModel
+                                                        dineBookingModel =
+                                                        controller
+                                                            .featureList[index];
+                                                    return itemView(
+                                                        themeChange,
+                                                        context,
+                                                        dineBookingModel,
+                                                        true,
+                                                        controller);
                                                   },
                                                 ),
                                               ),
                                         controller.historyList.isEmpty
-                                            ? Constant.showEmptyView(message: "History not found.".tr)
+                                            ? Constant.showEmptyView(
+                                                message:
+                                                    "History not found.".tr)
                                             : RefreshIndicator(
-                                                onRefresh: () => controller.getDineBooking(),
+                                                onRefresh: () =>
+                                                    controller.getDineBooking(),
                                                 child: ListView.builder(
-                                                  itemCount: controller.historyList.length,
+                                                  itemCount: controller
+                                                      .historyList.length,
                                                   shrinkWrap: true,
                                                   padding: EdgeInsets.zero,
-                                                  itemBuilder: (context, index) {
-                                                    DineInBookingModel dineBookingModel = controller.historyList[index];
-                                                    return itemView(themeChange, context, dineBookingModel, false, controller);
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    DineInBookingModel
+                                                        dineBookingModel =
+                                                        controller
+                                                            .historyList[index];
+                                                    return itemView(
+                                                        themeChange,
+                                                        context,
+                                                        dineBookingModel,
+                                                        false,
+                                                        controller);
                                                   },
                                                 ),
                                               ),
@@ -274,7 +366,12 @@ class DineInOrderScreen extends StatelessWidget {
         });
   }
 
-  InkWell itemView(DarkThemeProvider themeChange, BuildContext context, DineInBookingModel orderModel, bool isNew, DineInOrderController controller) {
+  InkWell itemView(
+      DarkThemeProvider themeChange,
+      BuildContext context,
+      DineInBookingModel orderModel,
+      bool isNew,
+      DineInOrderController controller) {
     return InkWell(
       splashColor: Colors.transparent,
       onTap: () {},
@@ -282,7 +379,9 @@ class DineInOrderScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: Container(
           decoration: ShapeDecoration(
-            color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+            color: themeChange.getThem()
+                ? AppThemeData.grey900
+                : AppThemeData.grey50,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -310,7 +409,10 @@ class DineInOrderScreen extends StatelessWidget {
                               gradient: LinearGradient(
                                 begin: const Alignment(0.00, 1.00),
                                 end: const Alignment(0, -1),
-                                colors: [Colors.black.withOpacity(0), AppThemeData.grey900],
+                                colors: [
+                                  Colors.black.withOpacity(0),
+                                  AppThemeData.grey900
+                                ],
                               ),
                             ),
                           ),
@@ -328,7 +430,8 @@ class DineInOrderScreen extends StatelessWidget {
                             orderModel.status.toString(),
                             textAlign: TextAlign.right,
                             style: TextStyle(
-                              color: Constant.statusColor(status: orderModel.status.toString()),
+                              color: Constant.statusColor(
+                                  status: orderModel.status.toString()),
                               fontFamily: AppThemeData.semiBold,
                               fontWeight: FontWeight.w500,
                               fontSize: 12,
@@ -341,7 +444,9 @@ class DineInOrderScreen extends StatelessWidget {
                             orderModel.vendor!.title.toString(),
                             style: TextStyle(
                               fontSize: 16,
-                              color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey50
+                                  : AppThemeData.grey900,
                               fontFamily: AppThemeData.medium,
                               fontWeight: FontWeight.w400,
                             ),
@@ -352,7 +457,9 @@ class DineInOrderScreen extends StatelessWidget {
                           Text(
                             Constant.timestampToDateTime(orderModel.createdAt!),
                             style: TextStyle(
-                              color: themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey300
+                                  : AppThemeData.grey600,
                               fontFamily: AppThemeData.medium,
                               fontWeight: FontWeight.w500,
                             ),
@@ -364,7 +471,10 @@ class DineInOrderScreen extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: MySeparator(color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
+                  child: MySeparator(
+                      color: themeChange.getThem()
+                          ? AppThemeData.grey700
+                          : AppThemeData.grey200),
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,7 +483,9 @@ class DineInOrderScreen extends StatelessWidget {
                       child: Text(
                         "Name".tr,
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey300
+                              : AppThemeData.grey600,
                           fontFamily: AppThemeData.regular,
                           fontWeight: FontWeight.w400,
                         ),
@@ -384,7 +496,9 @@ class DineInOrderScreen extends StatelessWidget {
                         "${orderModel.guestFirstName} ${orderModel.guestLastName}",
                         textAlign: TextAlign.end,
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey50
+                              : AppThemeData.grey900,
                           fontFamily: AppThemeData.semiBold,
                           fontWeight: FontWeight.w600,
                         ),
@@ -402,7 +516,9 @@ class DineInOrderScreen extends StatelessWidget {
                       child: Text(
                         "Phone number".tr,
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey300
+                              : AppThemeData.grey600,
                           fontFamily: AppThemeData.regular,
                           fontWeight: FontWeight.w400,
                         ),
@@ -413,7 +529,9 @@ class DineInOrderScreen extends StatelessWidget {
                         "${orderModel.guestPhone}",
                         textAlign: TextAlign.end,
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey50
+                              : AppThemeData.grey900,
                           fontFamily: AppThemeData.semiBold,
                           fontWeight: FontWeight.w600,
                         ),
@@ -431,7 +549,9 @@ class DineInOrderScreen extends StatelessWidget {
                       child: Text(
                         "Date and Time".tr,
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey300
+                              : AppThemeData.grey600,
                           fontFamily: AppThemeData.regular,
                           fontWeight: FontWeight.w400,
                         ),
@@ -442,7 +562,9 @@ class DineInOrderScreen extends StatelessWidget {
                         Constant.timestampToDateTime(orderModel.date!),
                         textAlign: TextAlign.end,
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey50
+                              : AppThemeData.grey900,
                           fontFamily: AppThemeData.semiBold,
                           fontWeight: FontWeight.w600,
                         ),
@@ -460,7 +582,9 @@ class DineInOrderScreen extends StatelessWidget {
                       child: Text(
                         "Guest".tr,
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey300
+                              : AppThemeData.grey600,
                           fontFamily: AppThemeData.regular,
                           fontWeight: FontWeight.w400,
                         ),
@@ -471,7 +595,9 @@ class DineInOrderScreen extends StatelessWidget {
                         orderModel.totalGuest!,
                         textAlign: TextAlign.end,
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey50
+                              : AppThemeData.grey900,
                           fontFamily: AppThemeData.semiBold,
                           fontWeight: FontWeight.w600,
                         ),
@@ -489,7 +615,9 @@ class DineInOrderScreen extends StatelessWidget {
                       child: Text(
                         "Discount".tr,
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey300 : AppThemeData.grey600,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey300
+                              : AppThemeData.grey600,
                           fontFamily: AppThemeData.regular,
                           fontWeight: FontWeight.w400,
                         ),
@@ -500,7 +628,9 @@ class DineInOrderScreen extends StatelessWidget {
                         "${orderModel.discount} ${orderModel.discountType == "amount" ? Constant.currencyModel!.symbol : "%"} ${'Off'.tr}",
                         textAlign: TextAlign.end,
                         style: TextStyle(
-                          color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
+                          color: themeChange.getThem()
+                              ? AppThemeData.grey50
+                              : AppThemeData.grey900,
                           fontFamily: AppThemeData.semiBold,
                           fontWeight: FontWeight.w600,
                         ),
@@ -511,8 +641,12 @@ class DineInOrderScreen extends StatelessWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                if (Constant.getEmployeeRolePermission(module: "Dine in Requests", pType: ActionType.isAdd) == true)
-                  isNew == false || (orderModel.status == Constant.orderAccepted || orderModel.status == Constant.orderRejected)
+                if (Constant.getEmployeeRolePermission(
+                        module: "Dine in Requests", pType: ActionType.isAdd) ==
+                    true)
+                  isNew == false ||
+                          (orderModel.status == Constant.orderAccepted ||
+                              orderModel.status == Constant.orderRejected)
                       ? const SizedBox()
                       : Row(
                           children: [
@@ -525,8 +659,8 @@ class DineInOrderScreen extends StatelessWidget {
                                 onPress: () async {
                                   ShowToastDialog.showLoader("Please wait.".tr);
                                   orderModel.status = Constant.orderRejected;
-                                  await FireStoreUtils.setBookedOrder(orderModel);
-                                  SendNotification.sendFcmMessage(Constant.dineInAccepted, orderModel.author!.fcmToken.toString(), {});
+                                  await FireStoreUtils.setBookedOrder(
+                                      orderModel);
                                   controller.getDineBooking();
                                   ShowToastDialog.closeLoader();
                                 },
@@ -544,8 +678,8 @@ class DineInOrderScreen extends StatelessWidget {
                                 onPress: () async {
                                   ShowToastDialog.showLoader("Please wait.".tr);
                                   orderModel.status = Constant.orderAccepted;
-                                  await FireStoreUtils.setBookedOrder(orderModel);
-                                  SendNotification.sendFcmMessage(Constant.dineInAccepted, orderModel.author!.fcmToken.toString(), {});
+                                  await FireStoreUtils.setBookedOrder(
+                                      orderModel);
                                   controller.getDineBooking();
                                   ShowToastDialog.closeLoader();
                                 },

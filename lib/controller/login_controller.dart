@@ -5,6 +5,7 @@ import 'package:restaurant_td/app/dash_board_screens/dash_board_screen.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
 import 'package:restaurant_td/main.dart';
 import 'package:restaurant_td/service/supabase_auth_service.dart';
+import 'package:restaurant_td/utils/auth_error_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginController extends GetxController {
@@ -62,7 +63,10 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       ShowToastDialog.closeLoader();
-      ShowToastDialog.showToast('Invalid email or password.'.tr);
+      ShowToastDialog.showToastDuration(
+        AuthErrorHandler.getMessage(e),
+        duration: Duration(seconds: AuthErrorHandler.isRateLimit(e) ? 5 : 3),
+      );
     }
   }
 
@@ -89,7 +93,7 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       ShowToastDialog.closeLoader();
-      ShowToastDialog.showToast('Google login failed. Try again.'.tr);
+      ShowToastDialog.showToast(AuthErrorHandler.getMessage(e));
     }
   }
 
@@ -134,7 +138,10 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       ShowToastDialog.closeLoader();
-      ShowToastDialog.showToast('Invalid email or password.'.tr);
+      ShowToastDialog.showToastDuration(
+        AuthErrorHandler.getMessage(e),
+        duration: Duration(seconds: AuthErrorHandler.isRateLimit(e) ? 5 : 3),
+      );
     }
   }
 
@@ -151,7 +158,7 @@ class LoginController extends GetxController {
       ShowToastDialog.closeLoader();
     } catch (e) {
       ShowToastDialog.closeLoader();
-      ShowToastDialog.showToast('Apple login failed. Try again.'.tr);
+      ShowToastDialog.showToast(AuthErrorHandler.getMessage(e));
     }
   }
 }

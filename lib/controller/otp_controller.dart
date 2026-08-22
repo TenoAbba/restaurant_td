@@ -4,6 +4,7 @@ import 'package:restaurant_td/app/auth_screen/signup_screen.dart';
 import 'package:restaurant_td/app/dash_board_screens/dash_board_screen.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
 import 'package:restaurant_td/service/supabase_auth_service.dart';
+import 'package:restaurant_td/utils/auth_error_handler.dart';
 
 class OtpController extends GetxController {
   RxString phoneNumber = ''.obs;
@@ -36,7 +37,12 @@ class OtpController extends GetxController {
       ShowToastDialog.showToast('OTP sent successfully!'.tr);
     } catch (e) {
       isLoading.value = false;
-      ShowToastDialog.showToast('Failed to send OTP. Try again.'.tr);
+      // Surfaces the real reason (e.g. SMS rate limit) instead of a
+      // generic message.
+      ShowToastDialog.showToastDuration(
+        AuthErrorHandler.getMessage(e),
+        duration: Duration(seconds: AuthErrorHandler.isRateLimit(e) ? 5 : 3),
+      );
     }
   }
 
@@ -87,7 +93,10 @@ class OtpController extends GetxController {
       }
     } catch (e) {
       ShowToastDialog.closeLoader();
-      ShowToastDialog.showToast('Invalid OTP. Try again.'.tr);
+      ShowToastDialog.showToastDuration(
+        AuthErrorHandler.getMessage(e),
+        duration: Duration(seconds: AuthErrorHandler.isRateLimit(e) ? 5 : 3),
+      );
     }
   }
 }
