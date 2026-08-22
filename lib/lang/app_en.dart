@@ -16,7 +16,8 @@ const Map<String, String> enUS = {
   'Cancel': 'Cancel',
   'Advertisement': 'Advertisement',
   'Validity:': 'Validity:',
-  'This delivery man is already assigned. Kindly select a different one.': 'This delivery man is already assigned. Kindly select a different one.',
+  'This delivery man is already assigned. Kindly select a different one.':
+      'This delivery man is already assigned. Kindly select a different one.',
   'Select the date durations': 'Select the date durations',
   'Video Promotion': 'Video Promotion',
   'Upload Related Files': 'Upload Related Files',
@@ -37,7 +38,8 @@ const Map<String, String> enUS = {
   'Paused': 'Paused',
   'Expired': 'Expired',
   'Cancelled': 'Cancelled',
-  'Advertisement details saved successfully.': 'Advertisement details saved successfully.',
+  'Advertisement details saved successfully.':
+      'Advertisement details saved successfully.',
   'Submit': 'Submit',
   'Please Select': 'Please Select',
   'Camera': 'Camera',
@@ -85,20 +87,25 @@ const Map<String, String> enUS = {
   'Delivered': 'Delivered',
   'Please wait.': 'Please wait.',
   'Something went to wrong': 'Something went to wrong',
-  'Delivery man details saved successfully!': 'Delivery man details saved successfully!',
+  'Delivery man details saved successfully!':
+      'Delivery man details saved successfully!',
   'The password provided is too weak.': 'The password provided is too weak.',
-  'The account already exists for that email.': 'The account already exists for that email.',
+  'The account already exists for that email.':
+      'The account already exists for that email.',
   'Enter email is Invalid': 'Enter email is Invalid',
   'Payment successfully': 'Payment successfully',
   "change": "change",
-  'Special discount update successfully': 'Special discount update successfully',
+  'Special discount update successfully':
+      'Special discount update successfully',
   'Payment UnSuccessful!!': 'Payment UnSuccessful!!',
   'Payment Successful!!': 'Payment Successful!!',
-  'Something went wrong, please contact admin.': 'Something went wrong, please contact admin.',
+  'Something went wrong, please contact admin.':
+      'Something went wrong, please contact admin.',
   'Payment Processing!! via': 'Payment Processing!! via',
   'Document upload successfully': 'Document upload successfully',
   'Payment Failed!!': 'Payment Failed!!',
-  'Statement downloaded in download folder': 'Statemen downloaded in download folder',
+  'Statement downloaded in download folder':
+      'Statemen downloaded in download folder',
   'Working hours update successfully': 'Working hours update successfully',
   "Zone": "Zone",
   'Payment Failed': 'Payment Failed',
@@ -122,14 +129,16 @@ const Map<String, String> enUS = {
   "Charges per KM (distance)": "Charges per KM (distance)",
   "Min Delivery Charges": "Min Delivery Charges",
   "Enter Min Delivery Charges": "Enter Min Delivery Charges",
-  "Min Delivery Charges within KM (distance)": "Min Delivery Charges within KM (distance)",
+  "Min Delivery Charges within KM (distance)":
+      "Min Delivery Charges within KM (distance)",
   "Save Details": "Save Details",
   "value": "value",
   "Please enter a valid variant price": "Please enter a valid variant price",
   'Please add a attribute': 'Please add a attribute',
   'Min Delivery Charges within': 'Min Delivery Charges within',
   "Restaurant QR Code": "Restaurant QR Code",
-  "Your unique QR code for seamless customers  interactions..": "Your unique QR code for seamless customers  interactions..",
+  "Your unique QR code for seamless customers  interactions..":
+      "Your unique QR code for seamless customers  interactions..",
   'close': 'close',
   'Close': 'Close',
   "Save": "Save",
@@ -137,7 +146,8 @@ const Map<String, String> enUS = {
   'Takeaway': 'Takeaway',
   'Click to connect': 'Click to connect',
   'Connect Bluetooth device': 'Connect Bluetooth device',
-  'Please connect device from your bluetooth setting.': 'Please connect device from your bluetooth setting.',
+  'Please connect device from your bluetooth setting.':
+      'Please connect device from your bluetooth setting.',
   'Image Saved!': 'Image Saved!',
   'Self Delivery': 'Self Delivery',
   'Self Delivery Service': 'Self Delivery Service',
@@ -171,7 +181,8 @@ const Map<String, String> enUS = {
   "Please select second below video.": "Please select second below video.",
   "Choose thimbling image / GIF": "Choose thimbling image / GIF",
   "Welcome Back! 👋": "Welcome Back! 👋",
-  "Log in to continue managing your restaurant’s orders and reservations seamlessly.": "Log in to continue managing your restaurant’s orders and reservations seamlessly.",
+  "Log in to continue managing your restaurant’s orders and reservations seamlessly.":
+      "Log in to continue managing your restaurant’s orders and reservations seamlessly.",
   "Email": "Email",
   "Enter email address": "Enter email address",
   "Password": "Password",
@@ -181,6 +192,27 @@ const Map<String, String> enUS = {
   'Please enter phone number': 'Please enter phone number',
   'Please enter Phone number': 'Please enter Phone number',
   "Please enter valid email": "Please enter valid email",
+  "Please enter email address": "Please enter email address",
+  "Please enter a valid e-mail address.":
+      "Please enter a valid e-mail address.",
+  "Please enter a valid password.": "Please enter a valid password.",
+  "Please enter a valid phone number.": "Please enter a valid phone number.",
+  "Password must be at least 6 characters long.":
+      "Password must be at least 6 characters long.",
+  "Creating account...": "Creating account...",
+  "Signup failed. Please try again.": "Signup failed. Please try again.",
+  "Account created. Please confirm your e-mail address, then sign in.":
+      "Account created. Please confirm your e-mail address, then sign in.",
+  "This e-mail is already registered. Please sign in instead.":
+      "This e-mail is already registered. Please sign in instead.",
+  "Too many confirmation e-mails were sent. Please wait a few minutes before trying again.":
+      "Too many confirmation e-mails were sent. Please wait a few minutes before trying again.",
+  "Too many attempts. Please wait a moment and try again.":
+      "Too many attempts. Please wait a moment and try again.",
+  "Something went wrong. Please try again.":
+      "Something went wrong. Please try again.",
+  "No internet connection. Please check your network and try again.":
+      "No internet connection. Please check your network and try again.",
   "Please enter valid password": "Please enter valid password",
   'Continue with Mobile Number': 'Continue with Mobile Number',
   "or": "or",
@@ -190,19 +222,22 @@ const Map<String, String> enUS = {
   'with Google': 'with Google',
   'with Apple': 'with Apple',
   "Verify Your Number 📱": "Verify Your Number 📱",
-  "Enter the OTP sent to your mobile number.": "Enter the OTP sent to your mobile number.",
+  "Enter the OTP sent to your mobile number.":
+      "Enter the OTP sent to your mobile number.",
   "Verify & Next": "Verify & Next",
   "Verify otp": "Verify otp",
   "mobileNumber": "mobileNumber",
   "type": "type",
   'something_went_wrong': 'something went wrong',
-  "This user is disable please contact to administrator": "This user is disable please contact to administrator",
+  "This user is disable please contact to administrator":
+      "This user is disable please contact to administrator",
   "Invalid Code": "Invalid Code",
   "Enter Valid otp": "Enter Valid otp",
   'Did’t receive any code? ': 'Did’t receive any code? ',
   "Did’t receive any code?": "Did’t receive any code?",
   "Send Again": "Send Again",
-  "Log in to continue enjoying delicious food delivered to your doorstep.": "Log in to continue enjoying delicious food delivered to your doorstep.",
+  "Log in to continue enjoying delicious food delivered to your doorstep.":
+      "Log in to continue enjoying delicious food delivered to your doorstep.",
   "Enter Phone Number": "Enter Phone Number",
   "Send OTP": "Send OTP",
   "Please enter mobile number": "Please enter mobile number",
@@ -220,14 +255,17 @@ const Map<String, String> enUS = {
   "Signup": "Signup",
   "Please enter first name": "Please enter first name",
   "Please enter last name": "Please enter last name",
-  "Password and conform password doesn't match": "Password and conform password doesn't match",
+  "Password and conform password doesn't match":
+      "Password and conform password doesn't match",
   "Please enter password": "Please enter password",
   "Please enter conform password": "Please enter conform password",
   "Change Language": "Change Language",
-  "Select your preferred language for a personalized app experience.": "Select your preferred language for a personalized app experience.",
+  "Select your preferred language for a personalized app experience.":
+      "Select your preferred language for a personalized app experience.",
   "No Conversion found": "No Conversion found",
   'Please enter Confirm password': 'Please enter Confirm password',
-  "Password and Confirm password doesn't match": "Password and Confirm password doesn't match",
+  "Password and Confirm password doesn't match":
+      "Password and Confirm password doesn't match",
   "Please select zone": "Please select zone",
   'Manage Delivery Man': 'Manage Delivery Man',
   'Add': 'Add',
@@ -263,13 +301,16 @@ const Map<String, String> enUS = {
   "New": "New",
   "History": "History",
   "Document Verification in Pending": "Document Verification in Pending",
-  "Your documents are being reviewed. We will notify you once the verification is complete.": "Your documents are being reviewed. We will notify you once the verification is complete.",
+  "Your documents are being reviewed. We will notify you once the verification is complete.":
+      "Your documents are being reviewed. We will notify you once the verification is complete.",
   "View Status": "View Status",
   "Add Your First Restaurant": "Add Your First Restaurant",
-  "Get started by adding your restaurant details to manage your menu, orders, and reservations.": "Get started by adding your restaurant details to manage your menu, orders, and reservations.",
+  "Get started by adding your restaurant details to manage your menu, orders, and reservations.":
+      "Get started by adding your restaurant details to manage your menu, orders, and reservations.",
   "Add Restaurant": "Add Restaurant",
   "Dine-In Details Missing": "Dine-In Details Missing",
-  "Please add your restaurant’s dine-in details to start accepting reservations.": "Please add your restaurant’s dine-in details to start accepting reservations.",
+  "Please add your restaurant’s dine-in details to start accepting reservations.":
+      "Please add your restaurant’s dine-in details to start accepting reservations.",
   "Upcoming Booking not found.": "Upcoming Booking not found.",
   "History not found.": "History not found.",
   "Name": "Name",
@@ -286,8 +327,10 @@ const Map<String, String> enUS = {
   "Timing": "Timing",
   "hh:mm a": "hh:mm a",
   "PM": "PM",
-  'Enter a regular price greater than the discount price.': 'Enter a regular price greater than the discount price.',
-  'Enter a discount price less than the regular price.': 'Enter a discount price less than the regular price.',
+  'Enter a regular price greater than the discount price.':
+      'Enter a regular price greater than the discount price.',
+  'Enter a discount price less than the regular price.':
+      'Enter a discount price less than the regular price.',
   'Please Select category': 'Please Select category',
   "Please Enter Price": "Please Enter Price",
   'Please enter price': 'Please enter price',
@@ -296,7 +339,8 @@ const Map<String, String> enUS = {
   "camera": "camera",
   "gallery": "gallery",
   'End Time': 'End Time',
-  "No worries!! We’ll send you reset instructions": "No worries!! We’ll send you reset instructions",
+  "No worries!! We’ll send you reset instructions":
+      "No worries!! We’ll send you reset instructions",
   "Accepted": "Accepted",
   "Completed": "Completed",
   "Rejected": "Rejected",
@@ -348,7 +392,8 @@ const Map<String, String> enUS = {
   'Billing to : Walkin': 'Billing to : Walkin',
   'Bill Address:': 'Bill Address:',
   'Change due:': 'Change due:',
-  'Thank you for sign up, your application is under approval so please wait till that approve.': 'Thank you for sign up, your application is under approval so please wait till that approve.',
+  'Thank you for sign up, your application is under approval so please wait till that approve.':
+      'Thank you for sign up, your application is under approval so please wait till that approve.',
   'OTP sent': 'OTP sent',
   'Please do come again!!': 'Please do come again!!',
   'Total payment:': 'Total payment:',
@@ -399,9 +444,11 @@ const Map<String, String> enUS = {
   "Discounted Price": "Discounted Price",
   "Enter Discounted Price": "Enter Discounted Price",
   "Please enter valid discount price": "Please enter valid discount price",
-  "Your item Price will be display like this. ": "Your item Price will be display like this. ",
+  "Your item Price will be display like this. ":
+      "Your item Price will be display like this. ",
   "Enter Quantity": "Enter Quantity",
-  "-1 to your product quantity is unlimited": "-1 to your product quantity is unlimited",
+  "-1 to your product quantity is unlimited":
+      "-1 to your product quantity is unlimited",
   "About Cal., Grams, prot.& Fats": "About Cal., Grams, prot.& Fats",
   "Calories": "Calories",
   "Enter Calories": "Enter Calories",
@@ -426,7 +473,8 @@ const Map<String, String> enUS = {
   "Image Upload...": "Image Upload...",
   "Manage Products": "Manage Products",
   "No Products Available": "No Products Available",
-  "Your menu is currently empty. Create your first product to start showcasing your offerings.": "Your menu is currently empty. Create your first product to start showcasing your offerings.",
+  "Your menu is currently empty. Create your first product to start showcasing your offerings.":
+      "Your menu is currently empty. Create your first product to start showcasing your offerings.",
   "Delete": "Delete",
   "Publish": "Publish",
   "Restaurant Profile": "Restaurant Profile",
@@ -445,7 +493,8 @@ const Map<String, String> enUS = {
   "Share app": "Share app",
   "Rate the app": "Rate the app",
   'Look what I made!': 'Look what I made!',
-  "Check out Foodie, your ultimate food delivery application! \n\nGoogle Play:": "Check out Foodie, your ultimate food delivery application! \n\nGoogle Play:",
+  "Check out Foodie, your ultimate food delivery application! \n\nGoogle Play:":
+      "Check out Foodie, your ultimate food delivery application! \n\nGoogle Play:",
   "\n\nApp Store:": "\n\nApp Store:",
   "Legal": "Legal",
   'Social': 'Social',
@@ -453,7 +502,8 @@ const Map<String, String> enUS = {
   "Terms and Conditions": "Terms and Conditions",
   "Privacy Policy": "Privacy Policy",
   "Log out": "Log out",
-  "Are you sure you want to log out? You will need to enter your credentials to log back in.": "Are you sure you want to log out? You will need to enter your credentials to log back in.",
+  "Are you sure you want to log out? You will need to enter your credentials to log back in.":
+      "Are you sure you want to log out? You will need to enter your credentials to log back in.",
   "Delete Account": "Delete Account",
   "Are you sure you want to delete your account? This action is irreversible and will permanently remove all your data.":
       "Are you sure you want to delete your account? This action is irreversible and will permanently remove all your data.",
@@ -468,14 +518,18 @@ const Map<String, String> enUS = {
   "Please enter valid details": "Please enter valid details",
   "Terms & Conditions": "Terms & Conditions",
   "Upload for Verification": "Upload for Verification",
-  "Please upload a valid vto verify your identity complete the registration process.": "Please upload a valid vto verify your identity complete the registration process.",
+  "Please upload a valid vto verify your identity complete the registration process.":
+      "Please upload a valid vto verify your identity complete the registration process.",
   "Front Side of": "Front Side of",
   "Back side of ": "Back side of ",
   "Upload Document": "Upload Document",
-  "Please upload front side of document.": "Please upload front side of document.",
-  "Please upload back side of document.": "Please upload back side of document.",
+  "Please upload front side of document.":
+      "Please upload front side of document.",
+  "Please upload back side of document.":
+      "Please upload back side of document.",
   "Document Verification": "Document Verification",
-  "Upload your ID Proof to complete the verification process and ensure compliance.": "Upload your ID Proof to complete the verification process and ensure compliance.",
+  "Upload your ID Proof to complete the verification process and ensure compliance.":
+      "Upload your ID Proof to complete the verification process and ensure compliance.",
   'Front': 'Front',
   'Photo': 'Photo',
   'And Back': 'And Back',
@@ -519,7 +573,8 @@ const Map<String, String> enUS = {
   "Please enter bank code": "Please enter bank code",
   "Paypal Email": "Paypal Email",
   "Please enter Paypal email": "Please enter Paypal email",
-  "Add your Account ID. For example, acc_GLGeLkU2JUeyDZ": "Add your Account ID. For example, acc_GLGeLkU2JUeyDZ",
+  "Add your Account ID. For example, acc_GLGeLkU2JUeyDZ":
+      "Add your Account ID. For example, acc_GLGeLkU2JUeyDZ",
   "Please enter RazorPay account Id": "Please enter RazorPay account Id",
   "Stripe Account Id": "Stripe Account Id",
   "Go to your Stripe account settings > Account details > Copy your account ID on the right-hand side. For example, acc_GLGeLkU2JUeyDZ":
@@ -531,7 +586,8 @@ const Map<String, String> enUS = {
   "Foodie": "Foodie",
   "Get Started": "Get Started",
   "Your Favorite Food Delivered Fast!": "Your Favorite Food Delivered Fast!",
-  "Your current plan doesn’t include this feature. Upgrade to get access now.": "Your current plan doesn’t include this feature. Upgrade to get access now.",
+  "Your current plan doesn’t include this feature. Upgrade to get access now.":
+      "Your current plan doesn’t include this feature. Upgrade to get access now.",
   "Access denied": "Access denied",
   "Upgrade Plan": "Upgrade Plan",
   "Subscription Management": "Subscription Management",
@@ -542,7 +598,8 @@ const Map<String, String> enUS = {
   "Please Select Subscription Plan": "Please Select Subscription Plan",
   "Change Plan": "Change Plan",
   "Select Plan": "Select Plan",
-  "Success! You’ve unlocked your subscription benefits starting today.": "Success! You’ve unlocked your subscription benefits starting today.",
+  "Success! You’ve unlocked your subscription benefits starting today.":
+      "Success! You’ve unlocked your subscription benefits starting today.",
   "Your current subscription plan has reached its maximum product limit. Upgrade now to add more products.":
       "Your current subscription plan has reached its maximum product limit. Upgrade now to add more products.",
   "Your current subscription plan has reached its maximum order limit. Upgrade now to accept more order.":
@@ -554,12 +611,14 @@ const Map<String, String> enUS = {
   "admin commission will be charged from customer billing orders and the admin charge will be earned after the order is accepted by the restaurant.":
       "admin commission will be charged from customer billing orders and the admin charge will be earned after the order is accepted by the restaurant.",
   'Add Delivery Man': 'Add Delivery Man',
-  "This product will not be displayed to customers due to your current subscription limitations.": "This product will not be displayed to customers due to your current subscription limitations.",
+  "This product will not be displayed to customers due to your current subscription limitations.":
+      "This product will not be displayed to customers due to your current subscription limitations.",
   'Edit Delivery Man': 'Edit Delivery Man',
   'Please ensure that the deliveryman is signed in and has an active status to assign the delivery.':
       'Please ensure that the deliveryman is signed in and has an active status to assign the delivery.',
   'No Delivery Men Available': 'No Delivery Men Available',
-  'No Delivery Men found! Add your first Delivery Man to start using the self-delivery feature.': 'No Delivery Men found! Add your first Delivery Man to start using the self-delivery feature.',
+  'No Delivery Men found! Add your first Delivery Man to start using the self-delivery feature.':
+      'No Delivery Men found! Add your first Delivery Man to start using the self-delivery feature.',
   'Search Delivery Man': 'Search Delivery Man',
   'Assign': 'Assign',
   'Occupied': 'Occupied',
@@ -571,7 +630,8 @@ const Map<String, String> enUS = {
   'Pay Now': 'Pay Now',
   'Please select payment method': 'Please select payment method',
   'Please Select Payment Method.': 'Please Select Payment Method.',
-  "You don't have sufficient wallet balance to purchase the subscription plan": "You don't have sufficient wallet balance to purchase the subscription plan",
+  "You don't have sufficient wallet balance to purchase the subscription plan":
+      "You don't have sufficient wallet balance to purchase the subscription plan",
   'Purchase History': 'Purchase History',
   'Purchase History Not found': 'Purchase History Not found',
   'Validity': 'Validity',
@@ -594,7 +654,8 @@ const Map<String, String> enUS = {
   'Upload': 'Upload',
   'for Verification': 'for Verification',
   'Please upload a valid': 'Please upload a valid',
-  'to verify your identity complete the registration process.': 'to verify your identity complete the registration process.',
+  'to verify your identity complete the registration process.':
+      'to verify your identity complete the registration process.',
   'Verified': 'Verified',
   'Total Wallet amount': 'Total Wallet amount',
   'Order Amount': 'Order Amount',
@@ -607,56 +668,72 @@ const Map<String, String> enUS = {
   'Enter withdrawal amount': 'Enter withdrawal amount',
   'Please enter amount': 'Please enter amount',
   'Please enter note': 'Please enter note',
-  'You are not able to place Withdraw request due to insufficient wallet amount': 'You are not able to place Withdraw request due to insufficient wallet amount',
+  'You are not able to place Withdraw request due to insufficient wallet amount':
+      'You are not able to place Withdraw request due to insufficient wallet amount',
   'Enter Holder Name': 'Enter Holder Name',
   'Payment Method save successfully': 'Payment Method save successfully',
   'Razorpay account Id': 'Razorpay account Id',
-  'You have to allow location permission to use your location': 'You have to allow location permission to use your location',
+  'You have to allow location permission to use your location':
+      'You have to allow location permission to use your location',
   'Failed to Pick :': 'Failed to Pick :',
   'Please enter advertisement title': 'Please enter advertisement title',
   'Please enter description': 'Please enter description',
   'Please select advertisement type': 'Please select advertisement type',
-  'Please select the validity durations': 'Please select the validity durations',
+  'Please select the validity durations':
+      'Please select the validity durations',
   'Please select the profile image': 'Please select the profile image',
-  'Please select the advertisement cover image': 'Please select the advertisement cover image',
-  'Please select the advertisement video': 'Please select the advertisement video',
-  'Please choose a 2:1 ratio for the cover video.': 'Please choose a 2:1 ratio for the cover video.',
+  'Please select the advertisement cover image':
+      'Please select the advertisement cover image',
+  'Please select the advertisement video':
+      'Please select the advertisement video',
+  'Please choose a 2:1 ratio for the cover video.':
+      'Please choose a 2:1 ratio for the cover video.',
   'Please enter title': 'Please enter title',
   'Please enter coupon code': 'Please enter coupon code',
   'Please select expire date': 'Please select expire date',
   'Please enter valid regular price': 'Please enter valid regular price',
-  'The chosen area is outside the selected zone.': 'The chosen area is outside the selected zone.',
-  'Restaurant details save successfully': 'Restaurant details save successfully',
+  'The chosen area is outside the selected zone.':
+      'The chosen area is outside the selected zone.',
+  'Restaurant details save successfully':
+      'Restaurant details save successfully',
   'Please enter restaurant name': 'Please enter restaurant name',
   'Please enter Description': 'Please enter Description',
-  'This ad will be pause and not show in the app or web': 'This ad will be pause and not show in the app or web',
+  'This ad will be pause and not show in the app or web':
+      'This ad will be pause and not show in the app or web',
   'Please enter address': 'Please enter address',
-  'Are you sure you want to Pause the request?': 'Are you sure you want to Pause the request?',
+  'Are you sure you want to Pause the request?':
+      'Are you sure you want to Pause the request?',
   'Yes': 'Yes',
   'Not Now': 'Not Now',
   'Pause Note..': 'Pause Note..',
   'Please enter pause note': 'Please enter pause note',
-  'Are you sure you want to resume the request?': 'Are you sure you want to resume the request?',
-  'This ad will be run again and will show in the app or web': 'This ad will be run again and will show in the app or web',
+  'Are you sure you want to resume the request?':
+      'Are you sure you want to resume the request?',
+  'This ad will be run again and will show in the app or web':
+      'This ad will be run again and will show in the app or web',
   'Confirm ad deletion': 'Confirm ad deletion',
-  'Deleting this ad will remove it permanently. Are you sure you want to proceed?': 'Deleting this ad will remove it permanently. Are you sure you want to proceed?',
+  'Deleting this ad will remove it permanently. Are you sure you want to proceed?':
+      'Deleting this ad will remove it permanently. Are you sure you want to proceed?',
   'Dine In Details save': 'Dine In Details save',
   'Reset Password link sent your': 'Reset Password link sent your',
   'No user found for that email.': 'No user found for that email.',
-  'Wrong password provided for that user.': 'Wrong password provided for that user.',
+  'Wrong password provided for that user.':
+      'Wrong password provided for that user.',
   'Invalid Email.': 'Invalid Email.',
   'email': 'email',
   'please wait...': 'please wait...',
   'Payment': 'Payment',
   'Cancel Payment': 'Cancel Payment',
-  'Are you sure want to cancel payment?': 'Are you sure want to cancel payment?',
+  'Are you sure want to cancel payment?':
+      'Are you sure want to cancel payment?',
   'Exit': 'Exit',
   'Continue Payment': 'Continue Payment',
   'You denied location permission forever. Please allow location permission from your app settings and receive more accurate delivery.':
       'You denied location permission forever. Please allow location permission from your app settings and receive more accurate delivery.',
   'settings': 'settings',
   'No user found': 'No user found',
-  'This user is not created in restaurant application.': 'This user is not created in restaurant application.',
+  'This user is not created in restaurant application.':
+      'This user is not created in restaurant application.',
   'Confirm Location': 'Confirm Location',
   'Picked Location:': 'Picked Location:',
   'No Location Picked': 'No Location Picked',

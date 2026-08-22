@@ -25,6 +25,11 @@ class TextFieldWidget extends StatelessWidget {
   final String? fontFamilyTitle;
   final double? fontSizeTitle;
 
+  /// Defaults to [TextCapitalization.sentences] to preserve existing behaviour.
+  /// E-mail / password fields should pass [TextCapitalization.none] so the
+  /// keyboard does not auto-capitalise the first character.
+  final TextCapitalization? textCapitalization;
+
   const TextFieldWidget(
       {super.key,
       this.textInputType,
@@ -44,7 +49,8 @@ class TextFieldWidget extends StatelessWidget {
       this.textInputAction,
       this.onClick,
       this.fontFamilyTitle,
-      this.fontSizeTitle});
+      this.fontSizeTitle,
+      this.textCapitalization});
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +66,12 @@ class TextFieldWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title ?? "".tr,
-                    style: TextStyle(fontFamily: fontFamilyTitle ?? AppThemeData.medium, fontSize: fontSizeTitle ?? 14, color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900)),
+                    style: TextStyle(
+                        fontFamily: fontFamilyTitle ?? AppThemeData.medium,
+                        fontSize: fontSizeTitle ?? 14,
+                        color: themeChange.getThem()
+                            ? AppThemeData.grey50
+                            : AppThemeData.grey900)),
                 const SizedBox(
                   height: 5,
                 ),
@@ -72,7 +83,8 @@ class TextFieldWidget extends StatelessWidget {
             onTap: onClick,
             initialValue: initialValue,
             keyboardType: textInputType ?? TextInputType.text,
-            textCapitalization: TextCapitalization.sentences,
+            textCapitalization:
+                textCapitalization ?? TextCapitalization.sentences,
             controller: controller,
             maxLines: maxLine ?? 1,
             textInputAction: textInputAction ?? TextInputAction.done,
@@ -81,7 +93,12 @@ class TextFieldWidget extends StatelessWidget {
             obscuringCharacter: '●',
             onChanged: onchange,
             maxLength: maxLength,
-            style: TextStyle(fontSize: 14, color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontFamily: AppThemeData.medium),
+            style: TextStyle(
+                fontSize: 14,
+                color: themeChange.getThem()
+                    ? AppThemeData.grey50
+                    : AppThemeData.grey900,
+                fontFamily: AppThemeData.medium),
             decoration: InputDecoration(
               errorStyle: const TextStyle(color: Colors.red),
               filled: true,
@@ -95,33 +112,57 @@ class TextFieldWidget extends StatelessWidget {
                               ? 14
                               : 8,
                   horizontal: 10),
-              fillColor: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+              fillColor: themeChange.getThem()
+                  ? AppThemeData.grey900
+                  : AppThemeData.grey50,
               prefixIcon: prefix,
               suffixIcon: suffix,
               disabledBorder: UnderlineInputBorder(
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50, width: 1),
+                borderSide: BorderSide(
+                    color: themeChange.getThem()
+                        ? AppThemeData.grey900
+                        : AppThemeData.grey50,
+                    width: 1),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color: themeChange.getThem() ? AppThemeData.secondary300 : AppThemeData.secondary300, width: 1),
+                borderSide: BorderSide(
+                    color: themeChange.getThem()
+                        ? AppThemeData.secondary300
+                        : AppThemeData.secondary300,
+                    width: 1),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50, width: 1),
+                borderSide: BorderSide(
+                    color: themeChange.getThem()
+                        ? AppThemeData.grey900
+                        : AppThemeData.grey50,
+                    width: 1),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50, width: 1),
+                borderSide: BorderSide(
+                    color: themeChange.getThem()
+                        ? AppThemeData.grey900
+                        : AppThemeData.grey50,
+                    width: 1),
               ),
               border: OutlineInputBorder(
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50, width: 1),
+                borderSide: BorderSide(
+                    color: themeChange.getThem()
+                        ? AppThemeData.grey900
+                        : AppThemeData.grey50,
+                    width: 1),
               ),
               hintText: hintText.tr,
               hintStyle: TextStyle(
                 fontSize: 14,
-                color: themeChange.getThem() ? AppThemeData.grey600 : AppThemeData.grey400,
+                color: themeChange.getThem()
+                    ? AppThemeData.grey600
+                    : AppThemeData.grey400,
                 fontFamily: AppThemeData.regular,
               ),
             ),

@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -7,6 +9,20 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// code: over_email_send_rate_limit)` into a toast.
 class AuthErrorHandler {
   AuthErrorHandler._();
+
+  /// Prints the *raw* error to the debug console so the real cause is visible
+  /// while the user only ever sees the friendly text from [getMessage].
+  /// Without this, a mapped message like "Please enter a valid e-mail address."
+  /// hides what the server actually returned.
+  static void log(Object error, {String context = 'auth'}) {
+    final details = StringBuffer('[$context] ${error.runtimeType}: $error');
+    if (error is AuthException) {
+      details.write(' | code=${error.code} statusCode=${error.statusCode}');
+    } else if (error is PostgrestException) {
+      details.write(' | code=${error.code} details=${error.details}');
+    }
+    developer.log(details.toString(), name: 'AuthErrorHandler');
+  }
 
   /// Returns a human readable message for any exception thrown by Supabase.
   static String getMessage(Object error) {
@@ -91,12 +107,30 @@ class AuthErrorHandler {
         message.contains('already been registered')) {
       return 'This e-mail is already registered. Please sign in instead.'.tr;
     }
+    // Only claim the e-mail is wrong when the server actually says so.
+    // `validation_failed` is a generic 422 that Supabase also returns for
+    // missing or invalid passwords and phone numbers, so it must not be
+    // blanket-mapped to an e-mail message.
+
     if (code == 'email_address_invalid' ||
-        code == 'validation_failed' ||
         message.contains('invalid email') ||
         message.contains('unable to validate email')) {
       return 'Please enter a valid e-mail address.'.tr;
     }
+    if (code == 'validation_failed') {
+      if (message.contains('email')) {
+        return 'Please enter a valid e-mail address.'.tr;
+      }
+      if (message.contains('password')) {
+        return 'Please enter a valid password.'.tr;
+      }
+      if (message.contains('phone')) {
+        return 'Please enter a valid phone number.'.tr;
+      }
+      // Unknown validation failure — show the server text rather than guessing.
+      return error.message;
+    }
+
     if (code == 'email_not_confirmed' ||
         message.contains('email not confirmed')) {
       return 'Please confirm your e-mail address before signing in.'.tr;

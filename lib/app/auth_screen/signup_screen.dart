@@ -104,8 +104,12 @@ class SignupScreen extends StatelessWidget {
                     TextFieldWidget(
                       title: 'Email Address'.tr,
                       textInputType: TextInputType.emailAddress,
+                      // Stop the keyboard auto-capitalising the first letter,
+                      // which produced values like "Foo@bar.com".
+                      textCapitalization: TextCapitalization.none,
                       controller: controller.emailEditingController.value,
                       hintText: 'Enter Email Address'.tr,
+
                       enable: controller.type.value == "google" ||
                               controller.type.value == "apple"
                           ? false
@@ -314,7 +318,7 @@ class SignupScreen extends StatelessWidget {
                               .trim()
                               .isEmpty) {
                             ShowToastDialog.showToast(
-                                "Please enter valid email".tr);
+                                "Please enter email address".tr);
                           } else if (controller
                               .phoneNUmberEditingController.value.text
                               .trim()
@@ -341,7 +345,7 @@ class SignupScreen extends StatelessWidget {
                               .trim()
                               .isEmpty) {
                             ShowToastDialog.showToast(
-                                "Please enter valid email".tr);
+                                "Please enter email address".tr);
                           } else if (controller
                               .phoneNUmberEditingController.value.text
                               .trim()

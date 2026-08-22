@@ -46,14 +46,33 @@ class SignupController extends GetxController {
     }
   }
 
+  // ─── Helpers ───────────────────────────────────────────────
+
+  /// Normalises an e-mail typed on a mobile keyboard: strips surrounding
+  /// whitespace, removes zero-width / non-breaking characters that get pasted
+  /// from other apps, and lower-cases it (Supabase treats e-mails as
+  /// case-insensitive and stores them lower-cased).
+  static String _sanitizeEmail(String raw) {
+    return raw
+        .replaceAll(RegExp(r'[\u200B-\u200D\uFEFF\u00A0]'), '')
+        .trim()
+        .toLowerCase();
+  }
+
   // ─── Sign Up ───────────────────────────────────────────────
 
   Future<void> signUpWithEmailAndPassword() async {
     // Ignore taps while a signup request is already in flight.
     if (isSigningUp.value) return;
 
-    final email = emailEditingController.value.text.trim();
+    // The e-mail field uses TextCapitalization.sentences, so the keyboard
+    // auto-capitalises the first letter ("Foo@bar.com"). Supabase stores
+    // e-mails lower-cased, so normalise here to avoid "user already exists"
+    // style mismatches. Zero-width/non-breaking spaces pasted from other apps
+    // are stripped too, since GetUtils.isEmail rejects them.
+    final email = _sanitizeEmail(emailEditingController.value.text);
     final password = passwordEditingController.value.text.trim();
+
     final isSocialOrPhone = type.value == 'mobileNumber' ||
         type.value == 'google' ||
         type.value == 'apple';
@@ -123,6 +142,9 @@ class SignupController extends GetxController {
       Get.offAll(const DashBoardScreen());
     } catch (e) {
       ShowToastDialog.closeLoader();
+      // Log the raw error so the real cause shows in the debug console instead
+      // of being hidden behind the friendly toast text.
+      AuthErrorHandler.log(e, context: 'signUpWithEmailAndPassword');
       ShowToastDialog.showToastDuration(
         AuthErrorHandler.getMessage(e),
         duration: Duration(seconds: AuthErrorHandler.isRateLimit(e) ? 5 : 3),
