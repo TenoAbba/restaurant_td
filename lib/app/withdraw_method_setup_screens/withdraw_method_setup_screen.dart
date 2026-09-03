@@ -24,25 +24,33 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
         init: WithdrawMethodSetupController(),
         builder: (controller) {
           return Scaffold(
-            backgroundColor: themeChange.getThem() ? AppThemeData.surfaceDark : AppThemeData.surface,
+            backgroundColor: themeChange.getThem()
+                ? AppThemeData.surfaceDark
+                : AppThemeData.surface,
             appBar: AppBar(
               backgroundColor: AppThemeData.secondary300,
               centerTitle: false,
               iconTheme: IconThemeData(color: AppThemeData.grey50, size: 20),
               title: Text(
                 "Set up Methods".tr,
-                style: TextStyle(color: AppThemeData.grey50, fontSize: 18, fontFamily: AppThemeData.medium),
+                style: TextStyle(
+                    color: AppThemeData.grey50,
+                    fontSize: 18,
+                    fontFamily: AppThemeData.medium),
               ),
             ),
             body: controller.isLoading.value
                 ? Constant.loader()
                 : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     child: Column(
                       children: [
                         Container(
                           decoration: ShapeDecoration(
-                            color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                            color: themeChange.getThem()
+                                ? AppThemeData.grey900
+                                : AppThemeData.grey50,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -56,13 +64,19 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                     Container(
                                       decoration: ShapeDecoration(
                                         shape: RoundedRectangleBorder(
-                                          side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                          borderRadius: BorderRadius.circular(8),
+                                          side: BorderSide(
+                                              width: 1,
+                                              color: themeChange.getThem()
+                                                  ? AppThemeData.grey700
+                                                  : AppThemeData.grey200),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(10),
-                                        child: SvgPicture.asset("assets/icons/ic_building_four.svg"),
+                                        child: SvgPicture.asset(
+                                            "assets/icons/ic_building_four.svg"),
                                       ),
                                     ),
                                     const SizedBox(
@@ -71,10 +85,18 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                     Expanded(
                                       child: Text(
                                         "Bank Transfer".tr,
-                                        style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                        style: TextStyle(
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey50
+                                                : AppThemeData.grey900,
+                                            fontSize: 16,
+                                            fontFamily: AppThemeData.medium),
                                       ),
                                     ),
-                                    if (Constant.getEmployeeRolePermission(module: "Withdraw Method", pType: ActionType.isAdd) == true)
+                                    if (Constant.getEmployeeRolePermission(
+                                            module: "Withdraw Method",
+                                            pType: ActionType.isAdd) ==
+                                        true)
                                       InkWell(
                                         splashColor: Colors.transparent,
                                         onTap: () {
@@ -83,46 +105,76 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                         child: Container(
                                           decoration: ShapeDecoration(
                                             shape: RoundedRectangleBorder(
-                                              side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
-                                              borderRadius: BorderRadius.circular(120),
+                                              side: BorderSide(
+                                                  width: 1,
+                                                  color: themeChange.getThem()
+                                                      ? AppThemeData.grey800
+                                                      : AppThemeData.grey100),
+                                              borderRadius:
+                                                  BorderRadius.circular(120),
                                             ),
                                           ),
                                           child: Padding(
                                             padding: const EdgeInsets.all(8.0),
-                                            child: SvgPicture.asset("assets/icons/ic_edit_coupon.svg"),
+                                            child: SvgPicture.asset(
+                                                "assets/icons/ic_edit_coupon.svg"),
                                           ),
                                         ),
                                       ),
                                   ],
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  child: MySeparator(color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: MySeparator(
+                                      color: themeChange.getThem()
+                                          ? AppThemeData.grey700
+                                          : AppThemeData.grey200),
                                 ),
                                 controller.isBankDetailsAdded.value == false
                                     ? Row(
                                         children: [
                                           Text(
                                             "Your Setup is pending".tr,
-                                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                            style: TextStyle(
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.grey50
+                                                    : AppThemeData.grey900,
+                                                fontSize: 16,
+                                                fontFamily:
+                                                    AppThemeData.medium),
                                           ),
                                           const SizedBox(
                                             width: 10,
                                           ),
-                                          if (Constant.getEmployeeRolePermission(module: "Withdraw Method", pType: ActionType.isAdd) == true)
+                                          if (Constant
+                                                  .getEmployeeRolePermission(
+                                                      module: "Withdraw Method",
+                                                      pType:
+                                                          ActionType.isAdd) ==
+                                              true)
                                             InkWell(
                                               splashColor: Colors.transparent,
                                               onTap: () {
-                                                Get.to(const BankDetailsScreen());
+                                                Get.to(
+                                                    const BankDetailsScreen());
                                               },
                                               child: Text(
                                                 "Setup now".tr,
                                                 style: TextStyle(
-                                                    decoration: TextDecoration.underline,
-                                                    decorationColor: AppThemeData.secondary300,
-                                                    color: themeChange.getThem() ? AppThemeData.secondary300 : AppThemeData.secondary300,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    decorationColor:
+                                                        AppThemeData
+                                                            .secondary300,
+                                                    color: themeChange.getThem()
+                                                        ? AppThemeData
+                                                            .secondary300
+                                                        : AppThemeData
+                                                            .secondary300,
                                                     fontSize: 16,
-                                                    fontFamily: AppThemeData.medium),
+                                                    fontFamily:
+                                                        AppThemeData.medium),
                                               ),
                                             ),
                                         ],
@@ -131,7 +183,13 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                         children: [
                                           Text(
                                             "Setup was done.".tr,
-                                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.success400 : AppThemeData.success400, fontSize: 16, fontFamily: AppThemeData.medium),
+                                            style: TextStyle(
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.success400
+                                                    : AppThemeData.success400,
+                                                fontSize: 16,
+                                                fontFamily:
+                                                    AppThemeData.medium),
                                           ),
                                         ],
                                       )
@@ -144,7 +202,9 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                         ),
                         Container(
                           decoration: ShapeDecoration(
-                            color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                            color: themeChange.getThem()
+                                ? AppThemeData.grey900
+                                : AppThemeData.grey50,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -158,13 +218,19 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                     Container(
                                       decoration: ShapeDecoration(
                                         shape: RoundedRectangleBorder(
-                                          side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                          borderRadius: BorderRadius.circular(8),
+                                          side: BorderSide(
+                                              width: 1,
+                                              color: themeChange.getThem()
+                                                  ? AppThemeData.grey700
+                                                  : AppThemeData.grey200),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(10),
-                                        child: Image.asset("assets/images/flutterwave.png"),
+                                        child: Image.asset(
+                                            "assets/images/flutterwave.png"),
                                       ),
                                     ),
                                     const SizedBox(
@@ -173,10 +239,17 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                     Expanded(
                                       child: Text(
                                         "Flutter wave".tr,
-                                        style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                        style: TextStyle(
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey50
+                                                : AppThemeData.grey900,
+                                            fontSize: 16,
+                                            fontFamily: AppThemeData.medium),
                                       ),
                                     ),
-                                    controller.withdrawMethodModel.value.flutterWave != null
+                                    controller.withdrawMethodModel.value
+                                                .flutterWave !=
+                                            null
                                         ? Row(
                                             children: [
                                               InkWell(
@@ -184,21 +257,37 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                                 onTap: () {
                                                   showDialog(
                                                     context: context,
-                                                    builder: (BuildContext context) {
-                                                      return flutterWaveDialog(controller, themeChange);
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return flutterWaveDialog(
+                                                          controller,
+                                                          themeChange);
                                                     },
                                                   );
                                                 },
                                                 child: Container(
                                                   decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
-                                                      borderRadius: BorderRadius.circular(120),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey800
+                                                              : AppThemeData
+                                                                  .grey100),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              120),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: SvgPicture.asset("assets/icons/ic_edit_coupon.svg"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: SvgPicture.asset(
+                                                        "assets/icons/ic_edit_coupon.svg"),
                                                   ),
                                                 ),
                                               ),
@@ -208,27 +297,53 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                               InkWell(
                                                 splashColor: Colors.transparent,
                                                 onTap: () async {
-                                                  controller.withdrawMethodModel.value.flutterWave = null;
-                                                  await FireStoreUtils.setWithdrawMethod(controller.withdrawMethodModel.value).then(
+                                                  controller.withdrawMethodModel
+                                                      .value.flutterWave = null;
+                                                  await FireStoreUtils
+                                                          .setWithdrawMethod(
+                                                              controller
+                                                                  .withdrawMethodModel
+                                                                  .value)
+                                                      .then(
                                                     (value) async {
-                                                      ShowToastDialog.showLoader("Please wait..".tr);
+                                                      ShowToastDialog
+                                                          .showLoader(
+                                                              "Please wait.."
+                                                                  .tr);
 
-                                                      await controller.getPaymentMethod();
-                                                      ShowToastDialog.closeLoader();
-                                                      ShowToastDialog.showToast("Payment Method remove successfully".tr);
+                                                      await controller
+                                                          .getPaymentMethod();
+                                                      ShowToastDialog
+                                                          .closeLoader();
+                                                      ShowToastDialog.showToast(
+                                                          "Payment Method remove successfully"
+                                                              .tr);
                                                     },
                                                   );
                                                 },
                                                 child: Container(
                                                   decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
-                                                      borderRadius: BorderRadius.circular(120),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey800
+                                                              : AppThemeData
+                                                                  .grey100),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              120),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: SvgPicture.asset("assets/icons/ic_delete-one.svg"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: SvgPicture.asset(
+                                                        "assets/icons/ic_delete-one.svg"),
                                                   ),
                                                 ),
                                               )
@@ -238,38 +353,66 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                   ],
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  child: MySeparator(color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: MySeparator(
+                                      color: themeChange.getThem()
+                                          ? AppThemeData.grey700
+                                          : AppThemeData.grey200),
                                 ),
-                                controller.withdrawMethodModel.value.flutterWave == null
+                                controller.withdrawMethodModel.value
+                                            .flutterWave ==
+                                        null
                                     ? Row(
                                         children: [
                                           Text(
                                             "Your Setup is pending".tr,
-                                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                            style: TextStyle(
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.grey50
+                                                    : AppThemeData.grey900,
+                                                fontSize: 16,
+                                                fontFamily:
+                                                    AppThemeData.medium),
                                           ),
                                           const SizedBox(
                                             width: 10,
                                           ),
-                                          if (Constant.getEmployeeRolePermission(module: "Withdraw Method", pType: ActionType.isAdd) == true)
+                                          if (Constant
+                                                  .getEmployeeRolePermission(
+                                                      module: "Withdraw Method",
+                                                      pType:
+                                                          ActionType.isAdd) ==
+                                              true)
                                             InkWell(
                                               splashColor: Colors.transparent,
                                               onTap: () {
                                                 showDialog(
                                                   context: context,
-                                                  builder: (BuildContext context) {
-                                                    return flutterWaveDialog(controller, themeChange);
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return flutterWaveDialog(
+                                                        controller,
+                                                        themeChange);
                                                   },
                                                 );
                                               },
                                               child: Text(
                                                 "Setup now".tr,
                                                 style: TextStyle(
-                                                    decoration: TextDecoration.underline,
-                                                    decorationColor: AppThemeData.secondary300,
-                                                    color: themeChange.getThem() ? AppThemeData.secondary300 : AppThemeData.secondary300,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    decorationColor:
+                                                        AppThemeData
+                                                            .secondary300,
+                                                    color: themeChange.getThem()
+                                                        ? AppThemeData
+                                                            .secondary300
+                                                        : AppThemeData
+                                                            .secondary300,
                                                     fontSize: 16,
-                                                    fontFamily: AppThemeData.medium),
+                                                    fontFamily:
+                                                        AppThemeData.medium),
                                               ),
                                             ),
                                         ],
@@ -278,7 +421,13 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                         children: [
                                           Text(
                                             "Setup was done.".tr,
-                                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.success400 : AppThemeData.success400, fontSize: 16, fontFamily: AppThemeData.medium),
+                                            style: TextStyle(
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.success400
+                                                    : AppThemeData.success400,
+                                                fontSize: 16,
+                                                fontFamily:
+                                                    AppThemeData.medium),
                                           ),
                                         ],
                                       )
@@ -291,7 +440,9 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                         ),
                         Container(
                           decoration: ShapeDecoration(
-                            color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                            color: themeChange.getThem()
+                                ? AppThemeData.grey900
+                                : AppThemeData.grey50,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -305,13 +456,19 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                     Container(
                                       decoration: ShapeDecoration(
                                         shape: RoundedRectangleBorder(
-                                          side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                          borderRadius: BorderRadius.circular(8),
+                                          side: BorderSide(
+                                              width: 1,
+                                              color: themeChange.getThem()
+                                                  ? AppThemeData.grey700
+                                                  : AppThemeData.grey200),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(10),
-                                        child: Image.asset("assets/images/paypal.png"),
+                                        child: Image.asset(
+                                            "assets/images/paypal.png"),
                                       ),
                                     ),
                                     const SizedBox(
@@ -320,10 +477,17 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                     Expanded(
                                       child: Text(
                                         "PayPal".tr,
-                                        style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                        style: TextStyle(
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey50
+                                                : AppThemeData.grey900,
+                                            fontSize: 16,
+                                            fontFamily: AppThemeData.medium),
                                       ),
                                     ),
-                                    controller.withdrawMethodModel.value.paypal != null
+                                    controller.withdrawMethodModel.value
+                                                .paypal !=
+                                            null
                                         ? Row(
                                             children: [
                                               InkWell(
@@ -331,21 +495,37 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                                 onTap: () {
                                                   showDialog(
                                                     context: context,
-                                                    builder: (BuildContext context) {
-                                                      return payPalDialog(controller, themeChange);
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return payPalDialog(
+                                                          controller,
+                                                          themeChange);
                                                     },
                                                   );
                                                 },
                                                 child: Container(
                                                   decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
-                                                      borderRadius: BorderRadius.circular(120),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey800
+                                                              : AppThemeData
+                                                                  .grey100),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              120),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: SvgPicture.asset("assets/icons/ic_edit_coupon.svg"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: SvgPicture.asset(
+                                                        "assets/icons/ic_edit_coupon.svg"),
                                                   ),
                                                 ),
                                               ),
@@ -355,27 +535,53 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                               InkWell(
                                                 splashColor: Colors.transparent,
                                                 onTap: () async {
-                                                  controller.withdrawMethodModel.value.paypal = null;
-                                                  await FireStoreUtils.setWithdrawMethod(controller.withdrawMethodModel.value).then(
+                                                  controller.withdrawMethodModel
+                                                      .value.paypal = null;
+                                                  await FireStoreUtils
+                                                          .setWithdrawMethod(
+                                                              controller
+                                                                  .withdrawMethodModel
+                                                                  .value)
+                                                      .then(
                                                     (value) async {
-                                                      ShowToastDialog.showLoader("Please wait..".tr);
+                                                      ShowToastDialog
+                                                          .showLoader(
+                                                              "Please wait.."
+                                                                  .tr);
 
-                                                      await controller.getPaymentMethod();
-                                                      ShowToastDialog.closeLoader();
-                                                      ShowToastDialog.showToast("Payment Method remove successfully".tr);
+                                                      await controller
+                                                          .getPaymentMethod();
+                                                      ShowToastDialog
+                                                          .closeLoader();
+                                                      ShowToastDialog.showToast(
+                                                          "Payment Method remove successfully"
+                                                              .tr);
                                                     },
                                                   );
                                                 },
                                                 child: Container(
                                                   decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
-                                                      borderRadius: BorderRadius.circular(120),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey800
+                                                              : AppThemeData
+                                                                  .grey100),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              120),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: SvgPicture.asset("assets/icons/ic_delete-one.svg"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: SvgPicture.asset(
+                                                        "assets/icons/ic_delete-one.svg"),
                                                   ),
                                                 ),
                                               )
@@ -385,38 +591,65 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                   ],
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  child: MySeparator(color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: MySeparator(
+                                      color: themeChange.getThem()
+                                          ? AppThemeData.grey700
+                                          : AppThemeData.grey200),
                                 ),
-                                controller.withdrawMethodModel.value.paypal == null
+                                controller.withdrawMethodModel.value.paypal ==
+                                        null
                                     ? Row(
                                         children: [
                                           Text(
                                             "Your Setup is pending".tr,
-                                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                            style: TextStyle(
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.grey50
+                                                    : AppThemeData.grey900,
+                                                fontSize: 16,
+                                                fontFamily:
+                                                    AppThemeData.medium),
                                           ),
                                           const SizedBox(
                                             width: 10,
                                           ),
-                                          if (Constant.getEmployeeRolePermission(module: "Withdraw Method", pType: ActionType.isAdd) == true)
+                                          if (Constant
+                                                  .getEmployeeRolePermission(
+                                                      module: "Withdraw Method",
+                                                      pType:
+                                                          ActionType.isAdd) ==
+                                              true)
                                             InkWell(
                                               splashColor: Colors.transparent,
                                               onTap: () {
                                                 showDialog(
                                                   context: context,
-                                                  builder: (BuildContext context) {
-                                                    return payPalDialog(controller, themeChange);
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return payPalDialog(
+                                                        controller,
+                                                        themeChange);
                                                   },
                                                 );
                                               },
                                               child: Text(
                                                 "Setup now".tr,
                                                 style: TextStyle(
-                                                    decoration: TextDecoration.underline,
-                                                    decorationColor: AppThemeData.secondary300,
-                                                    color: themeChange.getThem() ? AppThemeData.secondary300 : AppThemeData.secondary300,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    decorationColor:
+                                                        AppThemeData
+                                                            .secondary300,
+                                                    color: themeChange.getThem()
+                                                        ? AppThemeData
+                                                            .secondary300
+                                                        : AppThemeData
+                                                            .secondary300,
                                                     fontSize: 16,
-                                                    fontFamily: AppThemeData.medium),
+                                                    fontFamily:
+                                                        AppThemeData.medium),
                                               ),
                                             ),
                                         ],
@@ -425,7 +658,13 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                         children: [
                                           Text(
                                             "Setup was done.".tr,
-                                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.success400 : AppThemeData.success400, fontSize: 16, fontFamily: AppThemeData.medium),
+                                            style: TextStyle(
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.success400
+                                                    : AppThemeData.success400,
+                                                fontSize: 16,
+                                                fontFamily:
+                                                    AppThemeData.medium),
                                           ),
                                         ],
                                       )
@@ -438,7 +677,9 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                         ),
                         Container(
                           decoration: ShapeDecoration(
-                            color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                            color: themeChange.getThem()
+                                ? AppThemeData.grey900
+                                : AppThemeData.grey50,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
@@ -452,160 +693,19 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                     Container(
                                       decoration: ShapeDecoration(
                                         shape: RoundedRectangleBorder(
-                                          side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                          borderRadius: BorderRadius.circular(8),
+                                          side: BorderSide(
+                                              width: 1,
+                                              color: themeChange.getThem()
+                                                  ? AppThemeData.grey700
+                                                  : AppThemeData.grey200),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(10),
-                                        child: Image.asset("assets/images/razorpay.png"),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        "RazorPay".tr,
-                                        style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
-                                      ),
-                                    ),
-                                    controller.withdrawMethodModel.value.razorpay != null
-                                        ? Row(
-                                            children: [
-                                              InkWell(
-                                                splashColor: Colors.transparent,
-                                                onTap: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (BuildContext context) {
-                                                      return razorPayDialog(controller, themeChange);
-                                                    },
-                                                  );
-                                                },
-                                                child: Container(
-                                                  decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
-                                                      borderRadius: BorderRadius.circular(120),
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: SvgPicture.asset("assets/icons/ic_edit_coupon.svg"),
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                width: 10,
-                                              ),
-                                              InkWell(
-                                                splashColor: Colors.transparent,
-                                                onTap: () async {
-                                                  controller.withdrawMethodModel.value.razorpay = null;
-                                                  await FireStoreUtils.setWithdrawMethod(controller.withdrawMethodModel.value).then(
-                                                    (value) async {
-                                                      ShowToastDialog.showLoader("Please wait..".tr);
-
-                                                      await controller.getPaymentMethod();
-                                                      ShowToastDialog.closeLoader();
-                                                      ShowToastDialog.showToast("Payment Method remove successfully".tr);
-                                                    },
-                                                  );
-                                                },
-                                                child: Container(
-                                                  decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
-                                                      borderRadius: BorderRadius.circular(120),
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: SvgPicture.asset("assets/icons/ic_delete-one.svg"),
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          )
-                                        : const SizedBox()
-                                  ],
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  child: MySeparator(color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                ),
-                                controller.withdrawMethodModel.value.razorpay == null
-                                    ? Row(
-                                        children: [
-                                          Text(
-                                            "Your Setup is pending".tr,
-                                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
-                                          ),
-                                          const SizedBox(
-                                            width: 10,
-                                          ),
-                                          if (Constant.getEmployeeRolePermission(module: "Withdraw Method", pType: ActionType.isAdd) == true)
-                                            InkWell(
-                                              splashColor: Colors.transparent,
-                                              onTap: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (BuildContext context) {
-                                                    return razorPayDialog(controller, themeChange);
-                                                  },
-                                                );
-                                              },
-                                              child: Text(
-                                                "Setup now".tr,
-                                                style: TextStyle(
-                                                    decoration: TextDecoration.underline,
-                                                    decorationColor: AppThemeData.secondary300,
-                                                    color: themeChange.getThem() ? AppThemeData.secondary300 : AppThemeData.secondary300,
-                                                    fontSize: 16,
-                                                    fontFamily: AppThemeData.medium),
-                                              ),
-                                            ),
-                                        ],
-                                      )
-                                    : Row(
-                                        children: [
-                                          Text(
-                                            "Setup was done.".tr,
-                                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.success400 : AppThemeData.success400, fontSize: 16, fontFamily: AppThemeData.medium),
-                                          ),
-                                        ],
-                                      )
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          decoration: ShapeDecoration(
-                            color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      decoration: ShapeDecoration(
-                                        shape: RoundedRectangleBorder(
-                                          side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(10),
-                                        child: Image.asset("assets/images/stripe.png"),
+                                        child: Image.asset(
+                                            "assets/images/stripe.png"),
                                       ),
                                     ),
                                     const SizedBox(
@@ -614,10 +714,17 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                     Expanded(
                                       child: Text(
                                         "Stripe".tr,
-                                        style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                        style: TextStyle(
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey50
+                                                : AppThemeData.grey900,
+                                            fontSize: 16,
+                                            fontFamily: AppThemeData.medium),
                                       ),
                                     ),
-                                    controller.withdrawMethodModel.value.stripe != null
+                                    controller.withdrawMethodModel.value
+                                                .stripe !=
+                                            null
                                         ? Row(
                                             children: [
                                               InkWell(
@@ -625,21 +732,37 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                                 onTap: () {
                                                   showDialog(
                                                     context: context,
-                                                    builder: (BuildContext context) {
-                                                      return stripeDialog(controller, themeChange);
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return stripeDialog(
+                                                          controller,
+                                                          themeChange);
                                                     },
                                                   );
                                                 },
                                                 child: Container(
                                                   decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
-                                                      borderRadius: BorderRadius.circular(120),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey800
+                                                              : AppThemeData
+                                                                  .grey100),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              120),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: SvgPicture.asset("assets/icons/ic_edit_coupon.svg"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: SvgPicture.asset(
+                                                        "assets/icons/ic_edit_coupon.svg"),
                                                   ),
                                                 ),
                                               ),
@@ -649,27 +772,53 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                               InkWell(
                                                 splashColor: Colors.transparent,
                                                 onTap: () async {
-                                                  controller.withdrawMethodModel.value.stripe = null;
-                                                  await FireStoreUtils.setWithdrawMethod(controller.withdrawMethodModel.value).then(
+                                                  controller.withdrawMethodModel
+                                                      .value.stripe = null;
+                                                  await FireStoreUtils
+                                                          .setWithdrawMethod(
+                                                              controller
+                                                                  .withdrawMethodModel
+                                                                  .value)
+                                                      .then(
                                                     (value) async {
-                                                      ShowToastDialog.showLoader("Please wait..".tr);
+                                                      ShowToastDialog
+                                                          .showLoader(
+                                                              "Please wait.."
+                                                                  .tr);
 
-                                                      await controller.getPaymentMethod();
-                                                      ShowToastDialog.closeLoader();
-                                                      ShowToastDialog.showToast("Payment Method remove successfully".tr);
+                                                      await controller
+                                                          .getPaymentMethod();
+                                                      ShowToastDialog
+                                                          .closeLoader();
+                                                      ShowToastDialog.showToast(
+                                                          "Payment Method remove successfully"
+                                                              .tr);
                                                     },
                                                   );
                                                 },
                                                 child: Container(
                                                   decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
-                                                      borderRadius: BorderRadius.circular(120),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey800
+                                                              : AppThemeData
+                                                                  .grey100),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              120),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(8.0),
-                                                    child: SvgPicture.asset("assets/icons/ic_delete-one.svg"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: SvgPicture.asset(
+                                                        "assets/icons/ic_delete-one.svg"),
                                                   ),
                                                 ),
                                               )
@@ -679,38 +828,65 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                   ],
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  child: MySeparator(color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: MySeparator(
+                                      color: themeChange.getThem()
+                                          ? AppThemeData.grey700
+                                          : AppThemeData.grey200),
                                 ),
-                                controller.withdrawMethodModel.value.stripe == null
+                                controller.withdrawMethodModel.value.stripe ==
+                                        null
                                     ? Row(
                                         children: [
                                           Text(
                                             "Your Setup is pending".tr,
-                                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                            style: TextStyle(
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.grey50
+                                                    : AppThemeData.grey900,
+                                                fontSize: 16,
+                                                fontFamily:
+                                                    AppThemeData.medium),
                                           ),
                                           const SizedBox(
                                             width: 10,
                                           ),
-                                          if (Constant.getEmployeeRolePermission(module: "Withdraw Method", pType: ActionType.isAdd) == true)
+                                          if (Constant
+                                                  .getEmployeeRolePermission(
+                                                      module: "Withdraw Method",
+                                                      pType:
+                                                          ActionType.isAdd) ==
+                                              true)
                                             InkWell(
                                               splashColor: Colors.transparent,
                                               onTap: () {
                                                 showDialog(
                                                   context: context,
-                                                  builder: (BuildContext context) {
-                                                    return stripeDialog(controller, themeChange);
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return stripeDialog(
+                                                        controller,
+                                                        themeChange);
                                                   },
                                                 );
                                               },
                                               child: Text(
                                                 "Setup now".tr,
                                                 style: TextStyle(
-                                                    decoration: TextDecoration.underline,
-                                                    decorationColor: AppThemeData.secondary300,
-                                                    color: themeChange.getThem() ? AppThemeData.secondary300 : AppThemeData.secondary300,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    decorationColor:
+                                                        AppThemeData
+                                                            .secondary300,
+                                                    color: themeChange.getThem()
+                                                        ? AppThemeData
+                                                            .secondary300
+                                                        : AppThemeData
+                                                            .secondary300,
                                                     fontSize: 16,
-                                                    fontFamily: AppThemeData.medium),
+                                                    fontFamily:
+                                                        AppThemeData.medium),
                                               ),
                                             ),
                                         ],
@@ -719,7 +895,13 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                                         children: [
                                           Text(
                                             "Setup was done.".tr,
-                                            style: TextStyle(color: themeChange.getThem() ? AppThemeData.success400 : AppThemeData.success400, fontSize: 16, fontFamily: AppThemeData.medium),
+                                            style: TextStyle(
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.success400
+                                                    : AppThemeData.success400,
+                                                fontSize: 16,
+                                                fontFamily:
+                                                    AppThemeData.medium),
                                           ),
                                         ],
                                       )
@@ -739,7 +921,9 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       insetPadding: const EdgeInsets.all(10),
       clipBehavior: Clip.antiAliasWithSaveLayer,
-      backgroundColor: themeChange.getThem() ? AppThemeData.surfaceDark : AppThemeData.surface,
+      backgroundColor: themeChange.getThem()
+          ? AppThemeData.surfaceDark
+          : AppThemeData.surface,
       child: Padding(
         padding: const EdgeInsets.all(30),
         child: SizedBox(
@@ -765,24 +949,36 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                 onPress: () async {
                   if (controller.accountNumberFlutterWave.value.text.isEmpty) {
                     ShowToastDialog.showToast("Please enter account Number".tr);
-                  } else if (controller.bankCodeFlutterWave.value.text.isEmpty) {
+                  } else if (controller
+                      .bankCodeFlutterWave.value.text.isEmpty) {
                     ShowToastDialog.showToast("Please enter bank code".tr);
                   } else {
-                    FlutterWave? flutterWave = controller.withdrawMethodModel.value.flutterWave;
+                    FlutterWave? flutterWave =
+                        controller.withdrawMethodModel.value.flutterWave;
                     if (flutterWave != null) {
-                      flutterWave.accountNumber = controller.accountNumberFlutterWave.value.text;
-                      flutterWave.bankCode = controller.bankCodeFlutterWave.value.text;
+                      flutterWave.accountNumber =
+                          controller.accountNumberFlutterWave.value.text;
+                      flutterWave.bankCode =
+                          controller.bankCodeFlutterWave.value.text;
                     } else {
-                      flutterWave = FlutterWave(accountNumber: controller.accountNumberFlutterWave.value.text, bankCode: controller.bankCodeFlutterWave.value.text, name: "FlutterWave");
+                      flutterWave = FlutterWave(
+                          accountNumber:
+                              controller.accountNumberFlutterWave.value.text,
+                          bankCode: controller.bankCodeFlutterWave.value.text,
+                          name: "FlutterWave");
                     }
-                    controller.withdrawMethodModel.value.flutterWave = flutterWave;
-                    await FireStoreUtils.setWithdrawMethod(controller.withdrawMethodModel.value).then(
+                    controller.withdrawMethodModel.value.flutterWave =
+                        flutterWave;
+                    await FireStoreUtils.setWithdrawMethod(
+                            controller.withdrawMethodModel.value)
+                        .then(
                       (value) async {
                         ShowToastDialog.showLoader("Please wait..".tr);
 
                         await controller.getPaymentMethod();
                         ShowToastDialog.closeLoader();
-                        ShowToastDialog.showToast("Payment Method save successfully".tr);
+                        ShowToastDialog.showToast(
+                            "Payment Method save successfully".tr);
                         Get.back();
                       },
                     );
@@ -801,7 +997,9 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       insetPadding: const EdgeInsets.all(10),
       clipBehavior: Clip.antiAliasWithSaveLayer,
-      backgroundColor: themeChange.getThem() ? AppThemeData.surfaceDark : AppThemeData.surface,
+      backgroundColor: themeChange.getThem()
+          ? AppThemeData.surfaceDark
+          : AppThemeData.surface,
       child: Padding(
         padding: const EdgeInsets.all(30),
         child: SizedBox(
@@ -823,84 +1021,26 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                   if (controller.emailPaypal.value.text.isEmpty) {
                     ShowToastDialog.showToast("Please enter Paypal email".tr);
                   } else {
-                    Paypal? payPal = controller.withdrawMethodModel.value.paypal;
+                    Paypal? payPal =
+                        controller.withdrawMethodModel.value.paypal;
                     if (payPal != null) {
                       payPal.email = controller.emailPaypal.value.text;
                     } else {
-                      payPal = Paypal(email: controller.emailPaypal.value.text, name: "PayPal");
+                      payPal = Paypal(
+                          email: controller.emailPaypal.value.text,
+                          name: "PayPal");
                     }
                     controller.withdrawMethodModel.value.paypal = payPal;
-                    await FireStoreUtils.setWithdrawMethod(controller.withdrawMethodModel.value).then(
+                    await FireStoreUtils.setWithdrawMethod(
+                            controller.withdrawMethodModel.value)
+                        .then(
                       (value) async {
                         ShowToastDialog.showLoader("Please wait..".tr);
 
                         await controller.getPaymentMethod();
                         ShowToastDialog.closeLoader();
-                        ShowToastDialog.showToast("Payment Method save successfully".tr);
-                        Get.back();
-                      },
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  razorPayDialog(WithdrawMethodSetupController controller, themeChange) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      insetPadding: const EdgeInsets.all(10),
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      backgroundColor: themeChange.getThem() ? AppThemeData.surfaceDark : AppThemeData.surface,
-      child: Padding(
-        padding: const EdgeInsets.all(30),
-        child: SizedBox(
-          width: 500,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFieldWidget(
-                title: 'Razorpay account Id'.tr,
-                controller: controller.accountIdRazorPay.value,
-                hintText: 'Razorpay account Id'.tr,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Text(
-                  "Add your Account ID. For example, acc_GLGeLkU2JUeyDZ".tr,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: themeChange.getThem() ? AppThemeData.grey500 : AppThemeData.grey400),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              RoundedButtonFill(
-                title: "Save".tr,
-                color: AppThemeData.secondary300,
-                textColor: AppThemeData.grey50,
-                onPress: () async {
-                  if (controller.accountIdRazorPay.value.text.isEmpty) {
-                    ShowToastDialog.showToast("Please enter RazorPay account Id".tr);
-                  } else {
-                    RazorpayModel? razorPay = controller.withdrawMethodModel.value.razorpay;
-                    if (razorPay != null) {
-                      razorPay.accountId = controller.accountIdRazorPay.value.text;
-                    } else {
-                      razorPay = RazorpayModel(accountId: controller.accountIdRazorPay.value.text, name: "RazorPay");
-                    }
-                    controller.withdrawMethodModel.value.razorpay = razorPay;
-                    await FireStoreUtils.setWithdrawMethod(controller.withdrawMethodModel.value).then(
-                      (value) async {
-                        ShowToastDialog.showLoader("Please wait..".tr);
-
-                        await controller.getPaymentMethod();
-                        ShowToastDialog.closeLoader();
-                        ShowToastDialog.showToast("Payment Method save successfully".tr);
+                        ShowToastDialog.showToast(
+                            "Payment Method save successfully".tr);
                         Get.back();
                       },
                     );
@@ -919,7 +1059,9 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       insetPadding: const EdgeInsets.all(10),
       clipBehavior: Clip.antiAliasWithSaveLayer,
-      backgroundColor: themeChange.getThem() ? AppThemeData.surfaceDark : AppThemeData.surface,
+      backgroundColor: themeChange.getThem()
+          ? AppThemeData.surfaceDark
+          : AppThemeData.surface,
       child: Padding(
         padding: const EdgeInsets.all(30),
         child: SizedBox(
@@ -936,8 +1078,13 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 child: Text(
-                  "Go to your Stripe account settings > Account details > Copy your account ID on the right-hand side. For example, acc_GLGeLkU2JUeyDZ".tr,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: themeChange.getThem() ? AppThemeData.grey500 : AppThemeData.grey400),
+                  "Go to your Stripe account settings > Account details > Copy your account ID on the right-hand side. For example, acc_GLGeLkU2JUeyDZ"
+                      .tr,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: themeChange.getThem()
+                          ? AppThemeData.grey500
+                          : AppThemeData.grey400),
                 ),
               ),
               const SizedBox(
@@ -949,22 +1096,29 @@ class WithdrawMethodSetupScreen extends StatelessWidget {
                 textColor: AppThemeData.grey50,
                 onPress: () async {
                   if (controller.accountIdStripe.value.text.isEmpty) {
-                    ShowToastDialog.showToast("Please enter stripe account Id".tr);
+                    ShowToastDialog.showToast(
+                        "Please enter stripe account Id".tr);
                   } else {
-                    Stripe? stripe = controller.withdrawMethodModel.value.stripe;
+                    Stripe? stripe =
+                        controller.withdrawMethodModel.value.stripe;
                     if (stripe != null) {
                       stripe.accountId = controller.accountIdStripe.value.text;
                     } else {
-                      stripe = Stripe(accountId: controller.accountIdStripe.value.text, name: "Stripe");
+                      stripe = Stripe(
+                          accountId: controller.accountIdStripe.value.text,
+                          name: "Stripe");
                     }
                     controller.withdrawMethodModel.value.stripe = stripe;
-                    await FireStoreUtils.setWithdrawMethod(controller.withdrawMethodModel.value).then(
+                    await FireStoreUtils.setWithdrawMethod(
+                            controller.withdrawMethodModel.value)
+                        .then(
                       (value) async {
                         ShowToastDialog.showLoader("Please wait..".tr);
 
                         await controller.getPaymentMethod();
                         ShowToastDialog.closeLoader();
-                        ShowToastDialog.showToast("Payment Method save successfully".tr);
+                        ShowToastDialog.showToast(
+                            "Payment Method save successfully".tr);
                         Get.back();
                       },
                     );

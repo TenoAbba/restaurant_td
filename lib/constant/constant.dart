@@ -43,7 +43,7 @@ class Constant {
   static const globalUrl = "https://foodie.siswebapp.com/";
   static const commissionSubscriptionID = "J0RwvxCWhZzQQD7Kc2Ll";
 
-  static bool isZoneAvailable = false;
+  static bool isZoneAvailable = true;
   static ZoneModel? selectedZone;
 
   static String mapAPIKeyAndroid = "AIzaSyCTKFEGkDF9gsygh5F-jaREv1seXI5UhA8";
@@ -75,6 +75,14 @@ class Constant {
 
   static bool? autoApproveRestaurant = true;
   static bool isSubscriptionModelApplied = false;
+
+  /// Master switch for the subscription / business-plan feature.
+  ///
+  /// The feature is postponed, so this is `false`: vendors go straight to the
+  /// dashboard, the subscription screen is unreachable, and the "Business Plan"
+  /// entries are hidden from the profile screen. All the subscription code is
+  /// still present — set this back to `true` to bring the whole flow back.
+  static const bool isSubscriptionFeatureEnabled = false;
 
   static bool isRestaurantVerification = false;
   static bool isDineInEnable = false;
@@ -438,20 +446,32 @@ class Constant {
 
   static checkPermission(
       {required BuildContext context, required Function() onTap}) async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    if (permission == LocationPermission.denied) {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied) {
+        ShowToastDialog.showToast(
+            "You have to allow location permission to use your location".tr);
+      } else if (permission == LocationPermission.deniedForever) {
+        if (!context.mounted) return;
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => const PermissionDialog(),
+        );
+      } else {
+        onTap();
+      }
+    } on PermissionDefinitionsNotFoundException catch (e) {
+      // Info.plist / AndroidManifest is missing the location usage description.
+      debugPrint('Location permission definitions missing: $e');
+      ShowToastDialog.showToast(
+          "Location permission is not configured for this app".tr);
+    } catch (e) {
+      debugPrint('Location permission error: $e');
       ShowToastDialog.showToast(
           "You have to allow location permission to use your location".tr);
-    } else if (permission == LocationPermission.deniedForever) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => const PermissionDialog(),
-      );
-    } else {
-      onTap();
     }
   }
 

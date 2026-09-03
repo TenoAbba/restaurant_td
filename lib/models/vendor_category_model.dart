@@ -5,14 +5,21 @@ class VendorCategoryModel {
   String? id;
   String? title;
 
-  VendorCategoryModel({this.reviewAttributes, this.photo, this.description, this.id, this.title});
+  VendorCategoryModel(
+      {this.reviewAttributes,
+      this.photo,
+      this.description,
+      this.id,
+      this.title});
 
   VendorCategoryModel.fromJson(Map<String, dynamic> json) {
     reviewAttributes = json['review_attributes'] ?? [];
     photo = json['photo'] ?? "";
     description = json['description'] ?? '';
     id = json['id'] ?? "";
-    title = json['title'] ?? "";
+    // The Supabase `vendor_categories` table stores the label in `name`.
+    // `title` is kept as a fallback for older/legacy rows.
+    title = json['name'] ?? json['title'] ?? "";
   }
 
   Map<String, dynamic> toJson() {

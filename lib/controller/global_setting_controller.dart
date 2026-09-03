@@ -4,7 +4,6 @@ import 'package:restaurant_td/utils/fire_store_utils.dart';
 import 'package:restaurant_td/utils/notification_service.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:uuid/uuid.dart';
 import '../constant/collection_name.dart';
 
 class GlobalSettingController extends GetxController {
@@ -12,7 +11,12 @@ class GlobalSettingController extends GetxController {
   void onInit() {
     notificationInit();
     getCurrentCurrency();
-    seedArrondissements(); // Call this once then comment out
+
+    // NOTE: zones/arrondissements are seeded by a SQL migration
+    // (supabase/migrations/20260824_fix_zone_and_settings.sql), not from the
+    // client. The old seedArrondissements() ran on every launch, required
+    // write access to `zone`, and silently failed because the columns it wrote
+    // (area/quartiers/latitude/longitude) did not exist.
 
     super.onInit();
   }
@@ -36,7 +40,11 @@ class GlobalSettingController extends GetxController {
                 symbolAtRight: false);
           }
         });
-    await FireStoreUtils().getSettings();
+
+    // Uses the shared single-flight loader so that screens which need the
+    // settings (e.g. the subscription gate in SplashController) can await the
+    // very same future instead of racing this background call.
+    await FireStoreUtils.ensureSettingsLoaded();
   }
 
   NotificationService notificationService = NotificationService();
@@ -44,66 +52,5 @@ class GlobalSettingController extends GetxController {
   void notificationInit() {
     // Local notifications only (Supabase backend, no Firebase Cloud Messaging).
     notificationService.initInfo();
-  }
-
-  Future<void> seedArrondissements() async {
-    // Basic N'Djamena Bounding Box (Approximate)
-    List<Map<String, double>> nDjamenaArea = [
-      {'latitude': 12.1645, 'longitude': 14.9904},
-      {'latitude': 12.1645, 'longitude': 15.1324},
-      {'latitude': 12.0628, 'longitude': 15.1324},
-      {'latitude': 12.0628, 'longitude': 14.9904},
-    ];
-
-    List<String> firstArrondissementQuartiers = [
-      "Farcha",
-      "Milezi",
-      "Madjorio",
-      "Guilmeye",
-      "Djougoulier",
-      "Karkandjeri",
-      "Amsinéné",
-      "Guinébor",
-      "N'Djamena-Koudou",
-      "Massil Abcoma",
-      "Zaraf",
-      "Allaya",
-      "Ardeb-Timan",
-      "Antona"
-    ];
-
-    List<Map<String, dynamic>> arrondissements = [
-      {"name": "1er Arrondissement", "quartiers": firstArrondissementQuartiers},
-      {"name": "2e Arrondissement", "quartiers": <String>[]},
-      {"name": "3e Arrondissement", "quartiers": <String>[]},
-      {"name": "4e Arrondissement", "quartiers": <String>[]},
-      {"name": "5e Arrondissement", "quartiers": <String>[]},
-      {"name": "6e Arrondissement", "quartiers": <String>[]},
-      {"name": "7e Arrondissement", "quartiers": <String>[]},
-      {"name": "8e Arrondissement", "quartiers": <String>[]},
-      {"name": "9e Arrondissement", "quartiers": <String>[]},
-      {"name": "10e Arrondissement", "quartiers": <String>[]},
-    ];
-
-    final _supaDb = Supabase.instance.client;
-
-    for (var arr in arrondissements) {
-      // Check if exists to avoid overwrite
-      final query =
-          await _supaDb.from('zone').select('id').eq('name', arr['name']);
-      if (query.isEmpty) {
-        final id = const Uuid().v4();
-        await _supaDb.from('zone').upsert({
-          'id': id,
-          'name': arr['name'],
-          'publish': true,
-          'area': nDjamenaArea,
-          'quartiers': arr['quartiers'],
-          'latitude': 12.1131,
-          'longitude': 15.0491
-        });
-        print("Seeded ${arr['name']}");
-      }
-    }
   }
 }

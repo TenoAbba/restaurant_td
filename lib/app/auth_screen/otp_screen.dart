@@ -1,6 +1,6 @@
 import 'package:restaurant_td/app/auth_screen/signup_screen.dart';
-import 'package:restaurant_td/app/dash_board_screens/dash_board_screen.dart';
 import 'package:restaurant_td/app/dash_board_screens/app_not_access_screen.dart';
+import 'package:restaurant_td/app/dash_board_screens/dash_board_screen.dart';
 import 'package:restaurant_td/app/subscription_plan_screen/subscription_plan_screen.dart';
 import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
@@ -176,43 +176,59 @@ class OtpScreen extends StatelessWidget {
                                         return;
                                       }
 
-                                      // Check subscription plan
-                                      bool isPlanExpire = false;
-                                      if (profile['subscription_plan_id'] !=
-                                          null) {
-                                        if (profile[
-                                                'subscription_expiry_date'] ==
-                                            null) {
-                                          if (profile[
-                                                  'subscription_expiry_day'] ==
-                                              '-1') {
-                                            isPlanExpire = false;
-                                          } else {
-                                            isPlanExpire = true;
-                                          }
-                                        } else {
-                                          final expiryDate = (profile[
-                                                  'subscription_expiry_date']
-                                              as DateTime);
-                                          isPlanExpire = expiryDate
-                                              .isBefore(DateTime.now());
-                                        }
-                                      } else {
-                                        isPlanExpire = true;
+                                      // The subscription feature is postponed,
+                                      // so skip the plan checks and send the
+                                      // vendor straight to the dashboard. The
+                                      // gated branch below is kept intact so
+                                      // flipping the flag restores the flow.
+                                      if (!Constant
+                                          .isSubscriptionFeatureEnabled) {
+                                        Get.offAll(const DashBoardScreen());
+                                        return;
                                       }
 
+                                      // Determine whether the vendor's plan has
+                                      // lapsed. `expiry_day == '-1'` means a
+                                      // lifetime plan, so it never expires.
+                                      bool isPlanExpire;
                                       if (profile['subscription_plan_id'] ==
-                                              null ||
-                                          isPlanExpire == true) {
-                                        if (Constant.adminCommission
-                                                    ?.isEnabled ==
-                                                false &&
-                                            Constant.isSubscriptionModelApplied ==
-                                                false) {
-                                          Get.offAll(const DashBoardScreen());
+                                          null) {
+                                        isPlanExpire = true;
+                                      } else {
+                                        final rawExpiry =
+                                            profile['subscription_expiry_date'];
+                                        if (rawExpiry == null) {
+                                          isPlanExpire =
+                                              profile['subscription_expiry_day']
+                                                      ?.toString() !=
+                                                  '-1';
                                         } else {
+                                          // Supabase returns timestamps as ISO
+                                          // strings, so parse defensively
+                                          // rather than casting to DateTime.
+                                          final expiryDate =
+                                              rawExpiry is DateTime
+                                                  ? rawExpiry
+                                                  : DateTime.tryParse(
+                                                      rawExpiry.toString());
+                                          isPlanExpire = expiryDate == null ||
+                                              expiryDate
+                                                  .isBefore(DateTime.now());
+                                        }
+                                      }
+
+                                      if (isPlanExpire) {
+                                        final bool subscriptionRequired = Constant
+                                                    .adminCommission
+                                                    ?.isEnabled ==
+                                                true ||
+                                            Constant.isSubscriptionModelApplied ==
+                                                true;
+                                        if (subscriptionRequired) {
                                           Get.offAll(
                                               const SubscriptionPlanScreen());
+                                        } else {
+                                          Get.offAll(const DashBoardScreen());
                                         }
                                       } else if (profile[
                                               'restaurant_mobile_app'] ==

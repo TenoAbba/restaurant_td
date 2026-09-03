@@ -47,7 +47,8 @@ class AddRestaurantController extends GetxController {
   RxList<ZoneModel> zoneList = <ZoneModel>[].obs;
   Rx<ZoneModel> selectedZone = ZoneModel().obs;
 
-  RxList<String> quartierList = <String>[].obs;
+  // NOTE: the quartier dropdown reads directly from
+  // `selectedZone.value.quartiers`, so no separate list is kept here.
   RxString selectedQuartier = "".obs;
 
   // Rx<VendorCategoryModel> selectedCategory = VendorCategoryModel().obs;

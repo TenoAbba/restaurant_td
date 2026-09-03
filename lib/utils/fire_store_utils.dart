@@ -198,6 +198,16 @@ class FireStoreUtils {
     }
   }
 
+  static Future<void>? _settingsFuture;
+
+  /// Loads the global settings exactly once and hands the *same* future to
+  /// every caller. This lets screens `await` the settings instead of racing
+  /// the initial background fetch (which previously caused the subscription
+  /// gate to read null values on a cold start).
+  static Future<void> ensureSettingsLoaded() {
+    return _settingsFuture ??= FireStoreUtils().getSettings();
+  }
+
   Future<void> getSettings() async {
     try {
       // globalSettings

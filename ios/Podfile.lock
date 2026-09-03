@@ -18,12 +18,6 @@ PODS:
   - nanopb/encode (3.30910.0)
   - print_bluetooth_thermal (0.0.1):
     - Flutter
-  - razorpay-core-pod (1.0.3)
-  - razorpay-pod (1.5.2):
-    - razorpay-core-pod (= 1.0.3)
-  - razorpay_flutter (1.1.10):
-    - Flutter
-    - razorpay-pod
   - sign_in_with_apple (0.0.1):
     - Flutter
   - video_compress (0.3.0):
@@ -35,7 +29,6 @@ DEPENDENCIES:
   - location (from `.symlinks/plugins/location/ios`)
   - nanopb (= 3.30910.0)
   - print_bluetooth_thermal (from `.symlinks/plugins/print_bluetooth_thermal/ios`)
-  - razorpay_flutter (from `.symlinks/plugins/razorpay_flutter/ios`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - video_compress (from `.symlinks/plugins/video_compress/ios`)
 
@@ -44,8 +37,6 @@ SPEC REPOS:
     - Google-Maps-iOS-Utils
     - GoogleMaps
     - nanopb
-    - razorpay-core-pod
-    - razorpay-pod
 
 EXTERNAL SOURCES:
   Flutter:
@@ -56,8 +47,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/location/ios"
   print_bluetooth_thermal:
     :path: ".symlinks/plugins/print_bluetooth_thermal/ios"
-  razorpay_flutter:
-    :path: ".symlinks/plugins/razorpay_flutter/ios"
   sign_in_with_apple:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
   video_compress:
@@ -71,12 +60,9 @@ SPEC CHECKSUMS:
   location: 155caecf9da4f280ab5fe4a55f94ceccfab838f8
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   print_bluetooth_thermal: 28adf527ac4c47e42e268c13d21e5f2abf48ecdd
-  razorpay-core-pod: ef0309dbf8e3e5a1330f6cad89dcf9226d8ef758
-  razorpay-pod: a9cb6e158aee8754053b147008eff6b4897789c8
-  razorpay_flutter: 0e98e4fcaae27ad50e011d85f66d85e0a008754a
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
   video_compress: f2133a07762889d67f0711ac831faa26f956980e
 
-PODFILE CHECKSUM: 481534f3772a93fdd5d9fb228221a2319a02daf9
+PODFILE CHECKSUM: 65b79c7a407928142ae0d300fcfb53dd91a38155
 
 COCOAPODS: 1.16.2

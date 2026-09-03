@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:restaurant_td/constant/collection_name.dart';
 import 'package:restaurant_td/main.dart';
 
 class SupabaseService {
@@ -702,22 +705,43 @@ class SupabaseService {
     return supabase.auth.currentUser?.id ?? '';
   }
 
-  /// Get vendor category by ID
+  /// Get vendor categories.
+  ///
+  /// NOTE: the `vendor_categories` table stores the display label in the
+  /// `name` column (there is no `title` column), so we must order by `name`.
+  /// Ordering by a non-existent column makes PostgREST return HTTP 400 and
+  /// the dropdown silently renders empty.
   static Future<List<Map<String, dynamic>>> getVendorCategoryById() async {
-    final response = await supabase
-        .from('vendor_categories')
-        .select()
-        .order('title', ascending: true);
+    try {
+      final response = await supabase
+          .from(CollectionName.vendorCategories)
+          .select()
+          .order('name', ascending: true);
 
-    return response;
+      return response;
+    } catch (e) {
+      log('getVendorCategoryById error: $e');
+      return [];
+    }
   }
 
-  /// Get zones
+  /// Get zones (Arrondissements).
+  ///
+  /// NOTE: the table is `zone` (singular) and it orders by `name`. This used
+  /// to query `zones` ordered by `title` — both wrong — which threw and left
+  /// the Arrondissement dropdown (and the dependent Quartier dropdown) empty.
   static Future<List<Map<String, dynamic>>> getZone() async {
-    final response =
-        await supabase.from('zones').select().order('title', ascending: true);
+    try {
+      final response = await supabase
+          .from(CollectionName.zone)
+          .select()
+          .order('name', ascending: true);
 
-    return response;
+      return response;
+    } catch (e) {
+      log('getZone error: $e');
+      return [];
+    }
   }
 
   /// Get delivery settings

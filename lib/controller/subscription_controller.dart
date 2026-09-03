@@ -12,7 +12,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
 import 'package:restaurant_td/controller/stripe_failed_model.dart';
@@ -25,7 +24,6 @@ import 'package:restaurant_td/models/payment_model/pay_fast_model.dart';
 import 'package:restaurant_td/models/payment_model/pay_stack_model.dart';
 import 'package:restaurant_td/models/payment_model/paypal_model.dart';
 import 'package:restaurant_td/models/payment_model/paytm_model.dart';
-import 'package:restaurant_td/models/payment_model/razorpay_model.dart';
 import 'package:restaurant_td/models/payment_model/stripe_model.dart';
 import 'package:restaurant_td/models/payment_model/wallet_setting_model.dart';
 import 'package:restaurant_td/models/payment_model/xendit.dart';
@@ -125,12 +123,9 @@ class SubscriptionController extends GetxController {
   Rx<FlutterWaveModel> flutterWaveModel = FlutterWaveModel().obs;
   Rx<PayStackModel> payStackModel = PayStackModel().obs;
   Rx<PaytmModel> paytmModel = PaytmModel().obs;
-  Rx<RazorPayModel> razorPayModel = RazorPayModel().obs;
   Rx<MidTrans> midTransModel = MidTrans().obs;
   Rx<OrangeMoney> orangeMoneyModel = OrangeMoney().obs;
   Rx<Xendit> xenditModel = Xendit().obs;
-
-  final Razorpay razorPay = Razorpay();
 
   getPaymentSettings() async {
     await FireStoreUtils.getPaymentSettingsData().then(
@@ -149,8 +144,6 @@ class SubscriptionController extends GetxController {
             jsonDecode(Preferences.getString(Preferences.paytmSettings)));
         payFastModel.value = PayFastModel.fromJson(
             jsonDecode(Preferences.getString(Preferences.payFastSettings)));
-        razorPayModel.value = RazorPayModel.fromJson(
-            jsonDecode(Preferences.getString(Preferences.razorpaySettings)));
         midTransModel.value = MidTrans.fromJson(
             jsonDecode(Preferences.getString(Preferences.midTransSettings)));
         orangeMoneyModel.value = OrangeMoney.fromJson(
@@ -166,32 +159,12 @@ class SubscriptionController extends GetxController {
           Stripe.instance.applySettings();
         }
         setRef();
-
-        razorPay.on(Razorpay.EVENT_PAYMENT_SUCCESS, handlePaymentSuccess);
-        razorPay.on(Razorpay.EVENT_EXTERNAL_WALLET, handleExternalWaller);
-        razorPay.on(Razorpay.EVENT_PAYMENT_ERROR, handlePaymentError);
       },
     );
     if (walletSettingModel.value.isEnabled == true) {
       selectedPaymentMethod.value = PaymentGateway.wallet.name;
     }
     isLoading.value = false;
-  }
-
-  void handlePaymentSuccess(PaymentSuccessResponse response) {
-    Get.back();
-    ShowToastDialog.showToast("Payment Successful!!".tr);
-    placeOrder();
-  }
-
-  void handleExternalWaller(ExternalWalletResponse response) {
-    Get.back();
-    ShowToastDialog.showToast("Payment Processing!! via");
-  }
-
-  void handlePaymentError(PaymentFailureResponse response) {
-    Get.back();
-    ShowToastDialog.showToast("Payment Failed!!".tr);
   }
 
   String? _ref;
@@ -606,32 +579,6 @@ class SubscriptionController extends GetxController {
     return GetPaymentTxtTokenModel.fromJson(data);
   }
 
-  void openCheckout({required amount, required orderId}) async {
-    var options = {
-      'key': razorPayModel.value.razorpayKey,
-      'amount': amount * 100,
-      'name': 'GoRide',
-      'order_id': orderId,
-      "currency": "INR",
-      'description': 'wallet Topup',
-      'retry': {'enabled': true, 'max_count': 1},
-      'send_sms_hash': true,
-      'prefill': {
-        'contact': userModel.value.phoneNumber,
-        'email': userModel.value.email,
-      },
-      'external': {
-        'wallets': ['paytm']
-      }
-    };
-
-    try {
-      razorPay.open(options);
-    } catch (e) {
-      debugPrint('Error: $e');
-    }
-  }
-
   RxDouble totalAmount = 0.0.obs;
 
   placeOrder() async {
@@ -986,7 +933,6 @@ enum PaymentGateway {
   flutterWave,
   payStack,
   paytm,
-  razorpay,
   cod,
   wallet,
   midTrans,

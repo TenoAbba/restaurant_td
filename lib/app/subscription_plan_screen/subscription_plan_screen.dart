@@ -12,6 +12,10 @@ import 'package:restaurant_td/themes/round_button_fill.dart';
 import 'package:restaurant_td/utils/dark_theme_provider.dart';
 import 'package:restaurant_td/utils/network_image_widget.dart';
 
+/// NOTE: This screen is intentionally kept in the codebase but is currently
+/// UNREACHABLE. Subscriptions are disabled via
+/// `Constant.isSubscriptionFeatureEnabled` while the feature is postponed.
+/// Flip that flag back to `true` to restore the subscription flow.
 class SubscriptionPlanScreen extends StatelessWidget {
   const SubscriptionPlanScreen({super.key});
 

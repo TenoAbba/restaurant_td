@@ -57,13 +57,17 @@ class ProfileScreen extends StatelessWidget {
               iconTheme: IconThemeData(color: AppThemeData.grey50, size: 20),
               title: Text(
                 "Restaurant Profile".tr,
-                style: TextStyle(color: AppThemeData.grey50, fontSize: 18, fontFamily: AppThemeData.medium),
+                style: TextStyle(
+                    color: AppThemeData.grey50,
+                    fontSize: 18,
+                    fontFamily: AppThemeData.medium),
               ),
             ),
             body: controller.isLoading.value
                 ? Constant.loader()
                 : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
                     child: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +78,9 @@ class ProfileScreen extends StatelessWidget {
                               children: [
                                 ClipOval(
                                   child: NetworkImageWidget(
-                                    imageUrl: controller.userModel.value.profilePictureURL.toString(),
+                                    imageUrl: controller
+                                        .userModel.value.profilePictureURL
+                                        .toString(),
                                     width: 80,
                                     height: 80,
                                     fit: BoxFit.cover,
@@ -85,7 +91,8 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -93,23 +100,35 @@ class ProfileScreen extends StatelessWidget {
                                             child: Text(
                                               "${controller.userModel.value.fullName()}",
                                               style: TextStyle(
-                                                  color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
-                                                  fontFamily: AppThemeData.semiBold,
+                                                  color: themeChange.getThem()
+                                                      ? AppThemeData.grey50
+                                                      : AppThemeData.grey900,
+                                                  fontFamily:
+                                                      AppThemeData.semiBold,
                                                   fontWeight: FontWeight.w500,
                                                   fontSize: 18),
                                             ),
                                           ),
-                                          if (controller.userModel.value.role == Constant.userRoleEmployee)
+                                          if (controller.userModel.value.role ==
+                                              Constant.userRoleEmployee)
                                             FutureBuilder<EmployeeRoleModel?>(
-                                              future: FireStoreUtils.getEmployeeRoleById(
-                                                controller.userModel.value.employeePermissionId!,
+                                              future: FireStoreUtils
+                                                  .getEmployeeRoleById(
+                                                controller.userModel.value
+                                                    .employeePermissionId!,
                                               ),
                                               builder: (context, snapshot) {
-                                                if (snapshot.connectionState == ConnectionState.waiting || snapshot.hasError || !snapshot.hasData) {
+                                                if (snapshot.connectionState ==
+                                                        ConnectionState
+                                                            .waiting ||
+                                                    snapshot.hasError ||
+                                                    !snapshot.hasData) {
                                                   return const SizedBox(
                                                     height: 18,
                                                     width: 18,
-                                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                            strokeWidth: 2),
                                                   );
                                                 }
 
@@ -117,9 +136,15 @@ class ProfileScreen extends StatelessWidget {
                                                 return Text(
                                                   role?.title ?? '',
                                                   style: TextStyle(
-                                                      color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
-                                                      fontFamily: AppThemeData.semiBold,
-                                                      fontWeight: FontWeight.w500,
+                                                      color: themeChange
+                                                              .getThem()
+                                                          ? AppThemeData.grey50
+                                                          : AppThemeData
+                                                              .grey900,
+                                                      fontFamily:
+                                                          AppThemeData.semiBold,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                       fontSize: 14),
                                                 );
                                               },
@@ -129,7 +154,12 @@ class ProfileScreen extends StatelessWidget {
                                       Text(
                                         controller.userModel.value.email ?? '',
                                         style: TextStyle(
-                                            color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500, fontFamily: AppThemeData.regular, fontWeight: FontWeight.w500, fontSize: 12),
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey400
+                                                : AppThemeData.grey500,
+                                            fontFamily: AppThemeData.regular,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 12),
                                       ),
                                       const SizedBox(
                                         height: 10,
@@ -141,7 +171,8 @@ class ProfileScreen extends StatelessWidget {
                                         width: 24,
                                         height: 4,
                                         onPress: () async {
-                                          Get.to(const EditProfileScreen())!.then(
+                                          Get.to(const EditProfileScreen())!
+                                              .then(
                                             (value) {
                                               if (value == true) {
                                                 controller.getUserProfile();
@@ -156,14 +187,23 @@ class ProfileScreen extends StatelessWidget {
                               ],
                             ),
                           ),
-                          if ((Constant.isSubscriptionModelApplied == true || Constant.adminCommission?.isEnabled == true) && controller.userModel.value.role != Constant.userRoleEmployee)
+                          if (Constant.isSubscriptionFeatureEnabled &&
+                              (Constant.isSubscriptionModelApplied == true ||
+                                  Constant.adminCommission?.isEnabled ==
+                                      true) &&
+                              controller.userModel.value.role !=
+                                  Constant.userRoleEmployee)
                             Visibility(
-                              visible: controller.userModel.value.subscriptionPlanId?.isNotEmpty == true,
+                              visible: controller.userModel.value
+                                      .subscriptionPlanId?.isNotEmpty ==
+                                  true,
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: SubscriptionPlanWidget(
                                   onClick: () {
-                                    Get.to(const SubscriptionPlanScreen(), arguments: {'isProfile': true})?.then((value) {
+                                    Get.to(const SubscriptionPlanScreen(),
+                                            arguments: {'isProfile': true})
+                                        ?.then((value) {
                                       if (value == true) {
                                         controller.getUserProfile();
                                       }
@@ -173,19 +213,39 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                          if (Constant.getEmployeeRolePermission(module: "Add Story", pType: ActionType.isView) == true ||
-                              Constant.getEmployeeRolePermission(module: "Advertisement", pType: ActionType.isView) == true ||
-                              Constant.getEmployeeRolePermission(module: "Restaurant Information's", pType: ActionType.isView) == true ||
-                              Constant.getEmployeeRolePermission(module: "Manage Products", pType: ActionType.isView) == true ||
-                              Constant.getEmployeeRolePermission(module: "Working Hours", pType: ActionType.isView) == true ||
-                              Constant.getEmployeeRolePermission(module: "Withdraw Method", pType: ActionType.isView) == true)
+                          if (Constant.getEmployeeRolePermission(
+                                      module: "Add Story",
+                                      pType: ActionType.isView) ==
+                                  true ||
+                              Constant.getEmployeeRolePermission(
+                                      module: "Advertisement",
+                                      pType: ActionType.isView) ==
+                                  true ||
+                              Constant.getEmployeeRolePermission(
+                                      module: "Restaurant Information's",
+                                      pType: ActionType.isView) ==
+                                  true ||
+                              Constant.getEmployeeRolePermission(
+                                      module: "Manage Products",
+                                      pType: ActionType.isView) ==
+                                  true ||
+                              Constant.getEmployeeRolePermission(
+                                      module: "Working Hours",
+                                      pType: ActionType.isView) ==
+                                  true ||
+                              Constant.getEmployeeRolePermission(
+                                      module: "Withdraw Method",
+                                      pType: ActionType.isView) ==
+                                  true)
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   "Restaurant Information".tr,
                                   style: TextStyle(
-                                    color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500,
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey400
+                                        : AppThemeData.grey500,
                                     fontFamily: AppThemeData.semiBold,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -196,161 +256,321 @@ class ProfileScreen extends StatelessWidget {
                                 Container(
                                   width: Responsive.width(100, context),
                                   decoration: ShapeDecoration(
-                                    color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey900
+                                        : AppThemeData.grey50,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 8),
                                     child: Column(
                                       children: [
-                                        (Constant.isRestaurantVerification == true && controller.userModel.value.isDocumentVerify == false) ||
-                                                (controller.userModel.value.vendorID == null || controller.userModel.value.vendorID!.isEmpty)
+                                        (Constant.isRestaurantVerification ==
+                                                        true &&
+                                                    controller.userModel.value
+                                                            .isDocumentVerify ==
+                                                        false) ||
+                                                (controller.userModel.value
+                                                            .vendorID ==
+                                                        null ||
+                                                    controller.userModel.value
+                                                        .vendorID!.isEmpty)
                                             ? const SizedBox()
                                             : Constant.storyEnable == false
                                                 ? SizedBox()
-                                                : (Constant.getEmployeeRolePermission(module: "Add Story", pType: ActionType.isView) == true)
+                                                : (Constant.getEmployeeRolePermission(
+                                                            module: "Add Story",
+                                                            pType: ActionType
+                                                                .isView) ==
+                                                        true)
                                                     ? cardDecoration(
                                                         themeChange,
                                                         controller,
                                                         Container(
                                                           width: 44,
                                                           height: 44,
-                                                          decoration: ShapeDecoration(
-                                                            color: themeChange.getThem() ? AppThemeData.secondary600 : AppThemeData.secondary50,
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius: BorderRadius.circular(120),
+                                                          decoration:
+                                                              ShapeDecoration(
+                                                            color: themeChange
+                                                                    .getThem()
+                                                                ? AppThemeData
+                                                                    .secondary600
+                                                                : AppThemeData
+                                                                    .secondary50,
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          120),
                                                             ),
                                                           ),
                                                           child: Padding(
-                                                            padding: const EdgeInsets.all(10),
-                                                            child: SvgPicture.asset("assets/icons/ic_story.svg"),
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(10),
+                                                            child: SvgPicture.asset(
+                                                                "assets/icons/ic_story.svg"),
                                                           ),
                                                         ),
                                                         "Add Story",
                                                         () {
-                                                          Get.to(const AddStoryScreen());
+                                                          Get.to(
+                                                              const AddStoryScreen());
                                                         },
                                                       )
                                                     : SizedBox(),
                                         Visibility(
-                                            visible: Constant.isEnableAdsFeature == true,
-                                            child: (Constant.isRestaurantVerification == true && controller.userModel.value.isDocumentVerify == false) ||
-                                                    (controller.userModel.value.vendorID == null || controller.userModel.value.vendorID!.isEmpty)
+                                            visible: Constant.isEnableAdsFeature ==
+                                                true,
+                                            child: (Constant.isRestaurantVerification ==
+                                                            true &&
+                                                        controller
+                                                                .userModel
+                                                                .value
+                                                                .isDocumentVerify ==
+                                                            false) ||
+                                                    (controller.userModel.value
+                                                                .vendorID ==
+                                                            null ||
+                                                        controller
+                                                            .userModel
+                                                            .value
+                                                            .vendorID!
+                                                            .isEmpty)
                                                 ? const SizedBox()
                                                 : Constant.storyEnable == false
                                                     ? const SizedBox()
-                                                    : (Constant.getEmployeeRolePermission(module: "Advertisement", pType: ActionType.isView) == true)
+                                                    : (Constant.getEmployeeRolePermission(
+                                                                module:
+                                                                    "Advertisement",
+                                                                pType: ActionType.isView) ==
+                                                            true)
                                                         ? cardDecoration(
                                                             themeChange,
                                                             controller,
                                                             Container(
                                                               width: 44,
                                                               height: 44,
-                                                              decoration: ShapeDecoration(
-                                                                color: themeChange.getThem() ? AppThemeData.secondary600 : AppThemeData.secondary50,
-                                                                shape: RoundedRectangleBorder(
-                                                                  borderRadius: BorderRadius.circular(120),
+                                                              decoration:
+                                                                  ShapeDecoration(
+                                                                color: themeChange.getThem()
+                                                                    ? AppThemeData
+                                                                        .secondary600
+                                                                    : AppThemeData
+                                                                        .secondary50,
+                                                                shape:
+                                                                    RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              120),
                                                                 ),
                                                               ),
                                                               child: Padding(
-                                                                padding: const EdgeInsets.all(10),
-                                                                child: SvgPicture.asset("assets/icons/ic_advertisement.svg"),
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        10),
+                                                                child: SvgPicture
+                                                                    .asset(
+                                                                        "assets/icons/ic_advertisement.svg"),
                                                               ),
                                                             ),
                                                             "Advertisement",
                                                             () {
-                                                              Get.to(const AdvertisementListScreen());
+                                                              Get.to(
+                                                                  const AdvertisementListScreen());
                                                             },
                                                           )
                                                         : SizedBox()),
-                                        Constant.isRestaurantVerification == true && controller.userModel.value.isDocumentVerify == false
+                                        Constant.isRestaurantVerification == true &&
+                                                controller.userModel.value
+                                                        .isDocumentVerify ==
+                                                    false
                                             ? const SizedBox()
-                                            : (Constant.getEmployeeRolePermission(module: "Restaurant Information's", pType: ActionType.isView) == true)
+                                            : (Constant.getEmployeeRolePermission(
+                                                        module:
+                                                            "Restaurant Information's",
+                                                        pType: ActionType
+                                                            .isView) ==
+                                                    true)
                                                 ? cardDecoration(
                                                     themeChange,
                                                     controller,
                                                     Container(
                                                       width: 44,
                                                       height: 44,
-                                                      decoration: ShapeDecoration(
-                                                        color: themeChange.getThem() ? AppThemeData.secondary600 : AppThemeData.secondary50,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(120),
+                                                      decoration:
+                                                          ShapeDecoration(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .secondary600
+                                                            : AppThemeData
+                                                                .secondary50,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      120),
                                                         ),
                                                       ),
                                                       child: Padding(
-                                                        padding: const EdgeInsets.all(10),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
                                                         child: SvgPicture.asset(
                                                           "assets/icons/ic_building_two.svg",
-                                                          colorFilter: ColorFilter.mode(AppThemeData.secondary300, BlendMode.srcIn),
+                                                          colorFilter:
+                                                              ColorFilter.mode(
+                                                                  AppThemeData
+                                                                      .secondary300,
+                                                                  BlendMode
+                                                                      .srcIn),
                                                         ),
                                                       ),
                                                     ),
                                                     "Restaurant Information's",
                                                     () {
-                                                      Get.to(const AddRestaurantScreen())?.then((v) {
-                                                        controller.getUserProfile();
+                                                      Get.to(const AddRestaurantScreen())
+                                                          ?.then((v) {
+                                                        controller
+                                                            .getUserProfile();
                                                       });
                                                     },
                                                   )
                                                 : SizedBox(),
-                                        (Constant.isRestaurantVerification == true && controller.userModel.value.isDocumentVerify == false) ||
-                                                (controller.userModel.value.vendorID == null || controller.userModel.value.vendorID!.isEmpty)
+                                        (Constant.isRestaurantVerification ==
+                                                        true &&
+                                                    controller.userModel.value
+                                                            .isDocumentVerify ==
+                                                        false) ||
+                                                (controller.userModel.value
+                                                            .vendorID ==
+                                                        null ||
+                                                    controller.userModel.value
+                                                        .vendorID!.isEmpty)
                                             ? const SizedBox()
-                                            : Constant.getEmployeeRolePermission(module: "Manage Products", pType: ActionType.isView) == true
+                                            : Constant.getEmployeeRolePermission(
+                                                        module:
+                                                            "Manage Products",
+                                                        pType: ActionType
+                                                            .isView) ==
+                                                    true
                                                 ? cardDecoration(
                                                     themeChange,
                                                     controller,
                                                     Container(
                                                       width: 44,
                                                       height: 44,
-                                                      decoration: ShapeDecoration(
-                                                        color: themeChange.getThem() ? AppThemeData.secondary600 : AppThemeData.secondary50,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(120),
+                                                      decoration:
+                                                          ShapeDecoration(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .secondary600
+                                                            : AppThemeData
+                                                                .secondary50,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      120),
                                                         ),
                                                       ),
                                                       child: Padding(
-                                                        padding: const EdgeInsets.all(12),
-                                                        child: SvgPicture.asset("assets/icons/ic_manage_product.svg"),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(12),
+                                                        child: SvgPicture.asset(
+                                                            "assets/icons/ic_manage_product.svg"),
                                                       ),
                                                     ),
                                                     "Manage Products",
                                                     () {
-                                                      DashBoardController dashBoardController = Get.find<DashBoardController>();
-                                                      dashBoardController.selectedIndex.value =
-                                                          Constant.isDineInEnable && dashBoardController.venderModel.value?.subscriptionPlan?.features?.dineIn != false ? 2 : 1;
+                                                      DashBoardController
+                                                          dashBoardController =
+                                                          Get.find<
+                                                              DashBoardController>();
+                                                      dashBoardController
+                                                          .selectedIndex
+                                                          .value = Constant
+                                                                  .isDineInEnable &&
+                                                              dashBoardController
+                                                                      .venderModel
+                                                                      .value
+                                                                      ?.subscriptionPlan
+                                                                      ?.features
+                                                                      ?.dineIn !=
+                                                                  false
+                                                          ? 2
+                                                          : 1;
                                                     },
                                                   )
                                                 : SizedBox(),
-                                        (Constant.isRestaurantVerification == true && controller.userModel.value.isDocumentVerify == false) ||
-                                                (controller.userModel.value.vendorID == null || controller.userModel.value.vendorID!.isEmpty)
+                                        (Constant.isRestaurantVerification ==
+                                                        true &&
+                                                    controller.userModel.value
+                                                            .isDocumentVerify ==
+                                                        false) ||
+                                                (controller.userModel.value
+                                                            .vendorID ==
+                                                        null ||
+                                                    controller.userModel.value
+                                                        .vendorID!.isEmpty)
                                             ? const SizedBox()
-                                            : (Constant.getEmployeeRolePermission(module: "Working Hours", pType: ActionType.isView) == true)
+                                            : (Constant.getEmployeeRolePermission(
+                                                        module: "Working Hours",
+                                                        pType: ActionType
+                                                            .isView) ==
+                                                    true)
                                                 ? cardDecoration(
                                                     themeChange,
                                                     controller,
                                                     Container(
                                                       width: 44,
                                                       height: 44,
-                                                      decoration: ShapeDecoration(
-                                                        color: themeChange.getThem() ? AppThemeData.secondary600 : AppThemeData.secondary50,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(120),
+                                                      decoration:
+                                                          ShapeDecoration(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .secondary600
+                                                            : AppThemeData
+                                                                .secondary50,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      120),
                                                         ),
                                                       ),
                                                       child: Padding(
-                                                        padding: const EdgeInsets.all(10),
-                                                        child: SvgPicture.asset("assets/icons/ic_alarm-clock.svg"),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        child: SvgPicture.asset(
+                                                            "assets/icons/ic_alarm-clock.svg"),
                                                       ),
                                                     ),
                                                     "Working Hours",
                                                     () {
-                                                      Get.to(const WorkingHoursScreen());
+                                                      Get.to(
+                                                          const WorkingHoursScreen());
                                                     },
                                                   )
                                                 : SizedBox(),
-                                        if (Constant.getEmployeeRolePermission(module: "Withdraw Method", pType: ActionType.isView) == true)
+                                        if (Constant.getEmployeeRolePermission(
+                                                module: "Withdraw Method",
+                                                pType: ActionType.isView) ==
+                                            true)
                                           cardDecoration(
                                             themeChange,
                                             controller,
@@ -358,22 +578,30 @@ class ProfileScreen extends StatelessWidget {
                                               width: 44,
                                               height: 44,
                                               decoration: ShapeDecoration(
-                                                color: themeChange.getThem() ? AppThemeData.secondary600 : AppThemeData.secondary50,
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.secondary600
+                                                    : AppThemeData.secondary50,
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(120),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          120),
                                                 ),
                                               ),
                                               child: Padding(
-                                                padding: const EdgeInsets.all(10),
+                                                padding:
+                                                    const EdgeInsets.all(10),
                                                 child: SvgPicture.asset(
                                                   "assets/icons/ic_wallet.svg",
-                                                  colorFilter: ColorFilter.mode(AppThemeData.secondary300, BlendMode.srcIn),
+                                                  colorFilter: ColorFilter.mode(
+                                                      AppThemeData.secondary300,
+                                                      BlendMode.srcIn),
                                                 ),
                                               ),
                                             ),
                                             "Withdraw Method",
                                             () {
-                                              Get.to(const WithdrawMethodSetupScreen());
+                                              Get.to(
+                                                  const WithdrawMethodSetupScreen());
                                             },
                                           ),
                                       ],
@@ -382,69 +610,23 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                          if (Constant.isSelfDeliveryFeature == true && (Constant.getEmployeeRolePermission(module: "Manage Delivery Man", pType: ActionType.isView) == true))
-                            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              Text(
-                                "Delivery Man Information".tr,
-                                style: TextStyle(
-                                  color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500,
-                                  fontFamily: AppThemeData.semiBold,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Container(
-                                  width: Responsive.width(100, context),
-                                  decoration: ShapeDecoration(
-                                    color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  ),
-                                  child: Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                      child: Column(children: [
-                                        cardDecoration(
-                                          themeChange,
-                                          controller,
-                                          Container(
-                                            width: 44,
-                                            height: 44,
-                                            decoration: ShapeDecoration(
-                                              color: themeChange.getThem() ? AppThemeData.secondary600 : AppThemeData.goldenrodDark.withAlpha(30),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(120),
-                                              ),
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(12),
-                                              child: SvgPicture.asset(
-                                                "assets/icons/ic_manage_delivery_man.svg",
-                                                colorFilter: ColorFilter.mode(AppThemeData.goldenrodDark, BlendMode.srcIn),
-                                              ),
-                                            ),
-                                          ),
-                                          "Manage Delivery Man",
-                                          () {
-                                            Get.to(DriverListScreen());
-                                          },
-                                        )
-                                      ])))
-                            ]),
-                          ((Constant.getEmployeeRolePermission(module: "Employee Role", pType: ActionType.isView) == false) &&
-                                  (Constant.getEmployeeRolePermission(module: "All Employee", pType: ActionType.isView) == false))
-                              ? SizedBox()
-                              : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          if (Constant.isSelfDeliveryFeature == true &&
+                              (Constant.getEmployeeRolePermission(
+                                      module: "Manage Delivery Man",
+                                      pType: ActionType.isView) ==
+                                  true))
+                            Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   const SizedBox(
                                     height: 20,
                                   ),
                                   Text(
-                                    "Employee Management".tr,
+                                    "Delivery Man Information".tr,
                                     style: TextStyle(
-                                      color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500,
+                                      color: themeChange.getThem()
+                                          ? AppThemeData.grey400
+                                          : AppThemeData.grey500,
                                       fontFamily: AppThemeData.semiBold,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -455,75 +637,227 @@ class ProfileScreen extends StatelessWidget {
                                   Container(
                                       width: Responsive.width(100, context),
                                       decoration: ShapeDecoration(
-                                        color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.grey900
+                                            : AppThemeData.grey50,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(12)),
                                       ),
                                       child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 8),
                                           child: Column(children: [
-                                            if (Constant.getEmployeeRolePermission(module: "Employee Role", pType: ActionType.isView) == true)
-                                              cardDecoration(
-                                                themeChange,
-                                                controller,
-                                                Container(
-                                                  width: 44,
-                                                  height: 44,
-                                                  decoration: ShapeDecoration(
-                                                    color: themeChange.getThem() ? AppThemeData.info600 : AppThemeData.info50,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(120),
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(12),
-                                                    child: SvgPicture.asset(
-                                                      "assets/icons/ic_manage_delivery_man.svg",
-                                                      colorFilter: ColorFilter.mode(AppThemeData.info400, BlendMode.srcIn),
-                                                    ),
+                                            cardDecoration(
+                                              themeChange,
+                                              controller,
+                                              Container(
+                                                width: 44,
+                                                height: 44,
+                                                decoration: ShapeDecoration(
+                                                  color: themeChange.getThem()
+                                                      ? AppThemeData
+                                                          .secondary600
+                                                      : AppThemeData
+                                                          .goldenrodDark
+                                                          .withAlpha(30),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            120),
                                                   ),
                                                 ),
-                                                "Employee Role",
-                                                () {
-                                                  Get.to(const RoleScreen());
-                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(12),
+                                                  child: SvgPicture.asset(
+                                                    "assets/icons/ic_manage_delivery_man.svg",
+                                                    colorFilter:
+                                                        ColorFilter.mode(
+                                                            AppThemeData
+                                                                .goldenrodDark,
+                                                            BlendMode.srcIn),
+                                                  ),
+                                                ),
                                               ),
-                                            if (Constant.getEmployeeRolePermission(module: "All Employee", pType: ActionType.isView) == true)
-                                              cardDecoration(
-                                                themeChange,
-                                                controller,
-                                                Container(
-                                                  width: 44,
-                                                  height: 44,
-                                                  decoration: ShapeDecoration(
-                                                    color: themeChange.getThem() ? AppThemeData.info600 : AppThemeData.info50,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(120),
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(12),
-                                                    child: SvgPicture.asset(
-                                                      "assets/icons/ic_employee.svg",
-                                                      colorFilter: ColorFilter.mode(AppThemeData.info400, BlendMode.srcIn),
-                                                    ),
-                                                  ),
-                                                ),
-                                                "All Employee",
-                                                () {
-                                                  Get.to(EmployeeListScreen());
-                                                },
-                                              )
+                                              "Manage Delivery Man",
+                                              () {
+                                                Get.to(DriverListScreen());
+                                              },
+                                            )
                                           ])))
                                 ]),
-                          (Constant.isRestaurantVerification == true && controller.userModel.value.isDocumentVerify == false) ||
-                                  (controller.userModel.value.vendorID == null || controller.userModel.value.vendorID?.isEmpty == true) ||
-                                  (controller.userModel.value.subscriptionPlan?.features?.dineIn == false)
+                          ((Constant.getEmployeeRolePermission(
+                                          module: "Employee Role",
+                                          pType: ActionType.isView) ==
+                                      false) &&
+                                  (Constant.getEmployeeRolePermission(
+                                          module: "All Employee",
+                                          pType: ActionType.isView) ==
+                                      false))
+                              ? SizedBox()
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Text(
+                                        "Employee Management".tr,
+                                        style: TextStyle(
+                                          color: themeChange.getThem()
+                                              ? AppThemeData.grey400
+                                              : AppThemeData.grey500,
+                                          fontFamily: AppThemeData.semiBold,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Container(
+                                          width: Responsive.width(100, context),
+                                          decoration: ShapeDecoration(
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey900
+                                                : AppThemeData.grey50,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12)),
+                                          ),
+                                          child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10,
+                                                      vertical: 8),
+                                              child: Column(children: [
+                                                if (Constant
+                                                        .getEmployeeRolePermission(
+                                                            module:
+                                                                "Employee Role",
+                                                            pType: ActionType
+                                                                .isView) ==
+                                                    true)
+                                                  cardDecoration(
+                                                    themeChange,
+                                                    controller,
+                                                    Container(
+                                                      width: 44,
+                                                      height: 44,
+                                                      decoration:
+                                                          ShapeDecoration(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .info600
+                                                            : AppThemeData
+                                                                .info50,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      120),
+                                                        ),
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(12),
+                                                        child: SvgPicture.asset(
+                                                          "assets/icons/ic_manage_delivery_man.svg",
+                                                          colorFilter:
+                                                              ColorFilter.mode(
+                                                                  AppThemeData
+                                                                      .info400,
+                                                                  BlendMode
+                                                                      .srcIn),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    "Employee Role",
+                                                    () {
+                                                      Get.to(
+                                                          const RoleScreen());
+                                                    },
+                                                  ),
+                                                if (Constant
+                                                        .getEmployeeRolePermission(
+                                                            module:
+                                                                "All Employee",
+                                                            pType: ActionType
+                                                                .isView) ==
+                                                    true)
+                                                  cardDecoration(
+                                                    themeChange,
+                                                    controller,
+                                                    Container(
+                                                      width: 44,
+                                                      height: 44,
+                                                      decoration:
+                                                          ShapeDecoration(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .info600
+                                                            : AppThemeData
+                                                                .info50,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      120),
+                                                        ),
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(12),
+                                                        child: SvgPicture.asset(
+                                                          "assets/icons/ic_employee.svg",
+                                                          colorFilter:
+                                                              ColorFilter.mode(
+                                                                  AppThemeData
+                                                                      .info400,
+                                                                  BlendMode
+                                                                      .srcIn),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    "All Employee",
+                                                    () {
+                                                      Get.to(
+                                                          EmployeeListScreen());
+                                                    },
+                                                  )
+                                              ])))
+                                    ]),
+                          (Constant.isRestaurantVerification == true &&
+                                      controller.userModel.value
+                                              .isDocumentVerify ==
+                                          false) ||
+                                  (controller.userModel.value.vendorID ==
+                                          null ||
+                                      controller.userModel.value.vendorID
+                                              ?.isEmpty ==
+                                          true) ||
+                                  (controller.userModel.value.subscriptionPlan
+                                          ?.features?.dineIn ==
+                                      false)
                               ? const SizedBox()
                               : Constant.isDineInEnable &&
-                                      ((Constant.getEmployeeRolePermission(module: "Dine in Restaurant", pType: ActionType.isView) == true ||
-                                          Constant.getEmployeeRolePermission(module: "Dine in Requests", pType: ActionType.isView) == true))
+                                      ((Constant.getEmployeeRolePermission(
+                                                  module: "Dine in Restaurant",
+                                                  pType: ActionType.isView) ==
+                                              true ||
+                                          Constant.getEmployeeRolePermission(
+                                                  module: "Dine in Requests",
+                                                  pType: ActionType.isView) ==
+                                              true))
                                   ? Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         const SizedBox(
                                           height: 20,
@@ -531,7 +865,9 @@ class ProfileScreen extends StatelessWidget {
                                         Text(
                                           "Dine-in Information".tr,
                                           style: TextStyle(
-                                            color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500,
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey400
+                                                : AppThemeData.grey500,
                                             fontFamily: AppThemeData.semiBold,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -542,51 +878,93 @@ class ProfileScreen extends StatelessWidget {
                                         Container(
                                           width: Responsive.width(100, context),
                                           decoration: ShapeDecoration(
-                                            color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey900
+                                                : AppThemeData.grey50,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12)),
                                           ),
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 8),
                                             child: Column(
                                               children: [
-                                                if (Constant.getEmployeeRolePermission(module: "Dine in Restaurant", pType: ActionType.isView) == true)
+                                                if (Constant.getEmployeeRolePermission(
+                                                        module:
+                                                            "Dine in Restaurant",
+                                                        pType: ActionType
+                                                            .isView) ==
+                                                    true)
                                                   cardDecoration(
                                                     themeChange,
                                                     controller,
                                                     Container(
                                                       width: 44,
                                                       height: 44,
-                                                      decoration: ShapeDecoration(
-                                                        color: themeChange.getThem() ? AppThemeData.primary600 : AppThemeData.primary50,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(120),
+                                                      decoration:
+                                                          ShapeDecoration(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .primary600
+                                                            : AppThemeData
+                                                                .primary50,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      120),
                                                         ),
                                                       ),
                                                       child: Padding(
-                                                        padding: const EdgeInsets.all(10),
-                                                        child: SvgPicture.asset("assets/icons/ic_knife_fork.svg"),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        child: SvgPicture.asset(
+                                                            "assets/icons/ic_knife_fork.svg"),
                                                       ),
                                                     ),
                                                     "Dine in Restaurant",
                                                     () {
-                                                      Get.to(const DineInCreateScreen());
+                                                      Get.to(
+                                                          const DineInCreateScreen());
                                                     },
                                                   ),
-                                                if (Constant.getEmployeeRolePermission(module: "Dine in Requests", pType: ActionType.isView) == true)
+                                                if (Constant
+                                                        .getEmployeeRolePermission(
+                                                            module:
+                                                                "Dine in Requests",
+                                                            pType: ActionType
+                                                                .isView) ==
+                                                    true)
                                                   cardDecoration(
                                                     themeChange,
                                                     controller,
                                                     Container(
                                                       width: 44,
                                                       height: 44,
-                                                      decoration: ShapeDecoration(
-                                                        color: themeChange.getThem() ? AppThemeData.primary600 : AppThemeData.primary50,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(120),
+                                                      decoration:
+                                                          ShapeDecoration(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .primary600
+                                                            : AppThemeData
+                                                                .primary50,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      120),
                                                         ),
                                                       ),
                                                       child: Padding(
-                                                        padding: const EdgeInsets.all(10),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
                                                         child: SvgPicture.asset(
                                                           "assets/icons/ic_people-unknown.svg",
                                                         ),
@@ -594,8 +972,13 @@ class ProfileScreen extends StatelessWidget {
                                                     ),
                                                     "Dine in Requests",
                                                     () {
-                                                      DashBoardController dashBoardController = Get.find<DashBoardController>();
-                                                      dashBoardController.selectedIndex.value = 1;
+                                                      DashBoardController
+                                                          dashBoardController =
+                                                          Get.find<
+                                                              DashBoardController>();
+                                                      dashBoardController
+                                                          .selectedIndex
+                                                          .value = 1;
                                                     },
                                                   ),
                                               ],
@@ -605,8 +988,19 @@ class ProfileScreen extends StatelessWidget {
                                       ],
                                     )
                                   : const SizedBox(),
-                          if ((Constant.getEmployeeRolePermission(module: "Subscription Packages", pType: ActionType.isView) == true) ||
-                              (Constant.getEmployeeRolePermission(module: "Subscription History", pType: ActionType.isView) == true))
+                          // Subscription feature is postponed — hide the whole
+                          // "Subscription Management" section (packages +
+                          // history). Flip Constant.isSubscriptionFeatureEnabled
+                          // to bring it back.
+                          if (Constant.isSubscriptionFeatureEnabled &&
+                              ((Constant.getEmployeeRolePermission(
+                                          module: "Subscription Packages",
+                                          pType: ActionType.isView) ==
+                                      true) ||
+                                  (Constant.getEmployeeRolePermission(
+                                          module: "Subscription History",
+                                          pType: ActionType.isView) ==
+                                      true)))
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -616,7 +1010,9 @@ class ProfileScreen extends StatelessWidget {
                                 Text(
                                   "Subscription Management".tr,
                                   style: TextStyle(
-                                    color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500,
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey400
+                                        : AppThemeData.grey500,
                                     fontFamily: AppThemeData.semiBold,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -627,16 +1023,33 @@ class ProfileScreen extends StatelessWidget {
                                 Container(
                                   width: Responsive.width(100, context),
                                   decoration: ShapeDecoration(
-                                    color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey900
+                                        : AppThemeData.grey50,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12)),
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 8),
                                     child: Column(
                                       children: [
-                                        (((Constant.isSubscriptionModelApplied == true || Constant.adminCommission?.isEnabled == true) &&
-                                                    controller.userModel.value.role != Constant.userRoleEmployee) &&
-                                                Constant.getEmployeeRolePermission(module: "Subscription Packages", pType: ActionType.isView) == true)
+                                        (((Constant.isSubscriptionModelApplied ==
+                                                            true ||
+                                                        Constant.adminCommission
+                                                                ?.isEnabled ==
+                                                            true) &&
+                                                    controller.userModel.value
+                                                            .role !=
+                                                        Constant
+                                                            .userRoleEmployee) &&
+                                                Constant.getEmployeeRolePermission(
+                                                        module:
+                                                            "Subscription Packages",
+                                                        pType: ActionType
+                                                            .isView) ==
+                                                    true)
                                             ? cardDecoration(
                                                 themeChange,
                                                 controller,
@@ -644,27 +1057,46 @@ class ProfileScreen extends StatelessWidget {
                                                   width: 44,
                                                   height: 44,
                                                   decoration: ShapeDecoration(
-                                                    color: themeChange.getThem() ? AppThemeData.driverApp50.withAlpha(20) : AppThemeData.driverApp50,
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(120),
+                                                    color: themeChange.getThem()
+                                                        ? AppThemeData
+                                                            .driverApp50
+                                                            .withAlpha(20)
+                                                        : AppThemeData
+                                                            .driverApp50,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              120),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(10),
-                                                    child: SvgPicture.asset("assets/icons/ic_subscription.svg"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    child: SvgPicture.asset(
+                                                        "assets/icons/ic_subscription.svg"),
                                                   ),
                                                 ),
                                                 "Subscription Packages",
                                                 () {
-                                                  Get.to(const SubscriptionPlanScreen(), arguments: {'isProfile': true})?.then((value) {
+                                                  Get.to(
+                                                      const SubscriptionPlanScreen(),
+                                                      arguments: {
+                                                        'isProfile': true
+                                                      })?.then((value) {
                                                     if (value == true) {
-                                                      controller.getUserProfile();
+                                                      controller
+                                                          .getUserProfile();
                                                     }
                                                   });
                                                 },
                                               )
                                             : SizedBox(),
-                                        if (Constant.getEmployeeRolePermission(module: "Subscription History", pType: ActionType.isView) == true)
+                                        if (Constant.getEmployeeRolePermission(
+                                                module: "Subscription History",
+                                                pType: ActionType.isView) ==
+                                            true)
                                           cardDecoration(
                                             themeChange,
                                             controller,
@@ -672,13 +1104,19 @@ class ProfileScreen extends StatelessWidget {
                                               width: 44,
                                               height: 44,
                                               decoration: ShapeDecoration(
-                                                color: themeChange.getThem() ? AppThemeData.driverApp50.withAlpha(20) : AppThemeData.driverApp50,
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.driverApp50
+                                                        .withAlpha(20)
+                                                    : AppThemeData.driverApp50,
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(120),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          120),
                                                 ),
                                               ),
                                               child: Padding(
-                                                padding: const EdgeInsets.all(10),
+                                                padding:
+                                                    const EdgeInsets.all(10),
                                                 child: SvgPicture.asset(
                                                   "assets/icons/ic_history.svg",
                                                 ),
@@ -686,7 +1124,8 @@ class ProfileScreen extends StatelessWidget {
                                             ),
                                             "Subscription History",
                                             () {
-                                              Get.to(const SubscriptionHistoryScreen());
+                                              Get.to(
+                                                  const SubscriptionHistoryScreen());
                                             },
                                           ),
                                       ],
@@ -695,13 +1134,26 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                          ((Constant.isRestaurantVerification == true && controller.userModel.value.isDocumentVerify == false) ||
-                                  (controller.userModel.value.vendorID == null || controller.userModel.value.vendorID!.isEmpty))
+                          ((Constant.isRestaurantVerification == true &&
+                                      controller.userModel.value
+                                              .isDocumentVerify ==
+                                          false) ||
+                                  (controller.userModel.value.vendorID ==
+                                          null ||
+                                      controller
+                                          .userModel.value.vendorID!.isEmpty))
                               ? const SizedBox()
-                              : ((Constant.getEmployeeRolePermission(module: "Offers", pType: ActionType.isView) == true) ||
-                                      (Constant.getEmployeeRolePermission(module: "Special Discounts", pType: ActionType.isView) == true))
+                              : ((Constant.getEmployeeRolePermission(
+                                              module: "Offers",
+                                              pType: ActionType.isView) ==
+                                          true) ||
+                                      (Constant.getEmployeeRolePermission(
+                                              module: "Special Discounts",
+                                              pType: ActionType.isView) ==
+                                          true))
                                   ? Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         const SizedBox(
                                           height: 20,
@@ -709,7 +1161,9 @@ class ProfileScreen extends StatelessWidget {
                                         Text(
                                           "Offers & Discounts".tr,
                                           style: TextStyle(
-                                            color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500,
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey400
+                                                : AppThemeData.grey500,
                                             fontFamily: AppThemeData.semiBold,
                                             fontWeight: FontWeight.w500,
                                           ),
@@ -720,51 +1174,94 @@ class ProfileScreen extends StatelessWidget {
                                         Container(
                                           width: Responsive.width(100, context),
                                           decoration: ShapeDecoration(
-                                            color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                            color: themeChange.getThem()
+                                                ? AppThemeData.grey900
+                                                : AppThemeData.grey50,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12)),
                                           ),
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 8),
                                             child: Column(
                                               children: [
-                                                if (Constant.getEmployeeRolePermission(module: "Offers", pType: ActionType.isView) == true)
+                                                if (Constant
+                                                        .getEmployeeRolePermission(
+                                                            module: "Offers",
+                                                            pType: ActionType
+                                                                .isView) ==
+                                                    true)
                                                   cardDecoration(
                                                     themeChange,
                                                     controller,
                                                     Container(
                                                       width: 44,
                                                       height: 44,
-                                                      decoration: ShapeDecoration(
-                                                        color: themeChange.getThem() ? AppThemeData.success600 : AppThemeData.success50,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(120),
+                                                      decoration:
+                                                          ShapeDecoration(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .success600
+                                                            : AppThemeData
+                                                                .success50,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      120),
                                                         ),
                                                       ),
                                                       child: Padding(
-                                                        padding: const EdgeInsets.all(10),
-                                                        child: SvgPicture.asset("assets/icons/ic_gift_box.svg"),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
+                                                        child: SvgPicture.asset(
+                                                            "assets/icons/ic_gift_box.svg"),
                                                       ),
                                                     ),
                                                     "Offers",
                                                     () {
-                                                      Get.to(const OfferScreen());
+                                                      Get.to(
+                                                          const OfferScreen());
                                                     },
                                                   ),
-                                                if (Constant.specialDiscountOfferEnable == true && (Constant.getEmployeeRolePermission(module: "Special Discounts", pType: ActionType.isView) == true))
+                                                if (Constant.specialDiscountOfferEnable ==
+                                                        true &&
+                                                    (Constant.getEmployeeRolePermission(
+                                                            module:
+                                                                "Special Discounts",
+                                                            pType: ActionType
+                                                                .isView) ==
+                                                        true))
                                                   cardDecoration(
                                                     themeChange,
                                                     controller,
                                                     Container(
                                                       width: 44,
                                                       height: 44,
-                                                      decoration: ShapeDecoration(
-                                                        color: themeChange.getThem() ? AppThemeData.success600 : AppThemeData.success50,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(120),
+                                                      decoration:
+                                                          ShapeDecoration(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .success600
+                                                            : AppThemeData
+                                                                .success50,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      120),
                                                         ),
                                                       ),
                                                       child: Padding(
-                                                        padding: const EdgeInsets.all(10),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(10),
                                                         child: SvgPicture.asset(
                                                           "assets/icons/ic_coupon.svg",
                                                         ),
@@ -772,7 +1269,8 @@ class ProfileScreen extends StatelessWidget {
                                                     ),
                                                     "Special Discounts",
                                                     () {
-                                                      Get.to(const SpecialDiscountScreen());
+                                                      Get.to(
+                                                          const SpecialDiscountScreen());
                                                     },
                                                   ),
                                               ],
@@ -788,7 +1286,9 @@ class ProfileScreen extends StatelessWidget {
                           Text(
                             "Preferences".tr,
                             style: TextStyle(
-                              color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500,
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey400
+                                  : AppThemeData.grey500,
                               fontFamily: AppThemeData.semiBold,
                               fontWeight: FontWeight.w500,
                             ),
@@ -799,11 +1299,15 @@ class ProfileScreen extends StatelessWidget {
                           Container(
                             width: Responsive.width(100, context),
                             decoration: ShapeDecoration(
-                              color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey900
+                                  : AppThemeData.grey50,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 8),
                               child: Column(
                                 children: [
                                   cardDecoration(
@@ -813,14 +1317,18 @@ class ProfileScreen extends StatelessWidget {
                                       width: 44,
                                       height: 44,
                                       decoration: ShapeDecoration(
-                                        color: themeChange.getThem() ? AppThemeData.warning600 : AppThemeData.warning50,
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.warning600
+                                            : AppThemeData.warning50,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(120),
+                                          borderRadius:
+                                              BorderRadius.circular(120),
                                         ),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(10),
-                                        child: SvgPicture.asset("assets/icons/ic_language.svg"),
+                                        child: SvgPicture.asset(
+                                            "assets/icons/ic_language.svg"),
                                       ),
                                     ),
                                     "Change Language",
@@ -835,9 +1343,12 @@ class ProfileScreen extends StatelessWidget {
                                       width: 44,
                                       height: 44,
                                       decoration: ShapeDecoration(
-                                        color: themeChange.getThem() ? AppThemeData.warning600 : AppThemeData.warning50,
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.warning600
+                                            : AppThemeData.warning50,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(120),
+                                          borderRadius:
+                                              BorderRadius.circular(120),
                                         ),
                                       ),
                                       child: Padding(
@@ -860,7 +1371,9 @@ class ProfileScreen extends StatelessWidget {
                           Text(
                             "Social".tr,
                             style: TextStyle(
-                              color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500,
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey400
+                                  : AppThemeData.grey500,
                               fontFamily: AppThemeData.semiBold,
                               fontWeight: FontWeight.w500,
                             ),
@@ -871,11 +1384,15 @@ class ProfileScreen extends StatelessWidget {
                           Container(
                             width: Responsive.width(100, context),
                             decoration: ShapeDecoration(
-                              color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey900
+                                  : AppThemeData.grey50,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 8),
                               child: Column(
                                 children: [
                                   cardDecoration(
@@ -885,14 +1402,18 @@ class ProfileScreen extends StatelessWidget {
                                       width: 44,
                                       height: 44,
                                       decoration: ShapeDecoration(
-                                        color: themeChange.getThem() ? AppThemeData.info600 : AppThemeData.info50,
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.info600
+                                            : AppThemeData.info50,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(120),
+                                          borderRadius:
+                                              BorderRadius.circular(120),
                                         ),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(10),
-                                        child: SvgPicture.asset("assets/icons/ic_share.svg"),
+                                        child: SvgPicture.asset(
+                                            "assets/icons/ic_share.svg"),
                                       ),
                                     ),
                                     "Share app",
@@ -909,9 +1430,12 @@ class ProfileScreen extends StatelessWidget {
                                       width: 44,
                                       height: 44,
                                       decoration: ShapeDecoration(
-                                        color: themeChange.getThem() ? AppThemeData.info600 : AppThemeData.info50,
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.info600
+                                            : AppThemeData.info50,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(120),
+                                          borderRadius:
+                                              BorderRadius.circular(120),
                                         ),
                                       ),
                                       child: Padding(
@@ -923,7 +1447,8 @@ class ProfileScreen extends StatelessWidget {
                                     ),
                                     "Rate the app",
                                     () {
-                                      final InAppReview inAppReview = InAppReview.instance;
+                                      final InAppReview inAppReview =
+                                          InAppReview.instance;
                                       inAppReview.requestReview();
                                     },
                                   ),
@@ -937,7 +1462,9 @@ class ProfileScreen extends StatelessWidget {
                           Text(
                             "Legal".tr,
                             style: TextStyle(
-                              color: themeChange.getThem() ? AppThemeData.grey400 : AppThemeData.grey500,
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey400
+                                  : AppThemeData.grey500,
                               fontFamily: AppThemeData.semiBold,
                               fontWeight: FontWeight.w500,
                             ),
@@ -948,14 +1475,19 @@ class ProfileScreen extends StatelessWidget {
                           Container(
                             width: Responsive.width(100, context),
                             decoration: ShapeDecoration(
-                              color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey900
+                                  : AppThemeData.grey50,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 8),
                               child: Column(
                                 children: [
-                                  if (Constant.userModel?.role != Constant.userRoleEmployee)
+                                  if (Constant.userModel?.role !=
+                                      Constant.userRoleEmployee)
                                     cardDecoration(
                                       themeChange,
                                       controller,
@@ -963,14 +1495,18 @@ class ProfileScreen extends StatelessWidget {
                                         width: 44,
                                         height: 44,
                                         decoration: ShapeDecoration(
-                                          color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100,
+                                          color: themeChange.getThem()
+                                              ? AppThemeData.grey800
+                                              : AppThemeData.grey100,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(120),
+                                            borderRadius:
+                                                BorderRadius.circular(120),
                                           ),
                                         ),
                                         child: Padding(
                                           padding: const EdgeInsets.all(10),
-                                          child: SvgPicture.asset("assets/icons/ic_documention.svg"),
+                                          child: SvgPicture.asset(
+                                              "assets/icons/ic_documention.svg"),
                                         ),
                                       ),
                                       "Document Verifications",
@@ -985,14 +1521,21 @@ class ProfileScreen extends StatelessWidget {
                                       width: 44,
                                       height: 44,
                                       decoration: ShapeDecoration(
-                                        color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100,
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.grey800
+                                            : AppThemeData.grey100,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(120),
+                                          borderRadius:
+                                              BorderRadius.circular(120),
                                         ),
                                       ),
                                       child: Padding(
                                         padding: const EdgeInsets.all(10),
-                                        child: SvgPicture.asset("assets/icons/ic_help_support.svg", colorFilter: ColorFilter.mode(AppThemeData.grey700, BlendMode.srcIn)),
+                                        child: SvgPicture.asset(
+                                            "assets/icons/ic_help_support.svg",
+                                            colorFilter: ColorFilter.mode(
+                                                AppThemeData.grey700,
+                                                BlendMode.srcIn)),
                                       ),
                                     ),
                                     "Help & Support",
@@ -1009,9 +1552,12 @@ class ProfileScreen extends StatelessWidget {
                                       width: 44,
                                       height: 44,
                                       decoration: ShapeDecoration(
-                                        color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100,
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.grey800
+                                            : AppThemeData.grey100,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(120),
+                                          borderRadius:
+                                              BorderRadius.circular(120),
                                         ),
                                       ),
                                       child: Padding(
@@ -1035,9 +1581,12 @@ class ProfileScreen extends StatelessWidget {
                                       width: 44,
                                       height: 44,
                                       decoration: ShapeDecoration(
-                                        color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100,
+                                        color: themeChange.getThem()
+                                            ? AppThemeData.grey800
+                                            : AppThemeData.grey100,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(120),
+                                          borderRadius:
+                                              BorderRadius.circular(120),
                                         ),
                                       ),
                                       child: Padding(
@@ -1064,28 +1613,43 @@ class ProfileScreen extends StatelessWidget {
                           Container(
                             width: Responsive.width(100, context),
                             decoration: ShapeDecoration(
-                              color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              color: themeChange.getThem()
+                                  ? AppThemeData.grey900
+                                  : AppThemeData.grey50,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
                               child: Column(
                                 children: [
-                                  cardDecoration(themeChange, controller, SvgPicture.asset("assets/icons/ic_logout.svg"), "Log out", () {
+                                  cardDecoration(
+                                      themeChange,
+                                      controller,
+                                      SvgPicture.asset(
+                                          "assets/icons/ic_logout.svg"),
+                                      "Log out", () {
                                     showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
                                           return CustomDialogBox(
                                             title: "Log out".tr,
-                                            descriptions: "Are you sure you want to log out? You will need to enter your credentials to log back in.".tr,
+                                            descriptions:
+                                                "Are you sure you want to log out? You will need to enter your credentials to log back in."
+                                                    .tr,
                                             positiveString: "Log out".tr,
                                             negativeString: "Cancel".tr,
                                             positiveClick: () async {
-                                              await AudioPlayerService.playSound(false);
+                                              await AudioPlayerService
+                                                  .playSound(false);
                                               Constant.userModel!.fcmToken = "";
-                                              await FireStoreUtils.updateUser(Constant.userModel!);
+                                              await FireStoreUtils.updateUser(
+                                                  Constant.userModel!);
                                               Constant.userModel = null;
-                                              await Supabase.instance.client.auth.signOut();
+                                              await Supabase
+                                                  .instance.client.auth
+                                                  .signOut();
                                               Get.offAll(const LoginScreen());
                                             },
                                             negativeClick: () {
@@ -1116,19 +1680,27 @@ class ProfileScreen extends StatelessWidget {
                                     builder: (BuildContext context) {
                                       return CustomDialogBox(
                                         title: "Delete Account".tr,
-                                        descriptions: "Are you sure you want to delete your account? This action is irreversible and will permanently remove all your data.".tr,
+                                        descriptions:
+                                            "Are you sure you want to delete your account? This action is irreversible and will permanently remove all your data."
+                                                .tr,
                                         positiveString: "Delete".tr,
                                         negativeString: "Cancel".tr,
                                         positiveClick: () async {
-                                          ShowToastDialog.showLoader("Please wait".tr);
-                                          await controller.deleteUserFromServer();
-                                          await FireStoreUtils.deleteUser().then((value) {
+                                          ShowToastDialog.showLoader(
+                                              "Please wait".tr);
+                                          await controller
+                                              .deleteUserFromServer();
+                                          await FireStoreUtils.deleteUser()
+                                              .then((value) {
                                             ShowToastDialog.closeLoader();
                                             if (value == true) {
-                                              ShowToastDialog.showToast("Account deleted successfully".tr);
+                                              ShowToastDialog.showToast(
+                                                  "Account deleted successfully"
+                                                      .tr);
                                               Get.offAll(const LoginScreen());
                                             } else {
-                                              ShowToastDialog.showToast("Contact Administrator".tr);
+                                              ShowToastDialog.showToast(
+                                                  "Contact Administrator".tr);
                                             }
                                           });
                                         },
@@ -1147,7 +1719,8 @@ class ProfileScreen extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  SvgPicture.asset("assets/icons/ic_delete.svg"),
+                                  SvgPicture.asset(
+                                      "assets/icons/ic_delete.svg"),
                                   const SizedBox(
                                     width: 10,
                                   ),
@@ -1157,7 +1730,9 @@ class ProfileScreen extends StatelessWidget {
                                     style: TextStyle(
                                       fontFamily: AppThemeData.medium,
                                       fontSize: 16,
-                                      color: themeChange.getThem() ? AppThemeData.danger300 : AppThemeData.danger300,
+                                      color: themeChange.getThem()
+                                          ? AppThemeData.danger300
+                                          : AppThemeData.danger300,
                                     ),
                                   )
                                 ],
@@ -1171,7 +1746,9 @@ class ProfileScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: AppThemeData.medium,
                                 fontSize: 14,
-                                color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900,
+                                color: themeChange.getThem()
+                                    ? AppThemeData.grey50
+                                    : AppThemeData.grey900,
                               ),
                             ),
                           )
@@ -1183,7 +1760,8 @@ class ProfileScreen extends StatelessWidget {
         });
   }
 
-  cardDecoration(themeChange, ProfileController controller, Widget image, String title, Function()? onPress) {
+  cardDecoration(themeChange, ProfileController controller, Widget image,
+      String title, Function()? onPress) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: InkWell(
@@ -1258,8 +1836,12 @@ class SubscriptionPlanWidget extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
       decoration: BoxDecoration(
-        border: Border.all(color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey200),
-        color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey800,
+        border: Border.all(
+            color: themeChange.getThem()
+                ? AppThemeData.grey800
+                : AppThemeData.grey200),
+        color:
+            themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey800,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Stack(
@@ -1301,14 +1883,21 @@ class SubscriptionPlanWidget extends StatelessWidget {
                               Text(
                                 userModel.subscriptionPlan?.name ?? '',
                                 style: TextStyle(
-                                  color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                                  color: themeChange.getThem()
+                                      ? AppThemeData.grey900
+                                      : AppThemeData.grey50,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   fontFamily: AppThemeData.semiBold,
                                 ),
                               ),
                               Text(
-                                userModel.subscriptionPlan?.type == 'free' ? userModel.subscriptionPlan?.description ?? '' : Constant.amountShow(amount: userModel.subscriptionPlan?.price),
+                                userModel.subscriptionPlan?.type == 'free'
+                                    ? userModel.subscriptionPlan?.description ??
+                                        ''
+                                    : Constant.amountShow(
+                                        amount:
+                                            userModel.subscriptionPlan?.price),
                                 style: const TextStyle(
                                   fontFamily: AppThemeData.medium,
                                   fontSize: 14,
@@ -1326,11 +1915,16 @@ class SubscriptionPlanWidget extends StatelessWidget {
                                   style: TextStyle(
                                     fontFamily: AppThemeData.medium,
                                     fontSize: 12,
-                                    color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey900
+                                        : AppThemeData.grey50,
                                   ),
                                 ),
                                 Text(
-                                  userModel.subscriptionPlan!.expiryDay == "-1" ? "LifeTime" : Constant.timestampToDate(userModel.subscriptionExpiryDate!),
+                                  userModel.subscriptionPlan!.expiryDay == "-1"
+                                      ? "LifeTime"
+                                      : Constant.timestampToDate(
+                                          userModel.subscriptionExpiryDate!),
                                   style: const TextStyle(
                                     fontFamily: AppThemeData.regular,
                                     fontSize: 12,
@@ -1358,7 +1952,8 @@ class SubscriptionPlanWidget extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 10),
                     child: Text(
-                      Constant.userModel!.vendorID != null && Constant.userModel!.vendorID!.isNotEmpty
+                      Constant.userModel!.vendorID != null &&
+                              Constant.userModel!.vendorID!.isNotEmpty
                           ? "${Constant.vendorAdminCommission?.commissionType == 'Percent' ? "${Constant.vendorAdminCommission?.amount} %" : "${Constant.amountShow(amount: Constant.vendorAdminCommission?.amount)} Flat"} ${"admin commission will be charged from customer billing orders and the admin charge will be earned after the order is accepted by the restaurant.".tr}"
                           : "${Constant.adminCommission?.commissionType == 'Percent' ? "${Constant.adminCommission?.amount} %" : "${Constant.amountShow(amount: Constant.adminCommission?.amount)} Flat"} ${"admin commission will be charged from customer billing orders and the admin charge will be earned after the order is accepted by the restaurant.".tr}",
                       style: const TextStyle(

@@ -34,7 +34,10 @@ class WalletScreen extends StatelessWidget {
               iconTheme: IconThemeData(color: AppThemeData.grey50, size: 20),
               title: Text(
                 "Wallet".tr,
-                style: TextStyle(color: AppThemeData.grey50, fontSize: 18, fontFamily: AppThemeData.medium),
+                style: TextStyle(
+                    color: AppThemeData.grey50,
+                    fontSize: 18,
+                    fontFamily: AppThemeData.medium),
               ),
             ),
             body: controller.isLoading.value
@@ -42,7 +45,8 @@ class WalletScreen extends StatelessWidget {
                 : Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
                         child: Container(
                           width: Responsive.width(100, context),
                           decoration: const BoxDecoration(
@@ -53,24 +57,32 @@ class WalletScreen extends StatelessWidget {
                             ),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 20),
                             child: Column(
                               children: [
                                 Text(
                                   "Total Wallet amount".tr,
                                   maxLines: 1,
                                   style: TextStyle(
-                                    color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey900,
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey900
+                                        : AppThemeData.grey900,
                                     fontSize: 16,
                                     overflow: TextOverflow.ellipsis,
                                     fontFamily: AppThemeData.regular,
                                   ),
                                 ),
                                 Text(
-                                  Constant.amountShow(amount: controller.userModel.value.walletAmount.toString()),
+                                  Constant.amountShow(
+                                      amount: controller
+                                          .userModel.value.walletAmount
+                                          .toString()),
                                   maxLines: 1,
                                   style: TextStyle(
-                                    color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey900,
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey900
+                                        : AppThemeData.grey900,
                                     fontSize: 22,
                                     overflow: TextOverflow.ellipsis,
                                     fontFamily: AppThemeData.bold,
@@ -91,17 +103,24 @@ class WalletScreen extends StatelessWidget {
                                             "Order Amount".tr,
                                             maxLines: 1,
                                             style: TextStyle(
-                                              color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey900,
+                                              color: themeChange.getThem()
+                                                  ? AppThemeData.grey900
+                                                  : AppThemeData.grey900,
                                               fontSize: 14,
                                               overflow: TextOverflow.ellipsis,
                                               fontFamily: AppThemeData.regular,
                                             ),
                                           ),
                                           Text(
-                                            Constant.amountShow(amount: controller.orderAmount.value.toString()),
+                                            Constant.amountShow(
+                                                amount: controller
+                                                    .orderAmount.value
+                                                    .toString()),
                                             maxLines: 1,
                                             style: TextStyle(
-                                              color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey900,
+                                              color: themeChange.getThem()
+                                                  ? AppThemeData.grey900
+                                                  : AppThemeData.grey900,
                                               fontSize: 18,
                                               overflow: TextOverflow.ellipsis,
                                               fontFamily: AppThemeData.bold,
@@ -117,17 +136,24 @@ class WalletScreen extends StatelessWidget {
                                             "Total Tax.".tr,
                                             maxLines: 1,
                                             style: TextStyle(
-                                              color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey900,
+                                              color: themeChange.getThem()
+                                                  ? AppThemeData.grey900
+                                                  : AppThemeData.grey900,
                                               fontSize: 14,
                                               overflow: TextOverflow.ellipsis,
                                               fontFamily: AppThemeData.regular,
                                             ),
                                           ),
                                           Text(
-                                            Constant.amountShow(amount: controller.taxAmount.value.toString()),
+                                            Constant.amountShow(
+                                                amount: controller
+                                                    .taxAmount.value
+                                                    .toString()),
                                             maxLines: 1,
                                             style: TextStyle(
-                                              color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey900,
+                                              color: themeChange.getThem()
+                                                  ? AppThemeData.grey900
+                                                  : AppThemeData.grey900,
                                               fontSize: 18,
                                               overflow: TextOverflow.ellipsis,
                                               fontFamily: AppThemeData.bold,
@@ -143,8 +169,16 @@ class WalletScreen extends StatelessWidget {
                                 ),
                                 Row(
                                   children: [
-                                    (Constant.isRestaurantVerification == true && controller.userModel.value.isDocumentVerify == false) ||
-                                            (controller.userModel.value.vendorID == null || controller.userModel.value.vendorID!.isEmpty)
+                                    (Constant.isRestaurantVerification ==
+                                                    true &&
+                                                controller.userModel.value
+                                                        .isDocumentVerify ==
+                                                    false) ||
+                                            (controller.userModel.value
+                                                        .vendorID ==
+                                                    null ||
+                                                controller.userModel.value
+                                                    .vendorID!.isEmpty)
                                         ? const SizedBox()
                                         : Expanded(
                                             child: RoundedButtonFill(
@@ -154,13 +188,33 @@ class WalletScreen extends StatelessWidget {
                                               color: AppThemeData.secondary300,
                                               textColor: AppThemeData.grey50,
                                               onPress: () {
-                                                if ((Constant.userModel!.userBankDetails != null && Constant.userModel!.userBankDetails!.accountNumber.isNotEmpty) ||
-                                                    controller.withdrawMethodModel.value.id != null) {
-                                                  controller.amountTextFieldController.value.text = '';
-                                                  controller.noteTextFieldController.value.text = '';
-                                                  withdrawalCardBottomSheet(context, controller);
+                                                if ((Constant.userModel!
+                                                                .userBankDetails !=
+                                                            null &&
+                                                        Constant
+                                                            .userModel!
+                                                            .userBankDetails!
+                                                            .accountNumber
+                                                            .isNotEmpty) ||
+                                                    controller
+                                                            .withdrawMethodModel
+                                                            .value
+                                                            .id !=
+                                                        null) {
+                                                  controller
+                                                      .amountTextFieldController
+                                                      .value
+                                                      .text = '';
+                                                  controller
+                                                      .noteTextFieldController
+                                                      .value
+                                                      .text = '';
+                                                  withdrawalCardBottomSheet(
+                                                      context, controller);
                                                 } else {
-                                                  ShowToastDialog.showToast("Please setup payment method".tr);
+                                                  ShowToastDialog.showToast(
+                                                      "Please setup payment method"
+                                                          .tr);
                                                 }
                                               },
                                             ),
@@ -184,7 +238,8 @@ class WalletScreen extends StatelessWidget {
                                       width: 5,
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
                                       child: InkWell(
                                         splashColor: Colors.transparent,
                                         onTap: () {
@@ -210,17 +265,25 @@ class WalletScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
                                 child: TabBar(
                                   onTap: (value) {
                                     controller.selectedTabIndex.value = value;
                                   },
                                   padding: EdgeInsets.zero,
-                                  labelStyle: TextStyle(fontFamily: AppThemeData.semiBold, color: AppThemeData.grey50),
-                                  labelColor: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey700,
-                                  unselectedLabelStyle: const TextStyle(fontFamily: AppThemeData.medium),
+                                  labelStyle: TextStyle(
+                                      fontFamily: AppThemeData.semiBold,
+                                      color: AppThemeData.grey50),
+                                  labelColor: themeChange.getThem()
+                                      ? AppThemeData.grey50
+                                      : AppThemeData.grey700,
+                                  unselectedLabelStyle: const TextStyle(
+                                      fontFamily: AppThemeData.medium),
                                   unselectedLabelColor: AppThemeData.grey600,
-                                  indicatorColor: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey700,
+                                  indicatorColor: themeChange.getThem()
+                                      ? AppThemeData.grey50
+                                      : AppThemeData.grey700,
                                   dividerColor: Colors.transparent,
                                   tabs: [
                                     Tab(
@@ -236,30 +299,58 @@ class WalletScreen extends StatelessWidget {
                                 child: TabBarView(
                                   children: [
                                     controller.walletTransactionList.isEmpty
-                                        ? Constant.showEmptyView(message: "Transaction history not found".tr)
+                                        ? Constant.showEmptyView(
+                                            message:
+                                                "Transaction history not found"
+                                                    .tr)
                                         : Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 10),
                                             child: Container(
                                               decoration: ShapeDecoration(
-                                                color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.grey900
+                                                    : AppThemeData.grey50,
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
                                                 ),
                                               ),
                                               child: Padding(
-                                                padding: const EdgeInsets.all(8.0),
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
                                                 child: ListView.separated(
                                                   padding: EdgeInsets.zero,
                                                   shrinkWrap: true,
-                                                  itemCount: controller.walletTransactionList.length,
-                                                  itemBuilder: (context, index) {
-                                                    WalletTransactionModel walletTractionModel = controller.walletTransactionList[index];
-                                                    return transactionCard(controller, themeChange, walletTractionModel);
+                                                  itemCount: controller
+                                                      .walletTransactionList
+                                                      .length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    WalletTransactionModel
+                                                        walletTractionModel =
+                                                        controller
+                                                                .walletTransactionList[
+                                                            index];
+                                                    return transactionCard(
+                                                        controller,
+                                                        themeChange,
+                                                        walletTractionModel);
                                                   },
-                                                  separatorBuilder: (BuildContext context, int index) {
+                                                  separatorBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
                                                     return Padding(
-                                                      padding: const EdgeInsets.symmetric(vertical: 5),
-                                                      child: MySeparator(color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 5),
+                                                      child: MySeparator(
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey700
+                                                              : AppThemeData
+                                                                  .grey200),
                                                     );
                                                   },
                                                 ),
@@ -267,30 +358,57 @@ class WalletScreen extends StatelessWidget {
                                             ),
                                           ),
                                     controller.withdrawalList.isEmpty
-                                        ? Constant.showEmptyView(message: "Transaction history not found".tr)
+                                        ? Constant.showEmptyView(
+                                            message:
+                                                "Transaction history not found"
+                                                    .tr)
                                         : Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 10),
                                             child: Container(
                                               decoration: ShapeDecoration(
-                                                color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
+                                                color: themeChange.getThem()
+                                                    ? AppThemeData.grey900
+                                                    : AppThemeData.grey50,
                                                 shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(12),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
                                                 ),
                                               ),
                                               child: Padding(
-                                                padding: const EdgeInsets.all(8.0),
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
                                                 child: ListView.separated(
                                                   padding: EdgeInsets.zero,
                                                   shrinkWrap: true,
-                                                  itemCount: controller.withdrawalList.length,
-                                                  itemBuilder: (context, index) {
-                                                    WithdrawalModel walletTractionModel = controller.withdrawalList[index];
-                                                    return transactionCardWithdrawal(controller, themeChange, walletTractionModel);
+                                                  itemCount: controller
+                                                      .withdrawalList.length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    WithdrawalModel
+                                                        walletTractionModel =
+                                                        controller
+                                                                .withdrawalList[
+                                                            index];
+                                                    return transactionCardWithdrawal(
+                                                        controller,
+                                                        themeChange,
+                                                        walletTractionModel);
                                                   },
-                                                  separatorBuilder: (BuildContext context, int index) {
+                                                  separatorBuilder:
+                                                      (BuildContext context,
+                                                          int index) {
                                                     return Padding(
-                                                      padding: const EdgeInsets.symmetric(vertical: 5),
-                                                      child: MySeparator(color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          vertical: 5),
+                                                      child: MySeparator(
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey700
+                                                              : AppThemeData
+                                                                  .grey200),
                                                     );
                                                   },
                                                 ),
@@ -366,7 +484,8 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  Future withdrawalCardBottomSheet(BuildContext context, WalletController controller) {
+  Future withdrawalCardBottomSheet(
+      BuildContext context, WalletController controller) {
     return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -385,7 +504,8 @@ class WalletScreen extends StatelessWidget {
                   () => Scaffold(
                     body: SingleChildScrollView(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
@@ -397,7 +517,12 @@ class WalletScreen extends StatelessWidget {
                                   Expanded(
                                     child: Text(
                                       "Withdrawal".tr,
-                                      style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800, fontSize: 18, fontFamily: AppThemeData.semiBold),
+                                      style: TextStyle(
+                                          color: themeChange.getThem()
+                                              ? AppThemeData.grey100
+                                              : AppThemeData.grey800,
+                                          fontSize: 18,
+                                          fontFamily: AppThemeData.semiBold),
                                     ),
                                   ),
                                   InkWell(
@@ -411,58 +536,97 @@ class WalletScreen extends StatelessWidget {
                             ),
                             TextFieldWidget(
                               title: 'Withdrawal amount'.tr,
-                              controller: controller.amountTextFieldController.value,
+                              controller:
+                                  controller.amountTextFieldController.value,
                               hintText: 'Enter withdrawal amount'.tr,
-                              textInputType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+                              textInputType:
+                                  const TextInputType.numberWithOptions(
+                                      signed: true, decimal: true),
                               textInputAction: TextInputAction.done,
                               inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp('[0-9]')),
+                                FilteringTextInputFormatter.allow(
+                                    RegExp('[0-9]')),
                               ],
                               prefix: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 14),
                                 child: Text(
                                   "${Constant.currencyModel!.symbol}".tr,
-                                  style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontFamily: AppThemeData.semiBold, fontSize: 18),
+                                  style: TextStyle(
+                                      color: themeChange.getThem()
+                                          ? AppThemeData.grey50
+                                          : AppThemeData.grey900,
+                                      fontFamily: AppThemeData.semiBold,
+                                      fontSize: 18),
                                 ),
                               ),
                             ),
                             TextFieldWidget(
                               title: 'Notes'.tr,
-                              controller: controller.noteTextFieldController.value,
+                              controller:
+                                  controller.noteTextFieldController.value,
                               hintText: 'Add Notes'.tr,
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               child: Text(
                                 "Select Withdraw Method".tr,
-                                style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800, fontSize: 16, fontFamily: AppThemeData.medium),
+                                style: TextStyle(
+                                    color: themeChange.getThem()
+                                        ? AppThemeData.grey100
+                                        : AppThemeData.grey800,
+                                    fontSize: 16,
+                                    fontFamily: AppThemeData.medium),
                               ),
                             ),
                             Container(
-                              decoration: BoxDecoration(borderRadius: const BorderRadius.all(Radius.circular(20)), color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50),
+                              decoration: BoxDecoration(
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(20)),
+                                  color: themeChange.getThem()
+                                      ? AppThemeData.grey900
+                                      : AppThemeData.grey50),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 10),
                                 child: Column(
                                   children: [
-                                    Constant.userModel!.userBankDetails == null || Constant.userModel!.userBankDetails!.accountNumber.isEmpty
+                                    Constant.userModel!.userBankDetails ==
+                                                null ||
+                                            Constant.userModel!.userBankDetails!
+                                                .accountNumber.isEmpty
                                         ? const SizedBox()
                                         : InkWell(
                                             splashColor: Colors.transparent,
                                             onTap: () {
-                                              controller.selectedValue.value = 0;
+                                              controller.selectedValue.value =
+                                                  0;
                                             },
                                             child: Row(
                                               children: [
                                                 Container(
                                                   decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                                      borderRadius: BorderRadius.circular(8),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey700
+                                                              : AppThemeData
+                                                                  .grey200),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(10),
-                                                    child: SvgPicture.asset("assets/icons/ic_building_four.svg"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    child: SvgPicture.asset(
+                                                        "assets/icons/ic_building_four.svg"),
                                                   ),
                                                 ),
                                                 const SizedBox(
@@ -471,15 +635,27 @@ class WalletScreen extends StatelessWidget {
                                                 Expanded(
                                                   child: Text(
                                                     "Bank Transfer".tr,
-                                                    style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                                    style: TextStyle(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .grey50
+                                                            : AppThemeData
+                                                                .grey900,
+                                                        fontSize: 16,
+                                                        fontFamily: AppThemeData
+                                                            .medium),
                                                   ),
                                                 ),
                                                 Radio(
                                                   value: 0,
-                                                  groupValue: controller.selectedValue.value,
-                                                  activeColor: AppThemeData.secondary300,
+                                                  groupValue: controller
+                                                      .selectedValue.value,
+                                                  activeColor:
+                                                      AppThemeData.secondary300,
                                                   onChanged: (value) {
-                                                    controller.selectedValue.value = value!;
+                                                    controller.selectedValue
+                                                        .value = value!;
                                                   },
                                                 ),
                                               ],
@@ -488,25 +664,44 @@ class WalletScreen extends StatelessWidget {
                                     const SizedBox(
                                       height: 10,
                                     ),
-                                    controller.withdrawMethodModel.value.flutterWave == null || (controller.flutterWaveSettingData.value.isWithdrawEnabled == false)
+                                    controller.withdrawMethodModel.value
+                                                    .flutterWave ==
+                                                null ||
+                                            (controller.flutterWaveSettingData
+                                                    .value.isWithdrawEnabled ==
+                                                false)
                                         ? const SizedBox()
                                         : InkWell(
                                             splashColor: Colors.transparent,
                                             onTap: () {
-                                              controller.selectedValue.value = 1;
+                                              controller.selectedValue.value =
+                                                  1;
                                             },
                                             child: Row(
                                               children: [
                                                 Container(
                                                   decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                                      borderRadius: BorderRadius.circular(8),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey700
+                                                              : AppThemeData
+                                                                  .grey200),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(10),
-                                                    child: Image.asset("assets/images/flutterwave.png"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    child: Image.asset(
+                                                        "assets/images/flutterwave.png"),
                                                   ),
                                                 ),
                                                 const SizedBox(
@@ -515,15 +710,27 @@ class WalletScreen extends StatelessWidget {
                                                 Expanded(
                                                   child: Text(
                                                     "Flutter wave".tr,
-                                                    style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                                    style: TextStyle(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .grey50
+                                                            : AppThemeData
+                                                                .grey900,
+                                                        fontSize: 16,
+                                                        fontFamily: AppThemeData
+                                                            .medium),
                                                   ),
                                                 ),
                                                 Radio(
                                                   value: 1,
-                                                  groupValue: controller.selectedValue.value,
-                                                  activeColor: AppThemeData.secondary300,
+                                                  groupValue: controller
+                                                      .selectedValue.value,
+                                                  activeColor:
+                                                      AppThemeData.secondary300,
                                                   onChanged: (value) {
-                                                    controller.selectedValue.value = value!;
+                                                    controller.selectedValue
+                                                        .value = value!;
                                                   },
                                                 ),
                                               ],
@@ -532,25 +739,44 @@ class WalletScreen extends StatelessWidget {
                                     const SizedBox(
                                       height: 10,
                                     ),
-                                    controller.withdrawMethodModel.value.paypal == null || (controller.paypalDataModel.value.isWithdrawEnabled == false)
+                                    controller.withdrawMethodModel.value
+                                                    .paypal ==
+                                                null ||
+                                            (controller.paypalDataModel.value
+                                                    .isWithdrawEnabled ==
+                                                false)
                                         ? const SizedBox()
                                         : InkWell(
                                             splashColor: Colors.transparent,
                                             onTap: () {
-                                              controller.selectedValue.value = 2;
+                                              controller.selectedValue.value =
+                                                  2;
                                             },
                                             child: Row(
                                               children: [
                                                 Container(
                                                   decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                                      borderRadius: BorderRadius.circular(8),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey700
+                                                              : AppThemeData
+                                                                  .grey200),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(10),
-                                                    child: Image.asset("assets/images/paypal.png"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    child: Image.asset(
+                                                        "assets/images/paypal.png"),
                                                   ),
                                                 ),
                                                 const SizedBox(
@@ -559,15 +785,27 @@ class WalletScreen extends StatelessWidget {
                                                 Expanded(
                                                   child: Text(
                                                     "PayPal".tr,
-                                                    style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                                    style: TextStyle(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .grey50
+                                                            : AppThemeData
+                                                                .grey900,
+                                                        fontSize: 16,
+                                                        fontFamily: AppThemeData
+                                                            .medium),
                                                   ),
                                                 ),
                                                 Radio(
                                                   value: 2,
-                                                  groupValue: controller.selectedValue.value,
-                                                  activeColor: AppThemeData.secondary300,
+                                                  groupValue: controller
+                                                      .selectedValue.value,
+                                                  activeColor:
+                                                      AppThemeData.secondary300,
                                                   onChanged: (value) {
-                                                    controller.selectedValue.value = value!;
+                                                    controller.selectedValue
+                                                        .value = value!;
                                                   },
                                                 ),
                                               ],
@@ -576,69 +814,44 @@ class WalletScreen extends StatelessWidget {
                                     const SizedBox(
                                       height: 10,
                                     ),
-                                    controller.withdrawMethodModel.value.razorpay == null || (controller.razorPayModel.value.isWithdrawEnabled == false)
+                                    controller.withdrawMethodModel.value
+                                                    .stripe ==
+                                                null ||
+                                            (controller.stripeSettingData.value
+                                                    .isWithdrawEnabled ==
+                                                false)
                                         ? const SizedBox()
                                         : InkWell(
                                             splashColor: Colors.transparent,
                                             onTap: () {
-                                              controller.selectedValue.value = 3;
+                                              controller.selectedValue.value =
+                                                  3;
                                             },
                                             child: Row(
                                               children: [
                                                 Container(
                                                   decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                                      borderRadius: BorderRadius.circular(8),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      side: BorderSide(
+                                                          width: 1,
+                                                          color: themeChange
+                                                                  .getThem()
+                                                              ? AppThemeData
+                                                                  .grey700
+                                                              : AppThemeData
+                                                                  .grey200),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8),
                                                     ),
                                                   ),
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(10),
-                                                    child: Image.asset("assets/images/razorpay.png"),
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Expanded(
-                                                  child: Text(
-                                                    "RazorPay".tr,
-                                                    style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
-                                                  ),
-                                                ),
-                                                Radio(
-                                                  value: 3,
-                                                  groupValue: controller.selectedValue.value,
-                                                  activeColor: AppThemeData.secondary300,
-                                                  onChanged: (value) {
-                                                    controller.selectedValue.value = value!;
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    controller.withdrawMethodModel.value.stripe == null || (controller.stripeSettingData.value.isWithdrawEnabled == false)
-                                        ? const SizedBox()
-                                        : InkWell(
-                                            splashColor: Colors.transparent,
-                                            onTap: () {
-                                              controller.selectedValue.value = 4;
-                                            },
-                                            child: Row(
-                                              children: [
-                                                Container(
-                                                  decoration: ShapeDecoration(
-                                                    shape: RoundedRectangleBorder(
-                                                      side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey700 : AppThemeData.grey200),
-                                                      borderRadius: BorderRadius.circular(8),
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(10),
-                                                    child: Image.asset("assets/images/stripe.png"),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            10),
+                                                    child: Image.asset(
+                                                        "assets/images/stripe.png"),
                                                   ),
                                                 ),
                                                 const SizedBox(
@@ -647,15 +860,27 @@ class WalletScreen extends StatelessWidget {
                                                 Expanded(
                                                   child: Text(
                                                     "Stripe".tr,
-                                                    style: TextStyle(color: themeChange.getThem() ? AppThemeData.grey50 : AppThemeData.grey900, fontSize: 16, fontFamily: AppThemeData.medium),
+                                                    style: TextStyle(
+                                                        color: themeChange
+                                                                .getThem()
+                                                            ? AppThemeData
+                                                                .grey50
+                                                            : AppThemeData
+                                                                .grey900,
+                                                        fontSize: 16,
+                                                        fontFamily: AppThemeData
+                                                            .medium),
                                                   ),
                                                 ),
                                                 Radio(
-                                                  value: 4,
-                                                  groupValue: controller.selectedValue.value,
-                                                  activeColor: AppThemeData.secondary300,
+                                                  value: 3,
+                                                  groupValue: controller
+                                                      .selectedValue.value,
+                                                  activeColor:
+                                                      AppThemeData.secondary300,
                                                   onChanged: (value) {
-                                                    controller.selectedValue.value = value!;
+                                                    controller.selectedValue
+                                                        .value = value!;
                                                   },
                                                 ),
                                               ],
@@ -670,8 +895,11 @@ class WalletScreen extends StatelessWidget {
                       ),
                     ),
                     bottomNavigationBar: Container(
-                      color: themeChange.getThem() ? AppThemeData.grey900 : AppThemeData.grey50,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                      color: themeChange.getThem()
+                          ? AppThemeData.grey900
+                          : AppThemeData.grey50,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 20),
                       child: Padding(
                         padding: const EdgeInsets.only(bottom: 20),
                         child: RoundedButtonFill(
@@ -681,36 +909,57 @@ class WalletScreen extends StatelessWidget {
                           textColor: AppThemeData.grey50,
                           fontSizes: 16,
                           onPress: () async {
-                            if (controller.amountTextFieldController.value.text.isEmpty) {
-                              ShowToastDialog.showToast("Please enter amount".tr);
-                            } else if (controller.noteTextFieldController.value.text.isEmpty) {
+                            if (controller
+                                .amountTextFieldController.value.text.isEmpty) {
+                              ShowToastDialog.showToast(
+                                  "Please enter amount".tr);
+                            } else if (controller
+                                .noteTextFieldController.value.text.isEmpty) {
                               ShowToastDialog.showToast("Please enter note".tr);
-                            } else if (double.parse(controller.userModel.value.walletAmount.toString()) <= 0) {
-                              ShowToastDialog.showToast("You are not able to place Withdraw request due to insufficient wallet amount".tr);
+                            } else if (double.parse(controller
+                                    .userModel.value.walletAmount
+                                    .toString()) <=
+                                0) {
+                              ShowToastDialog.showToast(
+                                  "You are not able to place Withdraw request due to insufficient wallet amount"
+                                      .tr);
                             } else {
-                              if (controller.isWithdrawBTnEnabled.value == true) {
+                              if (controller.isWithdrawBTnEnabled.value ==
+                                  true) {
                                 controller.isWithdrawBTnEnabled.value = false;
-                                WithdrawalModel withdrawHistory = WithdrawalModel(
-                                  amount: controller.amountTextFieldController.value.text,
+                                WithdrawalModel withdrawHistory =
+                                    WithdrawalModel(
+                                  amount: controller
+                                      .amountTextFieldController.value.text,
                                   vendorID: controller.userModel.value.vendorID,
                                   paymentStatus: "Pending",
                                   paidDate: DateTime.now(),
                                   id: Constant.getUuid(),
-                                  note: controller.noteTextFieldController.value.text,
-                                  withdrawMethod: controller.selectedValue.value == 0
+                                  note: controller
+                                      .noteTextFieldController.value.text,
+                                  withdrawMethod: controller
+                                              .selectedValue.value ==
+                                          0
                                       ? "bank"
                                       : controller.selectedValue.value == 1
                                           ? "flutterwave"
                                           : controller.selectedValue.value == 2
                                               ? "paypal"
-                                              : controller.selectedValue.value == 3
-                                                  ? "razorpay"
-                                                  : "stripe",
+                                              : "stripe",
                                 );
-                                await FireStoreUtils.withdrawWalletAmount(withdrawHistory);
-                                await FireStoreUtils.updateUserWallet(amount: "-${controller.amountTextFieldController.value.text}", userId: FireStoreUtils.getCurrentUid()).then((value) {
+                                await FireStoreUtils.withdrawWalletAmount(
+                                    withdrawHistory);
+                                await FireStoreUtils.updateUserWallet(
+                                        amount:
+                                            "-${controller.amountTextFieldController.value.text}",
+                                        userId: FireStoreUtils.getCurrentUid())
+                                    .then((value) {
                                   Get.back();
-                                  FireStoreUtils.sendPayoutMail(amount: controller.amountTextFieldController.value.text, payoutrequestid: withdrawHistory.id.toString());
+                                  FireStoreUtils.sendPayoutMail(
+                                      amount: controller
+                                          .amountTextFieldController.value.text,
+                                      payoutrequestid:
+                                          withdrawHistory.id.toString());
                                   controller.getWalletTransaction(false);
                                 });
                                 controller.isWithdrawBTnEnabled.value = true;
@@ -726,7 +975,8 @@ class WalletScreen extends StatelessWidget {
             ));
   }
 
-  transactionCardWithdrawal(WalletController controller, themeChange, WithdrawalModel transactionModel) {
+  transactionCardWithdrawal(WalletController controller, themeChange,
+      WithdrawalModel transactionModel) {
     return InkWell(
       splashColor: Colors.transparent,
       onTap: () async {},
@@ -737,7 +987,11 @@ class WalletScreen extends StatelessWidget {
             Container(
               decoration: ShapeDecoration(
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
+                  side: BorderSide(
+                      width: 1,
+                      color: themeChange.getThem()
+                          ? AppThemeData.grey800
+                          : AppThemeData.grey100),
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
@@ -769,7 +1023,9 @@ class WalletScreen extends StatelessWidget {
                                 fontSize: 16,
                                 fontFamily: AppThemeData.semiBold,
                                 fontWeight: FontWeight.w600,
-                                color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800,
+                                color: themeChange.getThem()
+                                    ? AppThemeData.grey100
+                                    : AppThemeData.grey800,
                               ),
                             ),
                             Text(
@@ -778,7 +1034,9 @@ class WalletScreen extends StatelessWidget {
                                 fontSize: 14,
                                 fontFamily: AppThemeData.medium,
                                 fontWeight: FontWeight.w600,
-                                color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800,
+                                color: themeChange.getThem()
+                                    ? AppThemeData.grey100
+                                    : AppThemeData.grey800,
                               ),
                             ),
                           ],
@@ -815,8 +1073,15 @@ class WalletScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        Constant.timestampToDateTime(transactionModel.paidDate!),
-                        style: TextStyle(fontSize: 12, fontFamily: AppThemeData.medium, fontWeight: FontWeight.w500, color: themeChange.getThem() ? AppThemeData.grey200 : AppThemeData.grey700),
+                        Constant.timestampToDateTime(
+                            transactionModel.paidDate!),
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontFamily: AppThemeData.medium,
+                            fontWeight: FontWeight.w500,
+                            color: themeChange.getThem()
+                                ? AppThemeData.grey200
+                                : AppThemeData.grey700),
                       ),
                     ],
                   ),
@@ -829,14 +1094,18 @@ class WalletScreen extends StatelessWidget {
     );
   }
 
-  transactionCard(WalletController controller, themeChange, WalletTransactionModel transactionModel) {
+  transactionCard(WalletController controller, themeChange,
+      WalletTransactionModel transactionModel) {
     return InkWell(
       splashColor: Colors.transparent,
       onTap: () async {
-        await FireStoreUtils.getOrderByOrderId(transactionModel.orderId.toString()).then(
+        await FireStoreUtils.getOrderByOrderId(
+                transactionModel.orderId.toString())
+            .then(
           (value) {
             if (value != null) {
-              Get.to(const OrderDetailsScreen(), arguments: {"orderModel": value});
+              Get.to(const OrderDetailsScreen(),
+                  arguments: {"orderModel": value});
             }
           },
         );
@@ -848,7 +1117,11 @@ class WalletScreen extends StatelessWidget {
             Container(
               decoration: ShapeDecoration(
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 1, color: themeChange.getThem() ? AppThemeData.grey800 : AppThemeData.grey100),
+                  side: BorderSide(
+                      width: 1,
+                      color: themeChange.getThem()
+                          ? AppThemeData.grey800
+                          : AppThemeData.grey100),
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
@@ -883,16 +1156,23 @@ class WalletScreen extends StatelessWidget {
                             fontSize: 16,
                             fontFamily: AppThemeData.semiBold,
                             fontWeight: FontWeight.w600,
-                            color: themeChange.getThem() ? AppThemeData.grey100 : AppThemeData.grey800,
+                            color: themeChange.getThem()
+                                ? AppThemeData.grey100
+                                : AppThemeData.grey800,
                           ),
                         ),
                       ),
                       Text(
-                        transactionModel.isTopup == false ? "-${Constant.amountShow(amount: transactionModel.amount.toString())}" : Constant.amountShow(amount: transactionModel.amount.toString()),
+                        transactionModel.isTopup == false
+                            ? "-${Constant.amountShow(amount: transactionModel.amount.toString())}"
+                            : Constant.amountShow(
+                                amount: transactionModel.amount.toString()),
                         style: TextStyle(
                           fontSize: 16,
                           fontFamily: AppThemeData.medium,
-                          color: transactionModel.isTopup == true ? AppThemeData.success400 : AppThemeData.danger300,
+                          color: transactionModel.isTopup == true
+                              ? AppThemeData.success400
+                              : AppThemeData.danger300,
                         ),
                       )
                     ],
@@ -902,7 +1182,13 @@ class WalletScreen extends StatelessWidget {
                   ),
                   Text(
                     Constant.timestampToDateTime(transactionModel.date!),
-                    style: TextStyle(fontSize: 12, fontFamily: AppThemeData.medium, fontWeight: FontWeight.w500, color: themeChange.getThem() ? AppThemeData.grey200 : AppThemeData.grey700),
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontFamily: AppThemeData.medium,
+                        fontWeight: FontWeight.w500,
+                        color: themeChange.getThem()
+                            ? AppThemeData.grey200
+                            : AppThemeData.grey700),
                   ),
                 ],
               ),

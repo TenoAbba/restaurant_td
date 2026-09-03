@@ -544,7 +544,7 @@ class AddRestaurantScreen extends StatelessWidget {
                                           width: 1),
                                     ),
                                   ),
-                                  value:
+                                  initialValue:
                                       controller.selectedZone.value.id == null
                                           ? null
                                           : controller.selectedZone.value,
@@ -723,8 +723,8 @@ class AddRestaurantScreen extends StatelessWidget {
                                   VendorCategoryModel>.multiSelection(
                                 enabled: Constant.userModel?.role !=
                                     Constant.userRoleEmployee,
-                                items: (String s, LoadProps? data) =>
-                                    controller.vendorCategoryList,
+                                items: (String? filter, LoadProps? props) async =>
+                                    controller.vendorCategoryList.toList(),
                                 key: controller.myKey1,
                                 suffixProps: DropdownSuffixProps(
                                   dropdownButtonProps: DropdownButtonProps(

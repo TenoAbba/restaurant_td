@@ -675,6 +675,8 @@ const Map<String, String> enUS = {
   'Razorpay account Id': 'Razorpay account Id',
   'You have to allow location permission to use your location':
       'You have to allow location permission to use your location',
+  'Location permission is not configured for this app':
+      'Location permission is not configured for this app',
   'Failed to Pick :': 'Failed to Pick :',
   'Please enter advertisement title': 'Please enter advertisement title',
   'Please enter description': 'Please enter description',

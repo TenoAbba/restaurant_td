@@ -8,7 +8,6 @@ import 'package:restaurant_td/constant/constant.dart';
 import 'package:restaurant_td/constant/show_toast_dialog.dart';
 import 'package:restaurant_td/models/payment_model/flutter_wave_model.dart';
 import 'package:restaurant_td/models/payment_model/paypal_model.dart';
-import 'package:restaurant_td/models/payment_model/razorpay_model.dart';
 import 'package:restaurant_td/models/payment_model/stripe_model.dart';
 import 'package:restaurant_td/models/user_model.dart';
 import 'package:restaurant_td/models/wallet_transaction_model.dart';
@@ -20,11 +19,14 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 class WalletController extends GetxController {
   RxBool isLoading = true.obs;
 
-  Rx<TextEditingController> amountTextFieldController = TextEditingController().obs;
-  Rx<TextEditingController> noteTextFieldController = TextEditingController().obs;
+  Rx<TextEditingController> amountTextFieldController =
+      TextEditingController().obs;
+  Rx<TextEditingController> noteTextFieldController =
+      TextEditingController().obs;
 
   Rx<UserModel> userModel = UserModel().obs;
-  RxList<WalletTransactionModel> walletTransactionList = <WalletTransactionModel>[].obs;
+  RxList<WalletTransactionModel> walletTransactionList =
+      <WalletTransactionModel>[].obs;
   RxList<WithdrawalModel> withdrawalList = <WithdrawalModel>[].obs;
 
   RxInt selectedTabIndex = 0.obs;
@@ -32,7 +34,6 @@ class WalletController extends GetxController {
 
   Rx<WithdrawMethodModel> withdrawMethodModel = WithdrawMethodModel().obs;
 
-  Rx<RazorPayModel> razorPayModel = RazorPayModel().obs;
   Rx<PayPalModel> paypalDataModel = PayPalModel().obs;
   Rx<StripeModel> stripeSettingData = StripeModel().obs;
   Rx<FlutterWaveModel> flutterWaveSettingData = FlutterWaveModel().obs;
@@ -70,8 +71,10 @@ class WalletController extends GetxController {
     PdfGridRow row = grid.rows.add();
     for (var element in walletTransactionList) {
       row.cells[0].value = element.note.toString();
-      row.cells[1].value = Constant.orderId(orderId: element.orderId.toString());
-      row.cells[2].value = Constant.amountShow(amount: element.amount.toString());
+      row.cells[1].value =
+          Constant.orderId(orderId: element.orderId.toString());
+      row.cells[2].value =
+          Constant.amountShow(amount: element.amount.toString());
       row.cells[3].value = Constant.timestampToDateTime(element.date!);
       row = grid.rows.add();
     }
@@ -89,7 +92,8 @@ class WalletController extends GetxController {
     document.dispose();
 
     // Get the application directory
-    final Directory? downloadsDirectory = Directory('/storage/emulated/0/Download');
+    final Directory? downloadsDirectory =
+        Directory('/storage/emulated/0/Download');
     if (downloadsDirectory != null) {
       final String path = '${downloadsDirectory.path}/statement.pdf';
       final File file = File(path);
@@ -108,8 +112,11 @@ class WalletController extends GetxController {
 
   Future<void> getWalletTransaction(bool isFilter) async {
     if (isFilter) {
-      await FireStoreUtils.getFilterWalletTransaction(DateTime(startDate.value.year, startDate.value.month, startDate.value.day, 00, 00),
-              DateTime(endDate.value.year, endDate.value.month, endDate.value.day, 23, 59))
+      await FireStoreUtils.getFilterWalletTransaction(
+              DateTime(startDate.value.year, startDate.value.month,
+                  startDate.value.day, 00, 00),
+              DateTime(endDate.value.year, endDate.value.month,
+                  endDate.value.day, 23, 59))
           .then(
         (value) {
           if (value != null) {
@@ -117,7 +124,9 @@ class WalletController extends GetxController {
             orderAmount.value = 0;
             walletTransactionList.value = value;
 
-            walletTransactionList.where((element) => element.paymentMethod == "tax").toList();
+            walletTransactionList
+                .where((element) => element.paymentMethod == "tax")
+                .toList();
             walletTransactionList.forEach(
               (element) {
                 if (element.paymentMethod == "tax") {
@@ -128,9 +137,11 @@ class WalletController extends GetxController {
                   }
                 } else {
                   if (element.isTopup == false) {
-                    orderAmount.value -= double.parse(element.amount.toString());
+                    orderAmount.value -=
+                        double.parse(element.amount.toString());
                   } else {
-                    orderAmount.value += double.parse(element.amount.toString());
+                    orderAmount.value +=
+                        double.parse(element.amount.toString());
                   }
                 }
               },
@@ -146,7 +157,9 @@ class WalletController extends GetxController {
             orderAmount.value = 0;
             walletTransactionList.value = value;
 
-            walletTransactionList.where((element) => element.paymentMethod == "tax").toList();
+            walletTransactionList
+                .where((element) => element.paymentMethod == "tax")
+                .toList();
             walletTransactionList.forEach(
               (element) {
                 if (element.paymentMethod == "tax") {
@@ -157,9 +170,11 @@ class WalletController extends GetxController {
                   }
                 } else {
                   if (element.isTopup == false) {
-                    orderAmount.value -= double.parse(element.amount.toString());
+                    orderAmount.value -=
+                        double.parse(element.amount.toString());
                   } else {
-                    orderAmount.value += double.parse(element.amount.toString());
+                    orderAmount.value +=
+                        double.parse(element.amount.toString());
                   }
                 }
               },
@@ -188,17 +203,30 @@ class WalletController extends GetxController {
   }
 
   getPaymentMethod() async {
-    final _razorRow = await Supabase.instance.client.from(CollectionName.settings).select('data').eq('key','razorpaySettings').maybeSingle();
-    if (_razorRow != null) razorPayModel.value = RazorPayModel.fromJson(_razorRow['data'] ?? {});
+    final _paypalRow = await Supabase.instance.client
+        .from(CollectionName.settings)
+        .select('data')
+        .eq('key', 'paypalSettings')
+        .maybeSingle();
+    if (_paypalRow != null)
+      paypalDataModel.value = PayPalModel.fromJson(_paypalRow['data'] ?? {});
 
-    final _paypalRow = await Supabase.instance.client.from(CollectionName.settings).select('data').eq('key','paypalSettings').maybeSingle();
-    if (_paypalRow != null) paypalDataModel.value = PayPalModel.fromJson(_paypalRow['data'] ?? {});
+    final _stripeRow = await Supabase.instance.client
+        .from(CollectionName.settings)
+        .select('data')
+        .eq('key', 'stripeSettings')
+        .maybeSingle();
+    if (_stripeRow != null)
+      stripeSettingData.value = StripeModel.fromJson(_stripeRow['data'] ?? {});
 
-    final _stripeRow = await Supabase.instance.client.from(CollectionName.settings).select('data').eq('key','stripeSettings').maybeSingle();
-    if (_stripeRow != null) stripeSettingData.value = StripeModel.fromJson(_stripeRow['data'] ?? {});
-
-    final _fwRow = await Supabase.instance.client.from(CollectionName.settings).select('data').eq('key','flutterWave').maybeSingle();
-    if (_fwRow != null) flutterWaveSettingData.value = FlutterWaveModel.fromJson(_fwRow['data'] ?? {});
+    final _fwRow = await Supabase.instance.client
+        .from(CollectionName.settings)
+        .select('data')
+        .eq('key', 'flutterWave')
+        .maybeSingle();
+    if (_fwRow != null)
+      flutterWaveSettingData.value =
+          FlutterWaveModel.fromJson(_fwRow['data'] ?? {});
 
     await FireStoreUtils.getWithdrawMethod().then(
       (value) {
